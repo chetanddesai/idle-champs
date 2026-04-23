@@ -21,7 +21,7 @@ The site is intentionally **zero-backend**: no server code, no database, no anal
 
 Two gameplay areas are supported in V1. Each is a self-contained "category" with its own view, its own set of server calls, and its own actions:
 
-1. **Legendary Items** — view every champion's legendary slots at a glance; craft, upgrade, and reforge directly from the site.
+1. **Legendary Items (Forge Run Optimizer)** — pick your DPS champion, and the site highlights exactly which legendary upgrades and reforges actually move account power for that DPS, ranked by favor currency. See §3.2.
 2. **Specialization Choices** — view and update each champion's specialization picks across the player's saved formations.
 
 Additional categories (Patrons, Events, Chests, Blacksmith, Potions, etc.) are listed in §11 as future enhancements — the architecture is designed so adding a new category is a matter of adding a new view module, not rewriting the shell.
@@ -69,15 +69,15 @@ Additional categories (Patrons, Events, Chests, Blacksmith, Potions, etc.) are l
 **The visual language is shared with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs)** so the two read as one family. All favicon and touch-icon files are the same assets across both repos (committed to `img/`, no regeneration). The web app manifest lives at the repo root as `site.webmanifest`.
 
 
-| Asset                            | Specification                                                                                                                                                                |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `img/favicon.svg`                | SVG favicon — shared with ic-specs                                                                                                                                           |
-| `img/favicon-32x32.png`          | 32×32 PNG favicon — shared with ic-specs                                                                                                                                     |
-| `img/favicon-16x16.png`          | 16×16 PNG favicon — shared with ic-specs                                                                                                                                     |
-| `img/apple-touch-icon.png`       | 180×180 Apple touch icon — shared with ic-specs                                                                                                                              |
-| `img/android-chrome-192x192.png` | 192×192 Android icon — shared with ic-specs                                                                                                                                  |
-| `img/android-chrome-512x512.png` | 512×512 Android icon — shared with ic-specs                                                                                                                                  |
-| `site.webmanifest`               | Shared shape with ic-specs; `name` / `short_name` are specific to this site. `theme_color` and `background_color` remain `#0f0e17` to keep the visual family consistent.     |
+| Asset                            | Specification                                                                                                                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `img/favicon.svg`                | SVG favicon — shared with ic-specs                                                                                                                                       |
+| `img/favicon-32x32.png`          | 32×32 PNG favicon — shared with ic-specs                                                                                                                                 |
+| `img/favicon-16x16.png`          | 16×16 PNG favicon — shared with ic-specs                                                                                                                                 |
+| `img/apple-touch-icon.png`       | 180×180 Apple touch icon — shared with ic-specs                                                                                                                          |
+| `img/android-chrome-192x192.png` | 192×192 Android icon — shared with ic-specs                                                                                                                              |
+| `img/android-chrome-512x512.png` | 512×512 Android icon — shared with ic-specs                                                                                                                              |
+| `site.webmanifest`               | Shared shape with ic-specs; `name` / `short_name` are specific to this site. `theme_color` and `background_color` remain `#0f0e17` to keep the visual family consistent. |
 
 
 The `<head>` of `index.html` must reference the icons with the same paths and attribute order as the sibling `ic-specs` site:
@@ -172,30 +172,147 @@ The module is the **only** place in the codebase that knows the shape of the pla
 | Specialization Choices | `getallformationsaves`, `SaveFormation` (updating the `specializations` field), `getuserdetails` (fallback) |
 
 
-### 3.2 Category: Legendary Items
+### 3.2 Category: Legendary Items — Forge Run Optimizer
 
-#### Data sources
+The Legendary tab is **not** a generic roster browser; it is an opinionated **forge-run optimizer**. The mental model is: players do "forge runs" to level up legendaries, but an upgrade only moves account power if the legendary actually buffs the player's currently active **DPS champion**. Every other upgrade is wasted favor. The tab makes that math visible and the upgrade path obvious.
 
-- `getlegendarydetails` → legendary state per hero/slot + `costs_by_hero` (in Scales of Tiamat)
-- `getuserdetails` → hero roster, equipment slots, epic/legendary gear levels, current Scales of Tiamat balance
-- `getdefinitions` (with `filter=hero_defines,loot_defines`) → champion display names, slot display names
+The view always renders through a DPS lens. The user picks the DPS (e.g., Cazrin), the site classifies every legendary effect in the game against that DPS's hero record, and the UI shows only what's relevant plus a prioritized favor spend order.
 
-#### Display
+#### 3.2.1 Data sources
 
+- **`getlegendarydetails`** → legendary state per hero/slot (level, `effect_id`, `effects_unlocked`, `upgrade_cost`, `upgrade_favor_cost`, `upgrade_favor_required`, `reset_currency_id`) and `costs_by_hero` for crafts.
+- **`getuserdetails`** → hero roster (ownership), equipment slots, epic/legendary gear levels, current Scales of Tiamat balance, and per-favor currency balances in `details.loot` keyed by `reset_currency_id`.
+- **`getdefinitions`** (filtered) → `hero_defines`, `legendary_effect_defines`, `reset_currency_defines`, `loot_defines`. Provided from the bundled baseline in `data/`; see §4.2.
 
-| Element                      | Detail                                                                                                                                                                         |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Roster table**             | One row per champion. Columns for each of the 6 equipment slots. Each cell shows: epic iLvl, legendary level (or "—" if none), and a per-cell action button.                   |
-| **Scales of Tiamat balance** | Prominent header badge showing current balance + per-champion next-craft cost.                                                                                                 |
-| **Cell actions**             | **Craft** (slot has epic but no legendary), **Upgrade** (slot has a legendary), **Reforge** (slot has a legendary) — each with the cost displayed inline.                      |
-| **Filters**                  | Toggle: "Has legendaries" / "Can craft" / "All". Search by champion name. Sort by craft cost ascending.                                                                        |
-| **Confirmation**             | Every mutating action (craft/upgrade/reforge) shows an explicit confirmation dialog with cost before firing the API call. Reforge has extra copy warning that effects re-roll. |
-| **Refresh behavior**         | After any mutation, re-fetch `getlegendarydetails` and `getuserdetails` to update balance and state. Show a toast with the result.                                             |
+#### 3.2.2 Scope classification — "does this effect affect the DPS?"
 
+The Idle Champions API does **not** expose a structured targeting field for legendary effects. The targeting is encoded in the human-readable description template. Fortunately the template is a single regular grammar; we parse it once at bundle-refresh time and store a machine-readable scope tag per effect.
 
-#### Mobile layout
+**Effect shapes in the legendary pool** (as of refresh):
 
-Roster table collapses to a stack of per-champion cards. Each card has a 6-slot grid with touch-friendly action buttons. Sticky header shows the Scales of Tiamat balance.
+| `effect_string`              | `targets`             | Count | Semantic                                                              |
+| ---------------------------- | --------------------- | ----- | --------------------------------------------------------------------- |
+| `global_dps_multiplier_mult` | `["active_campaign"]` | 54    | Global; affects every champion in the active formation.               |
+| `hero_dps_multiplier_mult`   | `["all_slots"]`       | 56    | Per-hero scoped; affects only champions matching the scope in the description. |
+
+**Scope taxonomy** (parsed from the description of every `hero_dps_multiplier_mult` effect, all of which follow the pattern `"Increases the damage of all X by $(amount)%"`):
+
+| Scope kind         | Examples                                                                    | Hero record field to match              |
+| ------------------ | --------------------------------------------------------------------------- | --------------------------------------- |
+| `race`             | Human, Dwarf, Elf, Half-Elf, Dragonborn, Tiefling, Warforged, Gnome, Kobold, Aasimar, Aarakocra, Tabaxi, Tortle, Halfling, Firbolg, Gith, Githyanki, Giff, Plasmoid, Goliath, Genasi, Goblin, Minotaur, Lizardfolk, Saurial, Yuan-ti, Half-Orc | `hero.race` (exact)                     |
+| `gender`           | Male, Female, Nonbinary                                                     | `hero.gender` (exact)                   |
+| `alignment`        | Good, Evil, Lawful, Chaotic, Neutral                                        | `hero.alignment` (exact)                |
+| `damage_type`      | Melee, Ranged, Magic                                                        | `hero.damage_type` (exact)              |
+| `stat_threshold`   | "Champions with a STR score of 11 or higher" (and 13, 15; for STR/DEX/CON/INT/WIS/CHA) | `hero.base_stats[stat] >= min`          |
+
+Note: hero **class** is never used in legendary effect scoping. The game has a data typo "Halfing" → we normalize to "Halfling" at refresh time. Anything the parser can't classify is tagged `{"kind": "unknown"}` and surfaces a console warning so a new scope shape introduced by CE is caught quickly.
+
+**Runtime matcher (pure, deterministic, no I/O):**
+
+```js
+function effectAffectsHero(scope, hero) {
+  switch (scope.kind) {
+    case 'global':          return true;
+    case 'race':            return hero.race === scope.value;
+    case 'gender':          return hero.gender === scope.value;
+    case 'alignment':       return hero.alignment === scope.value;
+    case 'damage_type':     return hero.damage_type === scope.value;
+    case 'stat_threshold':  return (hero.base_stats[scope.stat] ?? 0) >= scope.min;
+    case 'unknown':         // fall through to conservative no
+    default:                return false;
+  }
+}
+```
+
+The site runs this once per legendary effect in the pool against the selected DPS; results cache in-session.
+
+#### 3.2.3 Core workflow
+
+1. User opens the Legendary tab.
+2. Site restores the last-selected DPS from `localStorage.icHelper.forgeRun.dpsHeroId`. If unset, shows the empty state: a DPS dropdown with the prompt *"Pick your DPS champion to start."* (no roster renders until a DPS is picked).
+3. User selects a DPS from the dropdown. The dropdown lists **all owned champions** (heroes with `user_details.heroes[id].has === true`), sorted alphabetically, with a small chip showing each hero's race/class for disambiguation.
+4. On selection, the site:
+   a. Stores `dpsHeroId` in `localStorage`.
+   b. Computes `affects = effectAffectsHero(scope, dps)` for every effect in the pool.
+   c. For each legendary slot in `getlegendarydetails`, classifies the slot as one of: **affecting**, **not affecting**, **reforge candidate**, or **empty**.
+   d. Renders the DPS header, favor priority panel, and upgrade candidate list (§3.2.4).
+
+#### 3.2.4 Layout
+
+**Header.** Centered DPS portrait + name; below it, a single-line chip row showing the five classification axes used by scope matching: `Human · Female · Good · Magic · STR 10 · DEX 14 · INT 16` etc. This makes the classification model legible to the user — they can see *why* a given legendary does or doesn't affect their pick. Scales of Tiamat balance is a badge to the right, matching ic-specs header pill style (§7.3).
+
+**Favor priority panel.** A ranked list of favor currencies, one row per currency the DPS would benefit from. Each row shows:
+
+| Column                        | Meaning                                                                                                   |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Rank + favor name             | 1…N, most DPS-affecting upgradeable legendaries first.                                                    |
+| Affecting count               | Total legendaries across all champions that affect the DPS and are tied to this favor currency.            |
+| Upgradeable now               | Subset of the above that can be upgraded right now (scales + favor balances both sufficient).             |
+| Current balance               | Player's current balance of this favor.                                                                   |
+
+**V1 ranking** is by *upgradeable-now count* (descending), tiebroken by *affecting count*. This is deliberately the simplest useful metric; a DPS-gain-per-favor-unit weighted ranking is V2 material (§9, decision 13).
+
+Clicking a favor row filters the upgrade candidate list to only that favor.
+
+**Upgrade candidate list.** One card per champion that has at least one affecting or reforge-candidate slot. Each card shows:
+
+- Hero portrait + name + class/race.
+- Six slot tiles laid out 1–6, each colored per the state table below.
+- Per-card summary: *"3 affecting · 2 upgradeable now · 1 reforge candidate"*.
+- Bulk action: **Upgrade all upgradeable** (fires `upgradelegendaryitem` once per affecting, upgradeable slot on this champion, with a single confirmation listing total favor + scales cost).
+
+Champions with zero affecting or reforge-candidate slots are hidden by default. A collapsed *"N champions have no contribution"* disclosure at the bottom lets the user expand them if desired.
+
+**Cell color semantics:**
+
+| Slot state                          | Visual                                       | Condition                                                                                                     | Available action          |
+| ----------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| **Affecting, upgradeable**          | `--accent-gold` filled border + level badge  | Current `effect_id` affects DPS AND scales + favor both sufficient for next upgrade.                          | **Upgrade**               |
+| **Affecting, blocked**              | Gold border + muted fill                     | Current `effect_id` affects DPS AND upgrade blocked (insufficient scales or favor).                           | Tooltip shows what's missing. |
+| **Not affecting**                   | `--text-muted` dim                           | Current `effect_id` does not affect DPS AND no effect in `effects_unlocked` for that slot would.              | None (no upside).         |
+| **Reforge candidate**               | Gold dashed border + `🔄`                    | Current `effect_id` does not affect DPS BUT `effects_unlocked` for that slot contains ≥ 1 effect that would. | **Reforge** (see §3.2.5). |
+| **Empty craftable**                 | Dotted outline + `+`                         | Slot has an epic but no legendary.                                                                            | Not in V1 forge-run scope; surfaced with tooltip link "Craft first" (opens confirm with scales cost). |
+
+Tile hover/tap reveals a small effect card: effect name (resolved from `legendary_effect_defines`), level, resolved description with `$(amount)` substituted, the scope kind + value, and the inline action button.
+
+#### 3.2.5 Reforge candidate detection
+
+A slot is a **reforge candidate** iff both of the following hold:
+
+1. The slot's current `effect_id`'s scope does **not** match the DPS.
+2. The slot's `effects_unlocked` pool contains **at least one** effect whose scope **does** match the DPS.
+
+If the unlocked pool has nothing for the DPS, reforging is pure gambling against a wasted roll and we do not flag it. Reforge candidate tiles show a tooltip listing the *specific* unlocked effects that would pay off, so the user can make an informed call before accepting the randomness of a reforge.
+
+Reforge action flow:
+
+1. User clicks the 🔄 on a reforge candidate tile.
+2. Modal confirms: reforge cost, list of effects in the unlocked pool that would hit for the DPS, and a clear warning that the new effect is random.
+3. On confirmation, fire `changelegendaryitem`.
+4. On success, re-fetch `getlegendarydetails` and re-classify the slot. Toast summarizes the new roll and whether it hit.
+
+#### 3.2.6 Action behavior
+
+| Action       | API call               | Confirmation required              | After success                                                                |
+| ------------ | ---------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
+| Upgrade      | `upgradelegendaryitem` | Single confirmation with full cost | Re-fetch `getlegendarydetails`; bump local state; toast.                     |
+| Bulk upgrade | N parallel `upgradelegendaryitem` calls | Single confirmation listing total scales + total favor by currency | Re-fetch `getlegendarydetails` once after all complete; toast summarizes.    |
+| Reforge      | `changelegendaryitem`  | Explicit confirmation with random-roll warning | Re-fetch `getlegendarydetails`; re-classify slot; toast.                     |
+| Craft        | `craftlegendaryitem`   | Confirmation with scales cost      | Re-fetch `getlegendarydetails`; re-classify slot; toast. **Out of scope for V1 forge-run flow** — surfaced only as a tooltip hint on empty slots. |
+
+#### 3.2.7 Empty state and error handling
+
+- **No DPS selected** → empty state with dropdown and one-sentence hint.
+- **No legendaries on any champion** → friendly "You don't have any legendaries crafted yet. A simple craft view is planned post-V1; for now, craft your first few from the in-game client." No blocking CTA.
+- **DPS classification returns `unknown` for one or more effects** → surface a small banner: "N effects couldn't be classified; please file an issue with the effect ID." Don't block the view.
+- **Session-level refresh button** in the header re-fetches `getlegendarydetails` + `getuserdetails`.
+
+#### 3.2.8 Mobile layout
+
+- Header chip row wraps to two lines if needed.
+- Favor priority panel becomes a horizontal scroll strip of currency cards above the upgrade list.
+- Champion cards stack vertically; slot tiles are a 6-tile grid (3×2 on very narrow screens) with touch-friendly 44×44 pt targets.
+- Sticky DPS + scales bar at the top; selecting a new DPS scrolls the list back to the top.
 
 ### 3.3 Category: Specialization Choices
 
@@ -226,7 +343,9 @@ Formation list stacks vertically. Tapping a formation opens a full-screen detail
 Landing view when valid credentials exist. Shows:
 
 - Account name, current Scales of Tiamat balance, last-sync timestamp.
-- Cards linking to each category (Legendary Items, Specialization Choices) with a one-line status summary (e.g., "12 legendaries crafted · 4 slots ready to craft").
+- Cards linking to each category:
+  - **Legendary Items** — if a DPS is remembered, one-line summary like *"DPS: Cazrin · 14 upgrades ready · 3 reforge candidates."* If no DPS has been picked yet, prompt *"Pick your DPS to start a forge run →"*.
+  - **Specialization Choices** — one-line summary like *"4 formations · 2 with pending recommendations."*
 - Settings icon top-right.
 - Manual "Refresh" button that forces a fresh `getuserdetails`.
 
@@ -255,14 +374,17 @@ Landing view when valid credentials exist. Shows:
 
 | File                                      | Contents                                                                                                                                                                                                                                                              | Approx size |
 | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `data/definitions.heroes.json`            | Trimmed `hero_defines`: one entry per hero with `id, name, seat_id, class, race, legendary_effect_id`. All other fields (graphic_ids, curves, feats, etc.) dropped.                                                                                                   | ~20 KB      |
-| `data/definitions.legendary-effects.json` | Trimmed `legendary_effect_defines`: one entry per effect with `id, effect_string, targets, description`. The `description` template uses `$amount` / `$(amount)` placeholders as documented in `[server-calls.md](./server-calls.md#resolving-legendary-effect-ids)`. | ~20 KB      |
-| `data/definitions.checksum.json`          | Metadata: `server_checksum` (null for filtered responses — server doesn't include a checksum when a `filter` is supplied), `fetched_at`, `hero_count`, `legendary_effect_count`, `source`.                                                                            | < 1 KB      |
+| `data/definitions.heroes.json`                  | Trimmed `hero_defines` — one entry per hero with `id`, `name`, `seat_id`, `class`, `race`, `gender`, `alignment`, `damage_type`, `base_stats` (`{STR,DEX,CON,INT,WIS,CHA}`), `legendary_effect_id`. The five classification axes used by the forge-run scope matcher (race, gender, alignment, damage_type, base_stats) are the exact fields consumed by §3.2.2. All other hero fields (graphic IDs, level curves, feats, etc.) dropped. | ~30 KB      |
+| `data/definitions.legendary-effects.json`       | Trimmed `legendary_effect_defines` — one entry per effect with `id`, `effect_string`, `targets`, `description`. The `description` template uses `$amount` / `$(amount)` placeholders as documented in `[server-calls.md](./server-calls.md#resolving-legendary-effect-ids)`. | ~20 KB      |
+| `data/definitions.legendary-effect-scopes.json` | **Derived**, not fetched. Produced by `scripts/refresh-defs.js` by parsing each effect's description. One entry per effect: `{id, kind, value?, stat?, min?}` where `kind ∈ {global, race, gender, alignment, damage_type, stat_threshold, unknown}`. Enables the O(1) runtime matcher in §3.2.2 with no runtime regex. | ~4 KB       |
+| `data/definitions.checksum.json`                | Metadata: `server_checksum` (null for filtered responses — server doesn't include a checksum when a `filter` is supplied), `fetched_at`, `hero_count`, `legendary_effect_count`, `scope_count`, `unknown_scope_ids` (effect IDs the scope parser couldn't classify — flag for investigation on next refresh), `source`. | < 1 KB      |
 
 
-Total bundle weight: **~40 KB** (comfortably under the §2.3 300 KB shell budget).
+Total bundle weight: **~55 KB** (comfortably under the §2.3 300 KB shell budget).
 
-**Fields dropped deliberately.** `hero_defines` entries from the live API are ~2 KB each (173 × 2 KB = ~340 KB). We keep only the six fields the UI uses and drop everything else. This is the single biggest contributor to the bundle staying ~20 KB.
+**Fields dropped deliberately.** `hero_defines` entries from the live API are ~2 KB each (173 × 2 KB = ~340 KB). We keep only the fields the UI and the scope matcher use and drop everything else. This is the single biggest contributor to the bundle staying in the tens-of-kilobytes range.
+
+**Scope derivation (at refresh time).** The refresh script parses every `hero_dps_multiplier_mult` effect's description against the template `"Increases the damage of all X by"` and maps the captured token to a `kind`/`value` pair per §3.2.2. Effects starting with `global_` are tagged `{kind: "global"}` without parsing. Any effect that doesn't match either shape is tagged `{kind: "unknown"}`, its ID is appended to `unknown_scope_ids`, and a stderr warning fires — making it obvious when a new game update introduces an effect shape the parser doesn't recognize. The known "Halfing" typo in the game data is normalized to "Halfling" at derivation time.
 
 #### Runtime read order
 
@@ -340,6 +462,7 @@ The script:
 ├── data/                           # Bundled trimmed game definitions (see §4.2)
 │   ├── definitions.heroes.json
 │   ├── definitions.legendary-effects.json
+│   ├── definitions.legendary-effect-scopes.json  # Derived scope tags, see §3.2.2 / §4.2
 │   └── definitions.checksum.json
 ├── scripts/
 │   └── refresh-defs.js             # Regenerates data/*.json from live getdefinitions (see §4.3)
@@ -499,20 +622,24 @@ The site uses the same public play-server endpoints the official game client use
 ## 9. Resolved Decisions
 
 
-| #   | Question                          | Decision                                                                                                                                                                                                                                                                                                                             |
-| --- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | **Hosting**                       | GitHub Pages, static only. No backend of any kind.                                                                                                                                                                                                                                                                                   |
-| 2   | **Credential storage**            | `localStorage` only; never transmitted except to the official Idle Champions play servers.                                                                                                                                                                                                                                           |
-| 3   | **Credential entry modes**        | Two: manual (`user_id` + `hash` fields) and support-URL paste (extract `user_id` + `device_hash` query params). Support URL path stores `device_hash` as the `hash` field.                                                                                                                                                           |
-| 4   | **Server-call module**            | Single `serverCalls.js` modeled after [Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls), exposing named functions per call. All retry / play-server-swap / hash-refresh logic lives here.                                                                                                                          |
-| 5   | **V1 categories**                 | Two: Legendary Items and Specialization Choices. Architecture supports adding more without shell changes.                                                                                                                                                                                                                            |
-| 6   | **Mobile parity**                 | Every action available on desktop must be available on mobile. Dense tables degrade to stacked cards.                                                                                                                                                                                                                                |
-| 7   | **Framework**                     | Vanilla HTML/CSS/JS. No React/Vue/Svelte build step. A tiny DOM helper module is acceptable.                                                                                                                                                                                                                                         |
-| 8   | **Data caching**                  | Definitions: bundled trimmed baseline in `data/*.json` (committed) + optional live-delta merge into `localStorage` (see §4.2). Play-server URL cached 24h. User/legendary state is in-memory per session and invalidated on mutation.                                                                                                |
-| 9   | **Disclaimer**                    | Footer + About section clearly state unaffiliated fan-made tool; trademarks belong to Codename Entertainment / Wizards of the Coast.                                                                                                                                                                                                 |
+| #   | Question                          | Decision                                                                                                                                                                                                                                                                                                                                                |
+| --- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Hosting**                       | GitHub Pages, static only. No backend of any kind.                                                                                                                                                                                                                                                                                                      |
+| 2   | **Credential storage**            | `localStorage` only; never transmitted except to the official Idle Champions play servers.                                                                                                                                                                                                                                                              |
+| 3   | **Credential entry modes**        | Two: manual (`user_id` + `hash` fields) and support-URL paste (extract `user_id` + `device_hash` query params). Support URL path stores `device_hash` as the `hash` field.                                                                                                                                                                              |
+| 4   | **Server-call module**            | Single `serverCalls.js` modeled after [Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls), exposing named functions per call. All retry / play-server-swap / hash-refresh logic lives here.                                                                                                                                             |
+| 5   | **V1 categories**                 | Two: Legendary Items and Specialization Choices. Architecture supports adding more without shell changes.                                                                                                                                                                                                                                               |
+| 6   | **Mobile parity**                 | Every action available on desktop must be available on mobile. Dense tables degrade to stacked cards.                                                                                                                                                                                                                                                   |
+| 7   | **Framework**                     | Vanilla HTML/CSS/JS. No React/Vue/Svelte build step. A tiny DOM helper module is acceptable.                                                                                                                                                                                                                                                            |
+| 8   | **Data caching**                  | Definitions: bundled trimmed baseline in `data/*.json` (committed) + optional live-delta merge into `localStorage` (see §4.2). Play-server URL cached 24h. User/legendary state is in-memory per session and invalidated on mutation.                                                                                                                   |
+| 9   | **Disclaimer**                    | Footer + About section clearly state unaffiliated fan-made tool; trademarks belong to Codename Entertainment / Wizards of the Coast.                                                                                                                                                                                                                    |
 | 10  | **Branding & styling**            | Shared with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). `img/` favicons and `site.webmanifest` are the same assets across both (see §2.4). CSS tokens, font stack, header/footer/card patterns are identical (see §7). The two sites read as one visual family; PRD §7 is the self-contained authoritative spec. |
-| 11  | **Definitions strategy**          | Ship trimmed baseline in `data/*.json` (committed), refresh via `scripts/refresh-defs.js` after major game updates, optionally fetch live deltas in the background and merge into `localStorage`. Runtime read order: localStorage → bundled `data/` → `(unknown …)` placeholder (see §4.2 & §4.3).                                  |
-| 12  | **Credential handling (tooling)** | `scripts/refresh-defs.js` reads credentials **only** from `.credentials.json` at the repo root. That file is gitignored. `.credentials.example.json` is the committed template. No CLI-arg or env-var fallback is provided, keeping the credential surface small and auditable.                                                      |
+| 11  | **Definitions strategy**          | Ship trimmed baseline in `data/*.json` (committed), refresh via `scripts/refresh-defs.js` after major game updates, optionally fetch live deltas in the background and merge into `localStorage`. Runtime read order: localStorage → bundled `data/` → `(unknown …)` placeholder (see §4.2 & §4.3).                                                     |
+| 12  | **Credential handling (tooling)** | `scripts/refresh-defs.js` reads credentials **only** from `.credentials.json` at the repo root. That file is gitignored. `.credentials.example.json` is the committed template. No CLI-arg or env-var fallback is provided, keeping the credential surface small and auditable.                                                                         |
+| 13  | **Legendary tab framing**         | The Legendary tab is a **DPS-first forge-run optimizer**, not a generic roster browser. Every view is rendered through a selected DPS champion; the roster is filtered to what affects that DPS. A generic browse / craft-everywhere view is explicitly out of scope for V1 (see §3.2).                                                                 |
+| 14  | **Legendary effect scope classification** | Derived at bundle-refresh time by parsing `legendary_effect_defines` descriptions into a `{kind, value\|stat+min}` tag per effect (see §3.2.2). Five scope kinds cover 100% of current effects: `race`, `gender`, `alignment`, `damage_type`, `stat_threshold`, plus `global`. Any unrecognized effect is tagged `unknown` and logged so new game content is caught explicitly. |
+| 15  | **Forge-run favor ranking**       | V1 ranks favor currencies by *count of upgradeable-now DPS-affecting legendaries* (descending, ties broken by total affecting count). Weighted "DPS-gain per favor unit" rankings are V2 material and explicitly deferred.                                                                                                                              |
+| 16  | **DPS selection persistence**     | Last-selected DPS hero ID stored at `localStorage.icHelper.forgeRun.dpsHeroId`. On first visit (nothing stored), the tab renders an empty state with a dropdown prompt; no auto-picking.                                                                                                                                                                |
 
 
 ---
@@ -545,8 +672,10 @@ The site uses the same public play-server endpoints the official game client use
 
 ## 12. Success Criteria
 
-- A player can go from "zero credentials" to "viewing their legendary roster" in under 60 seconds on both desktop and mobile.
+- A player can go from "zero credentials" to "seeing their ranked DPS-targeted forge-run upgrade list" in under 60 seconds on both desktop and mobile.
 - Every craft / upgrade / reforge action in the Legendary view succeeds against the live play server and the UI reflects the updated state within one refresh cycle.
+- The forge-run scope matcher classifies 100% of current legendary effects without any `unknown` tags on a freshly refreshed bundle (`unknown_scope_ids` in `data/definitions.checksum.json` is an empty list). If a refresh ever lands with a non-empty `unknown_scope_ids`, that's a build-level signal to extend the parser before merging.
+- Selecting a DPS champion resolves the full slot classification (affecting / not affecting / reforge candidate / empty) for all 173 heroes in under 100 ms on a mid-range mobile device, using bundled `data/` only — no network.
 - Every specialization change saved in the Specializations view is persisted via `SaveFormation` and re-reading `getallformationsaves` reflects the change.
 - The site shell (HTML + CSS + JS, excluding API payloads) loads in < 300 KB.
 - Passes Lighthouse audits at target thresholds (§2.3).

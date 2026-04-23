@@ -2,7 +2,7 @@
 
 > **Scope.** This document catalogs endpoints, parameters, and response shapes for the Idle Champions play-server API operated by Codename Entertainment.
 >
-> **Attribution.** The initial catalog of endpoint and parameter names was learned from [`Emmotes/ic_servercalls`](https://github.com/Emmotes/ic_servercalls) — a community reference tool by Emmote, now MIT-licensed. No prose or source code from that project is reproduced here; this file is written fresh and extended with empirical findings of its own (request flow, `switch_play_server` retry behavior, legendary-effect `$amount` resolution, enrichment strategy, suggested client-side data models). Thanks to Emmote for the foundational research.
+> **Attribution.** The initial catalog of endpoint and parameter names was learned from `[Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls)` — a community reference tool by Emmote, now MIT-licensed. No prose or source code from that project is reproduced here; this file is written fresh and extended with empirical findings of its own (request flow, `switch_play_server` retry behavior, legendary-effect `$amount` resolution, enrichment strategy, suggested client-side data models). Thanks to Emmote for the foundational research.
 
 ---
 
