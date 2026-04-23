@@ -1,0 +1,12 @@
+# Credentials for scripts/refresh-defs.js — never commit.
+# Copy .credentials.example.json to .credentials.json and fill in your values.
+.credentials.json
+
+# OS / editor noise
+.DS_Store
+.vscode/
+.idea/
+
+# Node (in case we ever add tooling)
+node_modules/
+npm-debug.log*

@@ -1,0 +1,343 @@
+{
+  "legendary_details": {
+    "cost": 1180.98,
+    "next_cost": 1.0628819999999999,
+    "reduction_time": -1,
+    "reforge_reduction_time": 46320,
+    "summary": {
+      "heroes_with_legendaries": 23,
+      "total_legendaries_crafted": 97,
+      "total_heroes_in_costs_table": 88,
+      "owned_heroes": 92
+    },
+    "costs_by_hero_enriched_sample": [
+      {
+        "hero_id": 34,
+        "name": "Donaar",
+        "class": "Paladin",
+        "owned": true,
+        "next_craft_cost_scales": 1100,
+        "legendaries_crafted": 6
+      },
+      {
+        "hero_id": 38,
+        "name": "K'thriss",
+        "class": "Warlock",
+        "owned": true,
+        "next_craft_cost_scales": 1100,
+        "legendaries_crafted": 6
+      },
+      {
+        "hero_id": 67,
+        "name": "Dragonbait",
+        "class": "Paladin",
+        "owned": true,
+        "next_craft_cost_scales": 1100,
+        "legendaries_crafted": 6
+      },
+      {
+        "hero_id": 94,
+        "name": "Rust",
+        "class": "Rogue",
+        "owned": true,
+        "next_craft_cost_scales": 1100,
+        "legendaries_crafted": 6
+      },
+      {
+        "hero_id": 96,
+        "name": "Desmond",
+        "class": "Ranger",
+        "owned": true,
+        "next_craft_cost_scales": 1100,
+        "legendaries_crafted": 6
+      },
+      {
+        "hero_id": 142,
+        "name": "Wyll",
+        "class": "Warlock",
+        "owned": true,
+        "next_craft_cost_scales": 1100,
+        "legendaries_crafted": 6
+      },
+      {
+        "hero_id": 159,
+        "name": "Volo",
+        "class": "Wizard",
+        "owned": true,
+        "next_craft_cost_scales": 1100,
+        "legendaries_crafted": 6
+      },
+      {
+        "hero_id": 129,
+        "name": "Astarion",
+        "class": "Rogue",
+        "owned": true,
+        "next_craft_cost_scales": 1000,
+        "legendaries_crafted": 5
+      },
+      {
+        "hero_id": 143,
+        "name": "Karlach",
+        "class": "Barbarian",
+        "owned": true,
+        "next_craft_cost_scales": 1000,
+        "legendaries_crafted": 5
+      },
+      {
+        "hero_id": 164,
+        "name": "Tess",
+        "class": "Rogue",
+        "owned": true,
+        "next_craft_cost_scales": 1000,
+        "legendaries_crafted": 5
+      },
+      {
+        "hero_id": 168,
+        "name": "King of Shadows",
+        "class": "Barbarian / Warlock",
+        "owned": true,
+        "next_craft_cost_scales": 1000,
+        "legendaries_crafted": 5
+      },
+      {
+        "hero_id": 171,
+        "name": "Anson",
+        "class": "Fighter",
+        "owned": true,
+        "next_craft_cost_scales": 1000,
+        "legendaries_crafted": 5
+      }
+    ],
+    "costs_by_hero_enriched_count": 88,
+    "legendary_items_enriched_sample": {
+      "94": {
+        "hero": {
+          "hero_id": 94,
+          "name": "Rust",
+          "class": "Rogue",
+          "race": "Tabaxi",
+          "seat_id": 11
+        },
+        "slots": {
+          "1": {
+            "level": 1,
+            "active_effect": {
+              "id": 93,
+              "effect_string": "global_dps_multiplier_mult,20",
+              "targets": [
+                "active_campaign"
+              ],
+              "description_template": "Increases the damage of all Champions by $(amount)% for each Champion with a WIS score of 11 or higher in the formation",
+              "description_resolved": "Increases the damage of all Champions by 20% for each Champion with a WIS score of 11 or higher in the formation",
+              "base_amount_per_level": 20.0
+            },
+            "effect_pool": [
+              {
+                "id": 93,
+                "effect_string": "global_dps_multiplier_mult,20",
+                "targets": [
+                  "active_campaign"
+                ],
+                "description_template": "Increases the damage of all Champions by $(amount)% for each Champion with a WIS score of 11 or higher in the formation",
+                "description_resolved": "Increases the damage of all Champions by 20% for each Champion with a WIS score of 11 or higher in the formation",
+                "base_amount_per_level": 20.0
+              }
+            ],
+            "upgrade": {
+              "scales_cost": 499,
+              "favor_cost": 3.0704857975581303e+63,
+              "favor_required": 10000000000,
+              "favor_currency": {
+                "id": 15,
+                "name": "Helm's Favor",
+                "short_name": "Helm",
+                "campaign": "Waterdeep: Dragon Heist"
+              }
+            }
+          },
+          "2": {
+            "level": 5,
+            "active_effect": {
+              "id": 106,
+              "effect_string": "global_dps_multiplier_mult,20",
+              "targets": [
+                "active_campaign"
+              ],
+              "description_template": "Increases the damage of all Champions by $(amount)% for each Champion in the formation with a NEUTRAL alignment",
+              "description_resolved": "Increases the damage of all Champions by 100% for each Champion in the formation with a NEUTRAL alignment",
+              "base_amount_per_level": 20.0
+            },
+            "effect_pool": [
+              {
+                "id": 106,
+                "effect_string": "global_dps_multiplier_mult,20",
+                "targets": [
+                  "active_campaign"
+                ],
+                "description_template": "Increases the damage of all Champions by $(amount)% for each Champion in the formation with a NEUTRAL alignment",
+                "description_resolved": "Increases the damage of all Champions by 100% for each Champion in the formation with a NEUTRAL alignment",
+                "base_amount_per_level": 20.0
+              }
+            ],
+            "upgrade": {
+              "scales_cost": 1111,
+              "favor_cost": 2.3037917680635302e+58,
+              "favor_required": 1.0000000000000002e+30,
+              "favor_currency": {
+                "id": 23,
+                "name": "Auril's Favor",
+                "short_name": "Auril",
+                "campaign": "Icewind Dale: Rime of the Frostmaiden"
+              }
+            }
+          },
+          "3": {
+            "level": 5,
+            "active_effect": {
+              "id": 13,
+              "effect_string": "hero_dps_multiplier_mult,150",
+              "targets": [
+                "all_slots"
+              ],
+              "description_template": "Increases the damage of all Tabaxi Champions by $(amount)%",
+              "description_resolved": "Increases the damage of all Tabaxi Champions by 750%",
+              "base_amount_per_level": 150.0
+            },
+            "effect_pool": [
+              {
+                "id": 13,
+                "effect_string": "hero_dps_multiplier_mult,150",
+                "targets": [
+                  "all_slots"
+                ],
+                "description_template": "Increases the damage of all Tabaxi Champions by $(amount)%",
+                "description_resolved": "Increases the damage of all Tabaxi Champions by 750%",
+                "base_amount_per_level": 150.0
+              }
+            ],
+            "upgrade": {
+              "scales_cost": 1111,
+              "favor_cost": 1.6571969160771602e+53,
+              "favor_required": 1.0000000000000002e+30,
+              "favor_currency": {
+                "id": 1,
+                "name": "Torm's Favor",
+                "short_name": "Torm",
+                "campaign": "Grand Tour of the Sword Coast"
+              }
+            }
+          },
+          "4": {
+            "level": 5,
+            "active_effect": {
+              "id": 1,
+              "effect_string": "global_dps_multiplier_mult,100",
+              "targets": [
+                "active_campaign"
+              ],
+              "description_template": "Increases the damage of all Champions by $amount%",
+              "description_resolved": "Increases the damage of all Champions by 500%",
+              "base_amount_per_level": 100.0
+            },
+            "effect_pool": [
+              {
+                "id": 1,
+                "effect_string": "global_dps_multiplier_mult,100",
+                "targets": [
+                  "active_campaign"
+                ],
+                "description_template": "Increases the damage of all Champions by $amount%",
+                "description_resolved": "Increases the damage of all Champions by 500%",
+                "base_amount_per_level": 100.0
+              }
+            ],
+            "upgrade": {
+              "scales_cost": 1111,
+              "favor_cost": 1.6571969160771602e+53,
+              "favor_required": 1.0000000000000002e+30,
+              "favor_currency": {
+                "id": 1,
+                "name": "Torm's Favor",
+                "short_name": "Torm",
+                "campaign": "Grand Tour of the Sword Coast"
+              }
+            }
+          },
+          "5": {
+            "level": 5,
+            "active_effect": {
+              "id": 37,
+              "effect_string": "hero_dps_multiplier_mult,100",
+              "targets": [
+                "all_slots"
+              ],
+              "description_template": "Increases the damage of all Champions with a INT score of 11 or higher by $(amount)%",
+              "description_resolved": "Increases the damage of all Champions with a INT score of 11 or higher by 500%",
+              "base_amount_per_level": 100.0
+            },
+            "effect_pool": [
+              {
+                "id": 37,
+                "effect_string": "hero_dps_multiplier_mult,100",
+                "targets": [
+                  "all_slots"
+                ],
+                "description_template": "Increases the damage of all Champions with a INT score of 11 or higher by $(amount)%",
+                "description_resolved": "Increases the damage of all Champions with a INT score of 11 or higher by 500%",
+                "base_amount_per_level": 100.0
+              }
+            ],
+            "upgrade": {
+              "scales_cost": 1111,
+              "favor_cost": 1.6571969160771602e+53,
+              "favor_required": 1.0000000000000002e+30,
+              "favor_currency": {
+                "id": 1,
+                "name": "Torm's Favor",
+                "short_name": "Torm",
+                "campaign": "Grand Tour of the Sword Coast"
+              }
+            }
+          },
+          "6": {
+            "level": 5,
+            "active_effect": {
+              "id": 3,
+              "effect_string": "hero_dps_multiplier_mult,125",
+              "targets": [
+                "all_slots"
+              ],
+              "description_template": "Increases the damage of all Female Champions by $(amount)%",
+              "description_resolved": "Increases the damage of all Female Champions by 625%",
+              "base_amount_per_level": 125.0
+            },
+            "effect_pool": [
+              {
+                "id": 3,
+                "effect_string": "hero_dps_multiplier_mult,125",
+                "targets": [
+                  "all_slots"
+                ],
+                "description_template": "Increases the damage of all Female Champions by $(amount)%",
+                "description_resolved": "Increases the damage of all Female Champions by 625%",
+                "base_amount_per_level": 125.0
+              }
+            ],
+            "upgrade": {
+              "scales_cost": 1111,
+              "favor_cost": 1.09593083432979e+60,
+              "favor_required": 1.0000000000000002e+30,
+              "favor_currency": {
+                "id": 30,
+                "name": "Celestian's Favor",
+                "short_name": "Celestian",
+                "campaign": "Light of Xaryxis"
+              }
+            }
+          }
+        }
+      }
+    },
+    "legendary_items_enriched_count": 23
+  }
+}

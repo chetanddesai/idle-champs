@@ -1,0 +1,91 @@
+{
+  "success": true,
+  "legendary_details": {
+    "cost": 1180.98,
+    "next_cost": 1.0628819999999999,
+    "reduction_time": -1,
+    "reforge_reduction_time": 46320,
+    "costs_by_hero_sample": {
+      "1": 500,
+      "34": 1100,
+      "67": 1100,
+      "94": 1100,
+      "143": 1000,
+      "159": 1100,
+      "170": 800
+    },
+    "costs_by_hero_count": 88,
+    "legendary_items_count": 23,
+    "legendary_items_sample": {
+      "94": {
+        "1": {
+          "level": 1,
+          "effect_id": 93,
+          "effects_unlocked": [
+            93
+          ],
+          "reset_currency_id": 15,
+          "upgrade_cost": 499,
+          "upgrade_favor_cost": 3.0704857975581303e+63,
+          "upgrade_favor_required": 10000000000
+        },
+        "2": {
+          "level": 5,
+          "effect_id": 106,
+          "effects_unlocked": [
+            106
+          ],
+          "reset_currency_id": 23,
+          "upgrade_cost": 1111,
+          "upgrade_favor_cost": 2.3037917680635302e+58,
+          "upgrade_favor_required": 1.0000000000000002e+30
+        },
+        "3": {
+          "level": 5,
+          "effect_id": 13,
+          "effects_unlocked": [
+            13
+          ],
+          "reset_currency_id": 1,
+          "upgrade_cost": 1111,
+          "upgrade_favor_cost": 1.6571969160771602e+53,
+          "upgrade_favor_required": 1.0000000000000002e+30
+        },
+        "4": {
+          "level": 5,
+          "effect_id": 1,
+          "effects_unlocked": [
+            1
+          ],
+          "reset_currency_id": 1,
+          "upgrade_cost": 1111,
+          "upgrade_favor_cost": 1.6571969160771602e+53,
+          "upgrade_favor_required": 1.0000000000000002e+30
+        },
+        "5": {
+          "level": 5,
+          "effect_id": 37,
+          "effects_unlocked": [
+            37
+          ],
+          "reset_currency_id": 1,
+          "upgrade_cost": 1111,
+          "upgrade_favor_cost": 1.6571969160771602e+53,
+          "upgrade_favor_required": 1.0000000000000002e+30
+        },
+        "6": {
+          "level": 5,
+          "effect_id": 3,
+          "effects_unlocked": [
+            3
+          ],
+          "reset_currency_id": 30,
+          "upgrade_cost": 1111,
+          "upgrade_favor_cost": 1.09593083432979e+60,
+          "upgrade_favor_required": 1.0000000000000002e+30
+        }
+      }
+    }
+  },
+  "actions": []
+}

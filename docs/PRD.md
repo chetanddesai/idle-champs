@@ -32,45 +32,53 @@ Additional categories (Patrons, Events, Chests, Blacksmith, Potions, etc.) are l
 
 ### 2.1 Hosting & Technology
 
-| Constraint          | Detail                                                                                                                                                                                                                |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Hosting**         | GitHub Pages (static only — no server-side rendering, no serverless functions)                                                                                                                                        |
-| **Allowed assets**  | HTML, CSS, JavaScript (vanilla or lightweight library — no framework build step required), JSON data files, image assets                                                                                              |
-| **Build step**      | None required. The site must work by serving the repo root (or a configured `/docs` or `/dist` publish directory) directly. A lightweight build step is acceptable only if the **output** is committed static files. |
-| **Browser support** | Latest two versions of Chrome, Safari, Firefox, Edge; mobile Safari & Chrome on iOS/Android                                                                                                                           |
-| **Mobile form factor** | First-class. The site must be fully usable on a 375px-wide phone viewport — every action that works on desktop must work on mobile with equivalent ergonomics.                                                     |
+
+| Constraint             | Detail                                                                                                                                                                                                               |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hosting**            | GitHub Pages (static only — no server-side rendering, no serverless functions)                                                                                                                                       |
+| **Allowed assets**     | HTML, CSS, JavaScript (vanilla or lightweight library — no framework build step required), JSON data files, image assets                                                                                             |
+| **Build step**         | None required. The site must work by serving the repo root (or a configured `/docs` or `/dist` publish directory) directly. A lightweight build step is acceptable only if the **output** is committed static files. |
+| **Browser support**    | Latest two versions of Chrome, Safari, Firefox, Edge; mobile Safari & Chrome on iOS/Android                                                                                                                          |
+| **Mobile form factor** | First-class. The site must be fully usable on a 375px-wide phone viewport — every action that works on desktop must work on mobile with equivalent ergonomics.                                                       |
+
 
 ### 2.2 Credentials & Privacy
 
-| Requirement          | Detail                                                                                                                                                                                                                                                                                                                                                                |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Credential storage** | `user_id` and `hash` are stored **only** in the player's browser `localStorage`. They are never transmitted anywhere except directly to the official Idle Champions play servers (same endpoints the game client itself uses).                                                                                                                                    |
-| **No telemetry**     | The site makes **no** network calls to any host other than the Idle Champions master/play servers. No analytics, no error reporting, no third-party CDNs that could see request headers.                                                                                                                                                                           |
-| **Clear-credentials action** | The settings panel provides an explicit "Clear credentials" button that wipes the stored `user_id` and `hash` (and any cached account data) from `localStorage`.                                                                                                                                                                                       |
-| **Security warning** | The settings panel displays a short notice explaining that `hash` grants full account access, and that the player should only paste it into trusted tools running on their own device.                                                                                                                                                                            |
+
+| Requirement                  | Detail                                                                                                                                                                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Credential storage**       | `user_id` and `hash` are stored **only** in the player's browser `localStorage`. They are never transmitted anywhere except directly to the official Idle Champions play servers (same endpoints the game client itself uses). |
+| **No telemetry**             | The site makes **no** network calls to any host other than the Idle Champions master/play servers. No analytics, no error reporting, no third-party CDNs that could see request headers.                                       |
+| **Clear-credentials action** | The settings panel provides an explicit "Clear credentials" button that wipes the stored `user_id` and `hash` (and any cached account data) from `localStorage`.                                                               |
+| **Security warning**         | The settings panel displays a short notice explaining that `hash` grants full account access, and that the player should only paste it into trusted tools running on their own device.                                         |
+
 
 ### 2.3 Performance & Accessibility
 
-| Requirement                  | Detail                                                                                                                 |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| **Lighthouse score targets** | Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 90, SEO ≥ 80                                                    |
-| **Page weight**              | < 300 KB first load for the site shell (excluding API payloads and any game-art images)                                |
-| **Accessibility**            | Semantic HTML, ARIA landmarks, sufficient color contrast (WCAG AA), keyboard-navigable, alt text on all images         |
+
+| Requirement                  | Detail                                                                                                                  |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **Lighthouse score targets** | Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 90, SEO ≥ 80                                                     |
+| **Page weight**              | < 300 KB first load for the site shell (excluding API payloads and any game-art images)                                 |
+| **Accessibility**            | Semantic HTML, ARIA landmarks, sufficient color contrast (WCAG AA), keyboard-navigable, alt text on all images          |
 | **Responsive design**        | Mobile-first. Must look great on 375px–1440px+ viewports. Dense tables must degrade to stacked cards on narrow screens. |
+
 
 ### 2.4 Favicons, Manifest & Branding
 
 **Branding is inherited directly from the sibling project [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs)** so the two sites feel like one family. All favicon and touch-icon files are copied verbatim from that repo's `img/` directory into this repo's `img/` directory (committed, no regeneration). The web app manifest is copied verbatim into the repo root as `site.webmanifest`.
 
-| Asset                           | Specification                                                                                                               |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `img/favicon.svg`               | SVG favicon — copied from ic-specs                                                                                          |
-| `img/favicon-32x32.png`         | 32×32 PNG favicon — copied from ic-specs                                                                                    |
-| `img/favicon-16x16.png`         | 16×16 PNG favicon — copied from ic-specs                                                                                    |
-| `img/apple-touch-icon.png`      | 180×180 Apple touch icon — copied from ic-specs                                                                             |
-| `img/android-chrome-192x192.png`| 192×192 Android icon — copied from ic-specs                                                                                 |
-| `img/android-chrome-512x512.png`| 512×512 Android icon — copied from ic-specs                                                                                 |
-| `site.webmanifest`              | Copied from ic-specs, edited only to update `name` / `short_name` for this site. `theme_color` and `background_color` remain `#0f0e17` to keep the visual family consistent. |
+
+| Asset                            | Specification                                                                                                                                                                |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `img/favicon.svg`                | SVG favicon — copied from ic-specs                                                                                                                                           |
+| `img/favicon-32x32.png`          | 32×32 PNG favicon — copied from ic-specs                                                                                                                                     |
+| `img/favicon-16x16.png`          | 16×16 PNG favicon — copied from ic-specs                                                                                                                                     |
+| `img/apple-touch-icon.png`       | 180×180 Apple touch icon — copied from ic-specs                                                                                                                              |
+| `img/android-chrome-192x192.png` | 192×192 Android icon — copied from ic-specs                                                                                                                                  |
+| `img/android-chrome-512x512.png` | 512×512 Android icon — copied from ic-specs                                                                                                                                  |
+| `site.webmanifest`               | Copied from ic-specs, edited only to update `name` / `short_name` for this site. `theme_color` and `background_color` remain `#0f0e17` to keep the visual family consistent. |
+
 
 The `<head>` of `index.html` must reference the icons with the same paths and attribute order as ic-specs:
 
@@ -85,10 +93,12 @@ The `<head>` of `index.html` must reference the icons with the same paths and at
 
 ### 2.5 SEO & Social Sharing
 
-| Requirement   | Detail                                                                                                             |
-| ------------- | ------------------------------------------------------------------------------------------------------------------ |
-| **Meta tags** | `<title>`, `<meta description>`, Open Graph (`og:title`, `og:description`, `og:image`), Twitter Card               |
-| **robots**    | Public indexing allowed. No credential-entry page should be cached by search engines beyond its description.       |
+
+| Requirement   | Detail                                                                                                       |
+| ------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Meta tags** | `<title>`, `<meta description>`, Open Graph (`og:title`, `og:description`, `og:image`), Twitter Card         |
+| **robots**    | Public indexing allowed. No credential-entry page should be cached by search engines beyond its description. |
+
 
 ---
 
@@ -100,10 +110,12 @@ The site header includes a **settings icon** (gear) that opens a settings panel 
 
 #### Credential entry — two supported modes
 
-| Mode                    | Input                                              | Behavior                                                                                                                                                                                                                          |
-| ----------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Manual**              | `user_id` field + `hash` field                     | User types or pastes each value. On save, both are written to `localStorage` under `icHelper.userId` and `icHelper.hash`.                                                                                                         |
-| **Support URL parsing** | Single "Paste support URL" textarea                | The site parses the URL, extracts the `user_id` and `device_hash` query parameters, and populates the manual fields. `device_hash` is stored as `hash` (the play-server API calls it `hash`). User confirms and saves.            |
+
+| Mode                    | Input                               | Behavior                                                                                                                                                                                                               |
+| ----------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Manual**              | `user_id` field + `hash` field      | User types or pastes each value. On save, both are written to `localStorage` under `icHelper.userId` and `icHelper.hash`.                                                                                              |
+| **Support URL parsing** | Single "Paste support URL" textarea | The site parses the URL, extracts the `user_id` and `device_hash` query parameters, and populates the manual fields. `device_hash` is stored as `hash` (the play-server API calls it `hash`). User confirms and saves. |
+
 
 #### Additional controls in the settings panel
 
@@ -121,38 +133,44 @@ All category views require valid credentials to load. Until credentials are save
 
 #### Persistence
 
-| Key                  | Value                                                   | Lifetime                        |
-| -------------------- | ------------------------------------------------------- | ------------------------------- |
-| `icHelper.userId`    | Account `user_id`                                       | Until user clears or replaces   |
-| `icHelper.hash`      | Account `hash` (from `device_hash` on support URL)      | Until user clears or replaces   |
-| `icHelper.playServer`| Discovered play-server base URL                         | 24h TTL, refreshes on expiry    |
-| `icHelper.instanceId`| Current `instance_id` from latest `getuserdetails`      | Refreshed on each session start |
-| `icHelper.lastSync`  | ISO timestamp of last successful `getuserdetails` call  | Updated on every sync           |
+
+| Key                   | Value                                                  | Lifetime                        |
+| --------------------- | ------------------------------------------------------ | ------------------------------- |
+| `icHelper.userId`     | Account `user_id`                                      | Until user clears or replaces   |
+| `icHelper.hash`       | Account `hash` (from `device_hash` on support URL)     | Until user clears or replaces   |
+| `icHelper.playServer` | Discovered play-server base URL                        | 24h TTL, refreshes on expiry    |
+| `icHelper.instanceId` | Current `instance_id` from latest `getuserdetails`     | Refreshed on each session start |
+| `icHelper.lastSync`   | ISO timestamp of last successful `getuserdetails` call | Updated on every sync           |
+
 
 ### 3.1 Server Calls Module (`serverCalls.js`)
 
-All play-server communication is encapsulated in a single JavaScript module modeled after the reference [`serverCalls.js`](https://github.com/Emmotes/ic_servercalls/blob/main/docs/scripts/serverCalls.js) documented in [`docs/server-calls.md`](./server-calls.md).
+All play-server communication is encapsulated in a single JavaScript module modeled after the reference `[serverCalls.js](https://github.com/Emmotes/ic_servercalls/blob/main/docs/scripts/serverCalls.js)` documented in `[docs/server-calls.md](./server-calls.md)`.
 
 #### Responsibilities
 
-| Concern                    | Behavior                                                                                                                                                                                                                  |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Play-server discovery**  | First call per session is `getPlayServerForDefinitions` against `https://master.idlechampions.com/~idledragons/`. Result cached for 24h in `localStorage`.                                                                |
-| **Boilerplate parameters** | Automatically attaches the standard parameters (`language_id=1`, `timestamp=0`, `request_id=0`, `mobile_client_version=99999`, `include_free_play_objectives=true`, `instance_key=1`, `offline_v2_build=1`, `localization_aware=true`). |
-| **Auth parameters**        | Automatically attaches `user_id`, `hash`, and `instance_id` to calls that require them.                                                                                                                                   |
-| **Error handling**         | Implements the retry/recovery table from §7 of [`server-calls.md`](./server-calls.md): `switch_play_server` → swap base URL and retry; `Outdated instance id` → call `getuserdetails` to refresh and retry; hard failures throw. Capped at 4 retry attempts. |
-| **Timeout**                | 40-second default per request, matching the reference client.                                                                                                                                                             |
-| **API surface**            | A clean set of named functions — one per server call used by the site (e.g., `getUserDetails()`, `getLegendaryDetails()`, `craftLegendaryItem(heroId, slotId)`, `saveFormation(...)`). Not a generic `call(name, params)` passthrough — each function has a typed, documented signature.                                                          |
+
+| Concern                    | Behavior                                                                                                                                                                                                                                                                                 |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Play-server discovery**  | First call per session is `getPlayServerForDefinitions` against `https://master.idlechampions.com/~idledragons/`. Result cached for 24h in `localStorage`.                                                                                                                               |
+| **Boilerplate parameters** | Automatically attaches the standard parameters (`language_id=1`, `timestamp=0`, `request_id=0`, `mobile_client_version=99999`, `include_free_play_objectives=true`, `instance_key=1`, `offline_v2_build=1`, `localization_aware=true`).                                                  |
+| **Auth parameters**        | Automatically attaches `user_id`, `hash`, and `instance_id` to calls that require them.                                                                                                                                                                                                  |
+| **Error handling**         | Implements the retry/recovery table from §7 of `[server-calls.md](./server-calls.md)`: `switch_play_server` → swap base URL and retry; `Outdated instance id` → call `getuserdetails` to refresh and retry; hard failures throw. Capped at 4 retry attempts.                             |
+| **Timeout**                | 40-second default per request, matching the reference client.                                                                                                                                                                                                                            |
+| **API surface**            | A clean set of named functions — one per server call used by the site (e.g., `getUserDetails()`, `getLegendaryDetails()`, `craftLegendaryItem(heroId, slotId)`, `saveFormation(...)`). Not a generic `call(name, params)` passthrough — each function has a typed, documented signature. |
+
 
 The module is the **only** place in the codebase that knows the shape of the play-server HTTP protocol. Every category view imports it and calls the named functions it needs.
 
 #### V1 server calls used
 
-| Category                  | Calls used                                                                                                  |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Session / account         | `getPlayServerForDefinitions`, `getuserdetails`, `getdefinitions`                                           |
-| Legendary Items           | `getlegendarydetails`, `craftlegendaryitem`, `upgradelegendaryitem`, `changelegendaryitem`                  |
-| Specialization Choices    | `getallformationsaves`, `SaveFormation` (updating the `specializations` field), `getuserdetails` (fallback) |
+
+| Category               | Calls used                                                                                                  |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Session / account      | `getPlayServerForDefinitions`, `getuserdetails`, `getdefinitions`                                           |
+| Legendary Items        | `getlegendarydetails`, `craftlegendaryitem`, `upgradelegendaryitem`, `changelegendaryitem`                  |
+| Specialization Choices | `getallformationsaves`, `SaveFormation` (updating the `specializations` field), `getuserdetails` (fallback) |
+
 
 ### 3.2 Category: Legendary Items
 
@@ -164,14 +182,16 @@ The module is the **only** place in the codebase that knows the shape of the pla
 
 #### Display
 
-| Element                    | Detail                                                                                                                                                                       |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Roster table**           | One row per champion. Columns for each of the 6 equipment slots. Each cell shows: epic iLvl, legendary level (or "—" if none), and a per-cell action button.                 |
-| **Scales of Tiamat balance** | Prominent header badge showing current balance + per-champion next-craft cost.                                                                                             |
-| **Cell actions**           | **Craft** (slot has epic but no legendary), **Upgrade** (slot has a legendary), **Reforge** (slot has a legendary) — each with the cost displayed inline.                    |
-| **Filters**                | Toggle: "Has legendaries" / "Can craft" / "All". Search by champion name. Sort by craft cost ascending.                                                                      |
-| **Confirmation**           | Every mutating action (craft/upgrade/reforge) shows an explicit confirmation dialog with cost before firing the API call. Reforge has extra copy warning that effects re-roll. |
-| **Refresh behavior**       | After any mutation, re-fetch `getlegendarydetails` and `getuserdetails` to update balance and state. Show a toast with the result.                                           |
+
+| Element                      | Detail                                                                                                                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Roster table**             | One row per champion. Columns for each of the 6 equipment slots. Each cell shows: epic iLvl, legendary level (or "—" if none), and a per-cell action button.                   |
+| **Scales of Tiamat balance** | Prominent header badge showing current balance + per-champion next-craft cost.                                                                                                 |
+| **Cell actions**             | **Craft** (slot has epic but no legendary), **Upgrade** (slot has a legendary), **Reforge** (slot has a legendary) — each with the cost displayed inline.                      |
+| **Filters**                  | Toggle: "Has legendaries" / "Can craft" / "All". Search by champion name. Sort by craft cost ascending.                                                                        |
+| **Confirmation**             | Every mutating action (craft/upgrade/reforge) shows an explicit confirmation dialog with cost before firing the API call. Reforge has extra copy warning that effects re-roll. |
+| **Refresh behavior**         | After any mutation, re-fetch `getlegendarydetails` and `getuserdetails` to update balance and state. Show a toast with the result.                                             |
+
 
 #### Mobile layout
 
@@ -187,13 +207,15 @@ Roster table collapses to a stack of per-champion cards. Each card has a 6-slot 
 
 #### Display
 
-| Element                    | Detail                                                                                                                                                                                                             |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Formation list**         | Grouped by campaign, showing formation name + favorite flag. Clicking expands to show the formation detail view.                                                                                                    |
-| **Formation detail**       | Per-champion row showing: champion name, current specialization picks (one per tier), and a dropdown for each tier listing the available alternatives.                                                              |
-| **Diff indicator**         | If the player has changed any pick, the row shows a dot + "Unsaved changes" pill. Explicit **Save formation** button persists via `SaveFormation`; **Discard** reverts local state.                                 |
-| **Bulk actions (stretch)** | "Apply pick to all formations containing this champion" — updates every saved formation's `specializations` for the selected champion in one pass (N `SaveFormation` calls with a progress indicator).               |
-| **Search / filter**        | Filter formations by campaign; search by champion name across all formations ("show me every formation where champion X is placed and their current spec choices").                                                 |
+
+| Element                    | Detail                                                                                                                                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Formation list**         | Grouped by campaign, showing formation name + favorite flag. Clicking expands to show the formation detail view.                                                                                       |
+| **Formation detail**       | Per-champion row showing: champion name, current specialization picks (one per tier), and a dropdown for each tier listing the available alternatives.                                                 |
+| **Diff indicator**         | If the player has changed any pick, the row shows a dot + "Unsaved changes" pill. Explicit **Save formation** button persists via `SaveFormation`; **Discard** reverts local state.                    |
+| **Bulk actions (stretch)** | "Apply pick to all formations containing this champion" — updates every saved formation's `specializations` for the selected champion in one pass (N `SaveFormation` calls with a progress indicator). |
+| **Search / filter**        | Filter formations by campaign; search by champion name across all formations ("show me every formation where champion X is placed and their current spec choices").                                    |
+
 
 #### Mobile layout
 
@@ -214,16 +236,73 @@ Landing view when valid credentials exist. Shows:
 
 ### 4.1 Runtime caches
 
-| Cache                          | Scope                       | TTL                                  | Invalidation                                                           |
-| ------------------------------ | --------------------------- | ------------------------------------ | ---------------------------------------------------------------------- |
-| Play-server URL                | Session + `localStorage`    | 24h                                  | Auto on TTL; manual via settings "Re-discover"                         |
-| Game definitions               | Session + `localStorage`    | Until `checksum` returned by server changes | `getdefinitions` supports `checksum` param; we pass the cached value and only update the local copy when the server returns new data |
-| User details / legendary state | In-memory only, per session | Invalidated on mutations             | Refetched after any craft/upgrade/reforge; manual "Refresh" button     |
-| Formation saves                | In-memory only, per session | Invalidated on `SaveFormation`       | Refetched after save; manual "Refresh" button                          |
 
-### 4.2 No server-side data
+| Cache                          | Scope                        | TTL                                                                       | Invalidation                                                                                                                                       |
+| ------------------------------ | ---------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Play-server URL                | Session + `localStorage`     | 24h                                                                       | Auto on TTL; manual via settings "Re-discover"                                                                                                     |
+| Game definitions (baseline)    | Repo-committed `data/*.json` | Refreshed manually via `scripts/refresh-defs.js` after major game updates | Read at every page load; serves as the zero-network fallback for labels (see §4.3)                                                                 |
+| Game definitions (live deltas) | `localStorage`               | Until the player clicks "Refresh Data" in settings                        | Optional background refresh: site calls `getdefinitions?filter=…` on load; new entries are merged on top of the bundled baseline in `localStorage` |
+| User details / legendary state | In-memory only, per session  | Invalidated on mutations                                                  | Refetched after any craft/upgrade/reforge; manual "Refresh" button                                                                                 |
+| Formation saves                | In-memory only, per session  | Invalidated on `SaveFormation`                                            | Refetched after save; manual "Refresh" button                                                                                                      |
 
-The site ships **no** bundled game data (no plant JSON equivalents, no hero database). Every piece of data is fetched live from the play server using the player's credentials.
+
+### 4.2 Bundled definitions strategy
+
+**V1 ships a curated, trimmed subset of `getdefinitions` output as static JSON files in `data/`, committed to the repo.** This gives the site a zero-latency first paint for all human-readable labels (hero names, legendary-effect descriptions) without an initial API round trip. The live server is still the source of truth for player **state**; `data/*.json` only covers reference data (names, descriptions, IDs).
+
+#### Bundled files
+
+
+| File                                      | Contents                                                                                                                                                                                                                                                              | Approx size |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `data/definitions.heroes.json`            | Trimmed `hero_defines`: one entry per hero with `id, name, seat_id, class, race, legendary_effect_id`. All other fields (graphic_ids, curves, feats, etc.) dropped.                                                                                                   | ~20 KB      |
+| `data/definitions.legendary-effects.json` | Trimmed `legendary_effect_defines`: one entry per effect with `id, effect_string, targets, description`. The `description` template uses `$amount` / `$(amount)` placeholders as documented in `[server-calls.md](./server-calls.md#resolving-legendary-effect-ids)`. | ~20 KB      |
+| `data/definitions.checksum.json`          | Metadata: `server_checksum` (null for filtered responses — server doesn't include a checksum when a `filter` is supplied), `fetched_at`, `hero_count`, `legendary_effect_count`, `source`.                                                                            | < 1 KB      |
+
+
+Total bundle weight: **~40 KB** (comfortably under the §2.3 300 KB shell budget).
+
+**Fields dropped deliberately.** `hero_defines` entries from the live API are ~2 KB each (173 × 2 KB = ~340 KB). We keep only the six fields the UI uses and drop everything else. This is the single biggest contributor to the bundle staying ~20 KB.
+
+#### Runtime read order
+
+For every label that needs resolving at runtime, the site looks up IDs in this order:
+
+1. `localStorage.icHelper.defs.{group}` — the merged live-delta copy (if present).
+2. `data/definitions.{group}.json` — the bundled baseline (always present).
+3. Fallback placeholder (e.g. `"(unknown hero 999)"`) — only if an ID is in live state but not in either definitions source. The UI must render gracefully in this case.
+
+#### Opportunistic background refresh
+
+On each page load, after the bundled data is rendered, the site optionally fires `getdefinitions?filter=hero_defines,legendary_effect_defines` in the background. Any entries it returns are merged into `localStorage` under `icHelper.defs.hero_defines` and `icHelper.defs.legendary_effect_defines`, and views refresh their labels from those if present. If the bundled baseline already covers everything the current state references, the user never sees a label flicker.
+
+> **Empirical note for V1 implementers:** filtered `getdefinitions` responses do **not** include a top-level `checksum` field (only unfiltered responses do). The V1 refresh strategy therefore always re-fetches the filtered groups wholesale rather than trying to use `checksum` for delta-only responses. This keeps the refresh simple; if V2 ever needs checksum-based deltas it will need an unfiltered call.
+
+### 4.3 Refreshing the bundled baseline
+
+The bundle needs to be regenerated after major Idle Champions updates (new champion releases, new legendary effects, renamed items). The repo ships a CLI for this:
+
+```bash
+# One-time setup — copy the example and fill in your own credentials.
+cp .credentials.example.json .credentials.json
+# Edit .credentials.json with your user_id + hash (never committed — .gitignored).
+
+# Refresh the bundled files from live getdefinitions.
+node scripts/refresh-defs.js
+```
+
+**Credential handling — security invariant.** The refresh script reads credentials exclusively from `.credentials.json` at the repo root. That file is listed in `.gitignore` and must never be committed. `.credentials.example.json` is the committed template that documents the required shape. The repo's CI (if any) must also refuse to run the refresh script with credentials from environment variables or CLI args — a single, gitignored credential file is the only sanctioned path, keeping the security surface tiny.
+
+The script:
+
+1. Reads `.credentials.json`; fails with a clear error if missing or malformed.
+2. Calls `getPlayServerForDefinitions` against the master server.
+3. Calls `getuserdetails` to obtain `instance_id`, transparently retrying on `switch_play_server`.
+4. Calls `getdefinitions?filter=hero_defines,legendary_effect_defines`.
+5. Trims each entry to the V1-required fields listed in §4.2.
+6. Writes the three bundled files in `data/`, sorted by `id` for stable diffs.
+
+**Recommended cadence.** Run after any Idle Champions year/season release or whenever the UI begins rendering `(unknown hero N)` placeholders, then commit the updated `data/*.json`.
 
 ---
 
@@ -258,10 +337,21 @@ The site ships **no** bundled game data (no plant JSON equivalents, no hero data
 │   ├── apple-touch-icon.png
 │   ├── android-chrome-192x192.png
 │   └── android-chrome-512x512.png
+├── data/                           # Bundled trimmed game definitions (see §4.2)
+│   ├── definitions.heroes.json
+│   ├── definitions.legendary-effects.json
+│   └── definitions.checksum.json
+├── scripts/
+│   └── refresh-defs.js             # Regenerates data/*.json from live getdefinitions (see §4.3)
+├── .credentials.example.json       # Template for local creds used by refresh-defs.js — commit
+├── .credentials.json               # Gitignored. Never commit. Required only for refresh-defs.js.
+├── .gitignore
 ├── site.webmanifest                # Copied from ic-specs; only name/short_name edited
 └── docs/
     ├── PRD.md                      # This document
-    └── server-calls.md             # API reference
+    ├── server-calls.md             # API reference
+    ├── getlegendarydetails.sample.json          # Raw response sample (scrubbed)
+    └── getlegendarydetails.enriched.sample.json # Enriched (joined with defs) sample (scrubbed)
 ```
 
 ### 5.2 Routing
@@ -408,30 +498,36 @@ The site uses the same public play-server endpoints the official game client use
 
 ## 9. Resolved Decisions
 
-| #   | Question                      | Decision                                                                                                                                                                                         |
-| --- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | **Hosting**                   | GitHub Pages, static only. No backend of any kind.                                                                                                                                               |
-| 2   | **Credential storage**        | `localStorage` only; never transmitted except to the official Idle Champions play servers.                                                                                                       |
-| 3   | **Credential entry modes**    | Two: manual (`user_id` + `hash` fields) and support-URL paste (extract `user_id` + `device_hash` query params). Support URL path stores `device_hash` as the `hash` field.                       |
-| 4   | **Server-call module**        | Single `serverCalls.js` modeled after [Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls), exposing named functions per call. All retry / play-server-swap / hash-refresh logic lives here. |
-| 5   | **V1 categories**             | Two: Legendary Items and Specialization Choices. Architecture supports adding more without shell changes.                                                                                         |
-| 6   | **Mobile parity**             | Every action available on desktop must be available on mobile. Dense tables degrade to stacked cards.                                                                                            |
-| 7   | **Framework**                 | Vanilla HTML/CSS/JS. No React/Vue/Svelte build step. A tiny DOM helper module is acceptable.                                                                                                     |
-| 8   | **Data caching**              | Definitions keyed by server checksum in `localStorage`; play-server URL cached 24h; user/legendary state is in-memory per session and invalidated on mutation.                                    |
-| 9   | **Disclaimer**                | Footer + About section clearly state unaffiliated fan-made tool; trademarks belong to Codename Entertainment / Wizards of the Coast.                                                             |
-| 10  | **Branding & styling**        | Inherited directly from the sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). `img/` favicons and `site.webmanifest` are copied verbatim from that repo (see §2.4). CSS tokens, font stack, header/footer/card patterns match ic-specs exactly (see §7). The two sites must read as one visual family. |
+
+| #   | Question                          | Decision                                                                                                                                                                                                                                                                                                                             |
+| --- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **Hosting**                       | GitHub Pages, static only. No backend of any kind.                                                                                                                                                                                                                                                                                   |
+| 2   | **Credential storage**            | `localStorage` only; never transmitted except to the official Idle Champions play servers.                                                                                                                                                                                                                                           |
+| 3   | **Credential entry modes**        | Two: manual (`user_id` + `hash` fields) and support-URL paste (extract `user_id` + `device_hash` query params). Support URL path stores `device_hash` as the `hash` field.                                                                                                                                                           |
+| 4   | **Server-call module**            | Single `serverCalls.js` modeled after [Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls), exposing named functions per call. All retry / play-server-swap / hash-refresh logic lives here.                                                                                                                          |
+| 5   | **V1 categories**                 | Two: Legendary Items and Specialization Choices. Architecture supports adding more without shell changes.                                                                                                                                                                                                                            |
+| 6   | **Mobile parity**                 | Every action available on desktop must be available on mobile. Dense tables degrade to stacked cards.                                                                                                                                                                                                                                |
+| 7   | **Framework**                     | Vanilla HTML/CSS/JS. No React/Vue/Svelte build step. A tiny DOM helper module is acceptable.                                                                                                                                                                                                                                         |
+| 8   | **Data caching**                  | Definitions: bundled trimmed baseline in `data/*.json` (committed) + optional live-delta merge into `localStorage` (see §4.2). Play-server URL cached 24h. User/legendary state is in-memory per session and invalidated on mutation.                                                                                                |
+| 9   | **Disclaimer**                    | Footer + About section clearly state unaffiliated fan-made tool; trademarks belong to Codename Entertainment / Wizards of the Coast.                                                                                                                                                                                                 |
+| 10  | **Branding & styling**            | Inherited directly from the sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). `img/` favicons and `site.webmanifest` are copied verbatim from that repo (see §2.4). CSS tokens, font stack, header/footer/card patterns match ic-specs exactly (see §7). The two sites must read as one visual family. |
+| 11  | **Definitions strategy**          | Ship trimmed baseline in `data/*.json` (committed), refresh via `scripts/refresh-defs.js` after major game updates, optionally fetch live deltas in the background and merge into `localStorage`. Runtime read order: localStorage → bundled `data/` → `(unknown …)` placeholder (see §4.2 & §4.3).                                  |
+| 12  | **Credential handling (tooling)** | `scripts/refresh-defs.js` reads credentials **only** from `.credentials.json` at the repo root. That file is gitignored. `.credentials.example.json` is the committed template. No CLI-arg or env-var fallback is provided, keeping the credential surface small and auditable.                                                      |
+
 
 ---
 
 ## 10. Open Questions
 
-| #   | Question                                                                                                                 | Notes                                                                                                                                                       |
-| --- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | What is the canonical format of a support URL that contains both `user_id` and `device_hash`?                            | Needed to write a robust parser and an example placeholder in the settings panel.                                                                           |
-| 2   | Does the site need to handle multiple `game_instance_id`s per account (e.g., alt campaigns), or only the primary instance? | `getuserdetails` returns a primary `instance_id`; other calls allow overrides. V1 can assume primary only, but confirm before locking in.                   |
-| 3   | For Specialization Choices, should we ever write specializations **outside** of a saved formation (e.g., the "live" loadout), or is `SaveFormation` the only entry point? | `server-calls.md` only documents `SaveFormation` for specs. Confirming no other call exists (e.g., a hypothetical `setSpecialization`) before V1.            |
-| 4   | Rate limiting — are there known per-account or per-IP limits on the play-server API that the site should respect?       | If yes, add a client-side throttle to `serverCalls.js`.                                                                                                     |
-| 5   | Should the site offer an export / import of credentials between browsers?                                                | Out of scope for V1; trade-off is convenience vs. another vector for accidental credential leakage.                                                         |
+
+| #   | Question                                                                                                                                                                  | Notes                                                                                                                                             |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | What is the canonical format of a support URL that contains both `user_id` and `device_hash`?                                                                             | Needed to write a robust parser and an example placeholder in the settings panel.                                                                 |
+| 2   | Does the site need to handle multiple `game_instance_id`s per account (e.g., alt campaigns), or only the primary instance?                                                | `getuserdetails` returns a primary `instance_id`; other calls allow overrides. V1 can assume primary only, but confirm before locking in.         |
+| 3   | For Specialization Choices, should we ever write specializations **outside** of a saved formation (e.g., the "live" loadout), or is `SaveFormation` the only entry point? | `server-calls.md` only documents `SaveFormation` for specs. Confirming no other call exists (e.g., a hypothetical `setSpecialization`) before V1. |
+| 4   | Rate limiting — are there known per-account or per-IP limits on the play-server API that the site should respect?                                                         | If yes, add a client-side throttle to `serverCalls.js`.                                                                                           |
+| 5   | Should the site offer an export / import of credentials between browsers?                                                                                                 | Out of scope for V1; trade-off is convenience vs. another vector for accidental credential leakage.                                               |
+
 
 ---
 
@@ -455,10 +551,12 @@ The site uses the same public play-server endpoints the official game client use
 - The site shell (HTML + CSS + JS, excluding API payloads) loads in < 300 KB.
 - Passes Lighthouse audits at target thresholds (§2.3).
 - Works on iOS Safari and Android Chrome at 375px viewport with no horizontal scrolling on any view.
-- `serverCalls.js` handles the four documented error conditions (`switch_play_server`, `Outdated instance id`, `Security hash failure`, `non-atomic`) per the behavior table in [`docs/server-calls.md`](./server-calls.md).
+- `serverCalls.js` handles the four documented error conditions (`switch_play_server`, `Outdated instance id`, `Security hash failure`, `non-atomic`) per the behavior table in `[docs/server-calls.md](./server-calls.md)`.
 - Credentials are never transmitted to any host other than `*.idlechampions.com`.
 - No external analytics, ad, or telemetry network requests are made.
 - Visual parity with [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs): identical design tokens (§7.1), fonts (§7.2), header pattern with top-right Contribute pill (§7.3), card treatment (§7.4), and footer pattern (§7.6). Favicons and manifest are byte-identical copies (§2.4).
+- Bundled definition files (`data/*.json`) total under 50 KB, cover every label needed by the Legendary and Specializations views, and enable the site to render correctly with zero network round trips.
+- `scripts/refresh-defs.js` regenerates the bundled files end-to-end from credentials in `.credentials.json` (gitignored) with no arguments, and never writes credentials into any committed file.
 
 ---
 
@@ -466,5 +564,6 @@ The site uses the same public play-server endpoints the official game client use
 
 - [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs) — sibling Idle Champions companion site. Source of this project's branding (favicons, manifest) and visual system (design tokens, fonts, header / card / footer patterns).
 - [Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls) — reference JavaScript client for the Idle Champions play-server API.
-- [`docs/server-calls.md`](./server-calls.md) — complete local reference of the API calls used by this project.
+- `[docs/server-calls.md](./server-calls.md)` — complete local reference of the API calls used by this project.
 - [Idle Champions of the Forgotten Realms](https://www.idlechampions.com/) — the game this site is a companion to (Codename Entertainment / Wizards of the Coast).
+
