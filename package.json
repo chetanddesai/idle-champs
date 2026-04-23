@@ -1,0 +1,19 @@
+{
+  "name": "idle-champs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static GitHub Pages companion site for Idle Champions of the Forgotten Realms. See docs/PRD.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "refresh": "node scripts/refresh-defs.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chetanddesai/idle-champs.git"
+  },
+  "license": "MIT"
+}

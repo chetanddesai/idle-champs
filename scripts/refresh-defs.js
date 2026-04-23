@@ -38,9 +38,12 @@
  * No dependencies — pure Node built-ins (Node 18+ for global `fetch`).
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const REPO_ROOT = path.resolve(__dirname, '..');
 const CRED_PATH = path.join(REPO_ROOT, '.credentials.json');
 const DATA_DIR = path.join(REPO_ROOT, 'data');

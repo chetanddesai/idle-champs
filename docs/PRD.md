@@ -459,7 +459,8 @@ The script:
 │   │   └── specializations.js      # §3.3
 │   └── lib/
 │       ├── dom.js                  # Tiny DOM helpers (no framework dependency)
-│       └── format.js               # Number / cost / timestamp formatting
+│       ├── format.js               # Number / cost / timestamp formatting
+│       └── scopeMatcher.js         # Pure classifier for legendary-effect scope → hero match (§3.2.2)
 ├── img/                            # Favicons / touch icons — shared with my sibling ic-specs site
 │   ├── favicon.svg
 │   ├── favicon-16x16.png
@@ -474,6 +475,11 @@ The script:
 │   └── definitions.checksum.json
 ├── scripts/
 │   └── refresh-defs.js             # Regenerates data/*.json from live getdefinitions (see §4.3)
+├── test/                           # Node `node:test` suites — run with `npm test`
+│   ├── scopeMatcher.test.js        # Unit tests for js/lib/scopeMatcher.js
+│   └── fixtures/
+│       └── scopeMatcher.fixtures.js # Frozen hero + scope fixtures (see header comment)
+├── package.json                    # `"type": "module"`, zero runtime deps, `test` + `refresh` scripts
 ├── .credentials.example.json       # Template for local creds used by refresh-defs.js — commit
 ├── .credentials.json               # Gitignored. Never commit. Required only for refresh-defs.js.
 ├── .gitignore
