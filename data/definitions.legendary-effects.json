@@ -1,1 +1,882 @@
-[{"id":1,"effect_string":"global_dps_multiplier_mult,100","targets":["active_campaign"],"description":"Increases the damage of all Champions by $amount%"},{"id":2,"effect_string":"hero_dps_multiplier_mult,125","targets":["all_slots"],"description":"Increases the damage of all Male Champions by $(amount)%"},{"id":3,"effect_string":"hero_dps_multiplier_mult,125","targets":["all_slots"],"description":"Increases the damage of all Female Champions by $(amount)%"},{"id":4,"effect_string":"hero_dps_multiplier_mult,200","targets":["all_slots"],"description":"Increases the damage of all Nonbinary Champions by $(amount)%"},{"id":5,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Human Champions by $(amount)%"},{"id":6,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Dwarf Champions by $(amount)%"},{"id":7,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Elf Champions by $(amount)%"},{"id":8,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Half-Elf Champions by $(amount)%"},{"id":9,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Aarakocra Champions by $(amount)%"},{"id":10,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Tiefling Champions by $(amount)%"},{"id":11,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Firbolg Champions by $(amount)%"},{"id":12,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Dragonborn Champions by $(amount)%"},{"id":13,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Tabaxi Champions by $(amount)%"},{"id":14,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Tortle Champions by $(amount)%"},{"id":15,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Halfing Champions by $(amount)%"},{"id":16,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Gnome Champions by $(amount)%"},{"id":17,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Half-Orc Champions by $(amount)%"},{"id":18,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Gith Champions by $(amount)%"},{"id":19,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Warforged Champions by $(amount)%"},{"id":20,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Kobold Champions by $(amount)%"},{"id":21,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Aasimar Champions by $(amount)%"},{"id":22,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Lizardfolk Champions by $(amount)%"},{"id":23,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Saurial Champions by $(amount)%"},{"id":24,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Yuan-ti Champions by $(amount)%"},{"id":25,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Genasi Champions by $(amount)%"},{"id":26,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Goblin Champions by $(amount)%"},{"id":27,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Minotaur Champions by $(amount)%"},{"id":28,"effect_string":"hero_dps_multiplier_mult,100","targets":["all_slots"],"description":"Increases the damage of all Champions with a STR score of 11 or higher by $(amount)%"},{"id":29,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Champions with a STR score of 13 or higher by $(amount)%"},{"id":30,"effect_string":"hero_dps_multiplier_mult,200","targets":["all_slots"],"description":"Increases the damage of all Champions with a STR score of 15 or higher by $(amount)%"},{"id":31,"effect_string":"hero_dps_multiplier_mult,100","targets":["all_slots"],"description":"Increases the damage of all Champions with a DEX score of 11 or higher by $(amount)%"},{"id":32,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Champions with a DEX score of 13 or higher by $(amount)%"},{"id":33,"effect_string":"hero_dps_multiplier_mult,200","targets":["all_slots"],"description":"Increases the damage of all Champions with a DEX score of 15 or higher by $(amount)%"},{"id":34,"effect_string":"hero_dps_multiplier_mult,100","targets":["all_slots"],"description":"Increases the damage of all Champions with a CON score of 11 or higher by $(amount)%"},{"id":35,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Champions with a CON score of 13 or higher by $(amount)%"},{"id":36,"effect_string":"hero_dps_multiplier_mult,200","targets":["all_slots"],"description":"Increases the damage of all Champions with a CON score of 15 or higher by $(amount)%"},{"id":37,"effect_string":"hero_dps_multiplier_mult,100","targets":["all_slots"],"description":"Increases the damage of all Champions with a INT score of 11 or higher by $(amount)%"},{"id":38,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Champions with a INT score of 13 or higher by $(amount)%"},{"id":39,"effect_string":"hero_dps_multiplier_mult,200","targets":["all_slots"],"description":"Increases the damage of all Champions with a INT score of 15 or higher by $(amount)%"},{"id":40,"effect_string":"hero_dps_multiplier_mult,100","targets":["all_slots"],"description":"Increases the damage of all Champions with a WIS score of 11 or higher by $(amount)%"},{"id":41,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Champions with a WIS score of 13 or higher by $(amount)%"},{"id":42,"effect_string":"hero_dps_multiplier_mult,200","targets":["all_slots"],"description":"Increases the damage of all Champions with a WIS score of 15 or higher by $(amount)%"},{"id":43,"effect_string":"hero_dps_multiplier_mult,100","targets":["all_slots"],"description":"Increases the damage of all Champions with a CHA score of 11 or higher by $(amount)%"},{"id":44,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Champions with a CHA score of 13 or higher by $(amount)%"},{"id":45,"effect_string":"hero_dps_multiplier_mult,200","targets":["all_slots"],"description":"Increases the damage of all Champions with a CHA score of 15 or higher by $(amount)%"},{"id":46,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Melee Champions by $(amount)%"},{"id":47,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Ranged Champions by $(amount)%"},{"id":48,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Magic Champions by $(amount)%"},{"id":49,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Good Champions by $(amount)%"},{"id":50,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Evil Champions by $(amount)%"},{"id":51,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Lawful Champions by $(amount)%"},{"id":52,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Chaotic Champions by $(amount)%"},{"id":53,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Neutral Champions by $(amount)%"},{"id":54,"effect_string":"global_dps_multiplier_mult,10","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion in the formation"},{"id":55,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Male Champion in the formation"},{"id":56,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Female Champion in the formation"},{"id":57,"effect_string":"global_dps_multiplier_mult,135","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Nonbinary Champion in the formation"},{"id":58,"effect_string":"global_dps_multiplier_mult,30","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Human Champion in the formation"},{"id":59,"effect_string":"global_dps_multiplier_mult,65","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Dwarf Champion in the formation"},{"id":60,"effect_string":"global_dps_multiplier_mult,45","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Elf Champion in the formation"},{"id":61,"effect_string":"global_dps_multiplier_mult,70","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Half-Elf Champion in the formation"},{"id":62,"effect_string":"global_dps_multiplier_mult,230","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Aarakocra Champion in the formation"},{"id":63,"effect_string":"global_dps_multiplier_mult,95","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Tiefling Champion in the formation"},{"id":64,"effect_string":"global_dps_multiplier_mult,150","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Firbolg Champion in the formation"},{"id":65,"effect_string":"global_dps_multiplier_mult,85","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Dragonborn Champion in the formation"},{"id":66,"effect_string":"global_dps_multiplier_mult,280","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Tabaxi Champion in the formation"},{"id":67,"effect_string":"global_dps_multiplier_mult,115","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Tortle Champion in the formation"},{"id":68,"effect_string":"global_dps_multiplier_mult,60","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Halfing Champion in the formation"},{"id":69,"effect_string":"global_dps_multiplier_mult,135","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Gnome Champion in the formation"},{"id":70,"effect_string":"global_dps_multiplier_mult,210","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Half-Orc Champion in the formation"},{"id":71,"effect_string":"global_dps_multiplier_mult,280","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Gith Champion in the formation"},{"id":72,"effect_string":"global_dps_multiplier_mult,230","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Warforged Champion in the formation"},{"id":73,"effect_string":"global_dps_multiplier_mult,75","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Kobold Champion in the formation"},{"id":74,"effect_string":"global_dps_multiplier_mult,250","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Aasimar Champion in the formation"},{"id":75,"effect_string":"global_dps_multiplier_mult,245","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Lizardfolk Champion in the formation"},{"id":76,"effect_string":"global_dps_multiplier_mult,300","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Saurial Champion in the formation"},{"id":77,"effect_string":"global_dps_multiplier_mult,285","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Yuan-ti Champion in the formation"},{"id":78,"effect_string":"global_dps_multiplier_mult,270","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Genasi Champion in the formation"},{"id":79,"effect_string":"global_dps_multiplier_mult,260","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Goblin Champion in the formation"},{"id":80,"effect_string":"global_dps_multiplier_mult,300","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Minotaur Champion in the formation"},{"id":81,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a STR score of 11 or higher in the formation"},{"id":82,"effect_string":"global_dps_multiplier_mult,30","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a STR score of 13 or higher in the formation"},{"id":83,"effect_string":"global_dps_multiplier_mult,40","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a STR score of 15 or higher in the formation"},{"id":84,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a DEX score of 11 or higher in the formation"},{"id":85,"effect_string":"global_dps_multiplier_mult,30","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a DEX score of 13 or higher in the formation"},{"id":86,"effect_string":"global_dps_multiplier_mult,40","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a DEX score of 15 or higher in the formation"},{"id":87,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a CON score of 11 or higher in the formation"},{"id":88,"effect_string":"global_dps_multiplier_mult,30","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a CON score of 13 or higher in the formation"},{"id":89,"effect_string":"global_dps_multiplier_mult,40","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a CON score of 15 or higher in the formation"},{"id":90,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a INT score of 11 or higher in the formation"},{"id":91,"effect_string":"global_dps_multiplier_mult,30","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a INT score of 13 or higher in the formation"},{"id":92,"effect_string":"global_dps_multiplier_mult,40","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a INT score of 15 or higher in the formation"},{"id":93,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a WIS score of 11 or higher in the formation"},{"id":94,"effect_string":"global_dps_multiplier_mult,30","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a WIS score of 13 or higher in the formation"},{"id":95,"effect_string":"global_dps_multiplier_mult,40","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a WIS score of 15 or higher in the formation"},{"id":96,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a CHA score of 11 or higher in the formation"},{"id":97,"effect_string":"global_dps_multiplier_mult,30","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a CHA score of 13 or higher in the formation"},{"id":98,"effect_string":"global_dps_multiplier_mult,40","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion with a CHA score of 15 or higher in the formation"},{"id":99,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Melee Champion in the formation"},{"id":100,"effect_string":"global_dps_multiplier_mult,40","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Ranged Champion in the formation"},{"id":101,"effect_string":"global_dps_multiplier_mult,30","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Magic Champion in the formation"},{"id":102,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion in the formation with a GOOD alignment"},{"id":103,"effect_string":"global_dps_multiplier_mult,40","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion in the formation with a EVIL alignment"},{"id":104,"effect_string":"global_dps_multiplier_mult,30","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion in the formation with a LAWFUL alignment"},{"id":105,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion in the formation with a CHAOTIC alignment"},{"id":106,"effect_string":"global_dps_multiplier_mult,20","targets":["active_campaign"],"description":"Increases the damage of all Champions by $(amount)% for each Champion in the formation with a NEUTRAL alignment"},{"id":107,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Githyanki Champions by $(amount)%"},{"id":108,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Giff Champions by $(amount)%"},{"id":109,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Plasmoid Champions by $(amount)%"},{"id":110,"effect_string":"hero_dps_multiplier_mult,150","targets":["all_slots"],"description":"Increases the damage of all Goliath Champions by $(amount)%"}]
+[
+  {
+    "id": 1,
+    "effect_string": "global_dps_multiplier_mult,100",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $amount%"
+  },
+  {
+    "id": 2,
+    "effect_string": "hero_dps_multiplier_mult,125",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Male Champions by $(amount)%"
+  },
+  {
+    "id": 3,
+    "effect_string": "hero_dps_multiplier_mult,125",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Female Champions by $(amount)%"
+  },
+  {
+    "id": 4,
+    "effect_string": "hero_dps_multiplier_mult,200",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Nonbinary Champions by $(amount)%"
+  },
+  {
+    "id": 5,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Human Champions by $(amount)%"
+  },
+  {
+    "id": 6,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Dwarf Champions by $(amount)%"
+  },
+  {
+    "id": 7,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Elf Champions by $(amount)%"
+  },
+  {
+    "id": 8,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Half-Elf Champions by $(amount)%"
+  },
+  {
+    "id": 9,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Aarakocra Champions by $(amount)%"
+  },
+  {
+    "id": 10,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Tiefling Champions by $(amount)%"
+  },
+  {
+    "id": 11,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Firbolg Champions by $(amount)%"
+  },
+  {
+    "id": 12,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Dragonborn Champions by $(amount)%"
+  },
+  {
+    "id": 13,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Tabaxi Champions by $(amount)%"
+  },
+  {
+    "id": 14,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Tortle Champions by $(amount)%"
+  },
+  {
+    "id": 15,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Halfing Champions by $(amount)%"
+  },
+  {
+    "id": 16,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Gnome Champions by $(amount)%"
+  },
+  {
+    "id": 17,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Half-Orc Champions by $(amount)%"
+  },
+  {
+    "id": 18,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Gith Champions by $(amount)%"
+  },
+  {
+    "id": 19,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Warforged Champions by $(amount)%"
+  },
+  {
+    "id": 20,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Kobold Champions by $(amount)%"
+  },
+  {
+    "id": 21,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Aasimar Champions by $(amount)%"
+  },
+  {
+    "id": 22,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Lizardfolk Champions by $(amount)%"
+  },
+  {
+    "id": 23,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Saurial Champions by $(amount)%"
+  },
+  {
+    "id": 24,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Yuan-ti Champions by $(amount)%"
+  },
+  {
+    "id": 25,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Genasi Champions by $(amount)%"
+  },
+  {
+    "id": 26,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Goblin Champions by $(amount)%"
+  },
+  {
+    "id": 27,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Minotaur Champions by $(amount)%"
+  },
+  {
+    "id": 28,
+    "effect_string": "hero_dps_multiplier_mult,100",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a STR score of 11 or higher by $(amount)%"
+  },
+  {
+    "id": 29,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a STR score of 13 or higher by $(amount)%"
+  },
+  {
+    "id": 30,
+    "effect_string": "hero_dps_multiplier_mult,200",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a STR score of 15 or higher by $(amount)%"
+  },
+  {
+    "id": 31,
+    "effect_string": "hero_dps_multiplier_mult,100",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a DEX score of 11 or higher by $(amount)%"
+  },
+  {
+    "id": 32,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a DEX score of 13 or higher by $(amount)%"
+  },
+  {
+    "id": 33,
+    "effect_string": "hero_dps_multiplier_mult,200",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a DEX score of 15 or higher by $(amount)%"
+  },
+  {
+    "id": 34,
+    "effect_string": "hero_dps_multiplier_mult,100",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a CON score of 11 or higher by $(amount)%"
+  },
+  {
+    "id": 35,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a CON score of 13 or higher by $(amount)%"
+  },
+  {
+    "id": 36,
+    "effect_string": "hero_dps_multiplier_mult,200",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a CON score of 15 or higher by $(amount)%"
+  },
+  {
+    "id": 37,
+    "effect_string": "hero_dps_multiplier_mult,100",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a INT score of 11 or higher by $(amount)%"
+  },
+  {
+    "id": 38,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a INT score of 13 or higher by $(amount)%"
+  },
+  {
+    "id": 39,
+    "effect_string": "hero_dps_multiplier_mult,200",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a INT score of 15 or higher by $(amount)%"
+  },
+  {
+    "id": 40,
+    "effect_string": "hero_dps_multiplier_mult,100",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a WIS score of 11 or higher by $(amount)%"
+  },
+  {
+    "id": 41,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a WIS score of 13 or higher by $(amount)%"
+  },
+  {
+    "id": 42,
+    "effect_string": "hero_dps_multiplier_mult,200",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a WIS score of 15 or higher by $(amount)%"
+  },
+  {
+    "id": 43,
+    "effect_string": "hero_dps_multiplier_mult,100",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a CHA score of 11 or higher by $(amount)%"
+  },
+  {
+    "id": 44,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a CHA score of 13 or higher by $(amount)%"
+  },
+  {
+    "id": 45,
+    "effect_string": "hero_dps_multiplier_mult,200",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Champions with a CHA score of 15 or higher by $(amount)%"
+  },
+  {
+    "id": 46,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Melee Champions by $(amount)%"
+  },
+  {
+    "id": 47,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Ranged Champions by $(amount)%"
+  },
+  {
+    "id": 48,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Magic Champions by $(amount)%"
+  },
+  {
+    "id": 49,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Good Champions by $(amount)%"
+  },
+  {
+    "id": 50,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Evil Champions by $(amount)%"
+  },
+  {
+    "id": 51,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Lawful Champions by $(amount)%"
+  },
+  {
+    "id": 52,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Chaotic Champions by $(amount)%"
+  },
+  {
+    "id": 53,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Neutral Champions by $(amount)%"
+  },
+  {
+    "id": 54,
+    "effect_string": "global_dps_multiplier_mult,10",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion in the formation"
+  },
+  {
+    "id": 55,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Male Champion in the formation"
+  },
+  {
+    "id": 56,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Female Champion in the formation"
+  },
+  {
+    "id": 57,
+    "effect_string": "global_dps_multiplier_mult,135",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Nonbinary Champion in the formation"
+  },
+  {
+    "id": 58,
+    "effect_string": "global_dps_multiplier_mult,30",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Human Champion in the formation"
+  },
+  {
+    "id": 59,
+    "effect_string": "global_dps_multiplier_mult,65",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Dwarf Champion in the formation"
+  },
+  {
+    "id": 60,
+    "effect_string": "global_dps_multiplier_mult,45",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Elf Champion in the formation"
+  },
+  {
+    "id": 61,
+    "effect_string": "global_dps_multiplier_mult,70",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Half-Elf Champion in the formation"
+  },
+  {
+    "id": 62,
+    "effect_string": "global_dps_multiplier_mult,230",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Aarakocra Champion in the formation"
+  },
+  {
+    "id": 63,
+    "effect_string": "global_dps_multiplier_mult,95",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Tiefling Champion in the formation"
+  },
+  {
+    "id": 64,
+    "effect_string": "global_dps_multiplier_mult,150",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Firbolg Champion in the formation"
+  },
+  {
+    "id": 65,
+    "effect_string": "global_dps_multiplier_mult,85",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Dragonborn Champion in the formation"
+  },
+  {
+    "id": 66,
+    "effect_string": "global_dps_multiplier_mult,280",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Tabaxi Champion in the formation"
+  },
+  {
+    "id": 67,
+    "effect_string": "global_dps_multiplier_mult,115",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Tortle Champion in the formation"
+  },
+  {
+    "id": 68,
+    "effect_string": "global_dps_multiplier_mult,60",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Halfing Champion in the formation"
+  },
+  {
+    "id": 69,
+    "effect_string": "global_dps_multiplier_mult,135",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Gnome Champion in the formation"
+  },
+  {
+    "id": 70,
+    "effect_string": "global_dps_multiplier_mult,210",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Half-Orc Champion in the formation"
+  },
+  {
+    "id": 71,
+    "effect_string": "global_dps_multiplier_mult,280",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Gith Champion in the formation"
+  },
+  {
+    "id": 72,
+    "effect_string": "global_dps_multiplier_mult,230",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Warforged Champion in the formation"
+  },
+  {
+    "id": 73,
+    "effect_string": "global_dps_multiplier_mult,75",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Kobold Champion in the formation"
+  },
+  {
+    "id": 74,
+    "effect_string": "global_dps_multiplier_mult,250",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Aasimar Champion in the formation"
+  },
+  {
+    "id": 75,
+    "effect_string": "global_dps_multiplier_mult,245",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Lizardfolk Champion in the formation"
+  },
+  {
+    "id": 76,
+    "effect_string": "global_dps_multiplier_mult,300",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Saurial Champion in the formation"
+  },
+  {
+    "id": 77,
+    "effect_string": "global_dps_multiplier_mult,285",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Yuan-ti Champion in the formation"
+  },
+  {
+    "id": 78,
+    "effect_string": "global_dps_multiplier_mult,270",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Genasi Champion in the formation"
+  },
+  {
+    "id": 79,
+    "effect_string": "global_dps_multiplier_mult,260",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Goblin Champion in the formation"
+  },
+  {
+    "id": 80,
+    "effect_string": "global_dps_multiplier_mult,300",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Minotaur Champion in the formation"
+  },
+  {
+    "id": 81,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a STR score of 11 or higher in the formation"
+  },
+  {
+    "id": 82,
+    "effect_string": "global_dps_multiplier_mult,30",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a STR score of 13 or higher in the formation"
+  },
+  {
+    "id": 83,
+    "effect_string": "global_dps_multiplier_mult,40",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a STR score of 15 or higher in the formation"
+  },
+  {
+    "id": 84,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a DEX score of 11 or higher in the formation"
+  },
+  {
+    "id": 85,
+    "effect_string": "global_dps_multiplier_mult,30",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a DEX score of 13 or higher in the formation"
+  },
+  {
+    "id": 86,
+    "effect_string": "global_dps_multiplier_mult,40",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a DEX score of 15 or higher in the formation"
+  },
+  {
+    "id": 87,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a CON score of 11 or higher in the formation"
+  },
+  {
+    "id": 88,
+    "effect_string": "global_dps_multiplier_mult,30",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a CON score of 13 or higher in the formation"
+  },
+  {
+    "id": 89,
+    "effect_string": "global_dps_multiplier_mult,40",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a CON score of 15 or higher in the formation"
+  },
+  {
+    "id": 90,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a INT score of 11 or higher in the formation"
+  },
+  {
+    "id": 91,
+    "effect_string": "global_dps_multiplier_mult,30",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a INT score of 13 or higher in the formation"
+  },
+  {
+    "id": 92,
+    "effect_string": "global_dps_multiplier_mult,40",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a INT score of 15 or higher in the formation"
+  },
+  {
+    "id": 93,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a WIS score of 11 or higher in the formation"
+  },
+  {
+    "id": 94,
+    "effect_string": "global_dps_multiplier_mult,30",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a WIS score of 13 or higher in the formation"
+  },
+  {
+    "id": 95,
+    "effect_string": "global_dps_multiplier_mult,40",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a WIS score of 15 or higher in the formation"
+  },
+  {
+    "id": 96,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a CHA score of 11 or higher in the formation"
+  },
+  {
+    "id": 97,
+    "effect_string": "global_dps_multiplier_mult,30",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a CHA score of 13 or higher in the formation"
+  },
+  {
+    "id": 98,
+    "effect_string": "global_dps_multiplier_mult,40",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion with a CHA score of 15 or higher in the formation"
+  },
+  {
+    "id": 99,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Melee Champion in the formation"
+  },
+  {
+    "id": 100,
+    "effect_string": "global_dps_multiplier_mult,40",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Ranged Champion in the formation"
+  },
+  {
+    "id": 101,
+    "effect_string": "global_dps_multiplier_mult,30",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Magic Champion in the formation"
+  },
+  {
+    "id": 102,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion in the formation with a GOOD alignment"
+  },
+  {
+    "id": 103,
+    "effect_string": "global_dps_multiplier_mult,40",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion in the formation with a EVIL alignment"
+  },
+  {
+    "id": 104,
+    "effect_string": "global_dps_multiplier_mult,30",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion in the formation with a LAWFUL alignment"
+  },
+  {
+    "id": 105,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion in the formation with a CHAOTIC alignment"
+  },
+  {
+    "id": 106,
+    "effect_string": "global_dps_multiplier_mult,20",
+    "targets": [
+      "active_campaign"
+    ],
+    "description": "Increases the damage of all Champions by $(amount)% for each Champion in the formation with a NEUTRAL alignment"
+  },
+  {
+    "id": 107,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Githyanki Champions by $(amount)%"
+  },
+  {
+    "id": 108,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Giff Champions by $(amount)%"
+  },
+  {
+    "id": 109,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Plasmoid Champions by $(amount)%"
+  },
+  {
+    "id": 110,
+    "effect_string": "hero_dps_multiplier_mult,150",
+    "targets": [
+      "all_slots"
+    ],
+    "description": "Increases the damage of all Goliath Champions by $(amount)%"
+  }
+]

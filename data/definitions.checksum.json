@@ -1,7 +1,9 @@
 {
   "server_checksum": null,
-  "fetched_at": "2026-04-23T17:18:17.638Z",
-  "source": "https://ps29.idlechampions.com/~idledragons/post.php?call=getdefinitions&filter=hero_defines,legendary_effect_defines",
+  "fetched_at": "2026-04-23T22:07:50.876Z",
+  "source": "https://ps27.idlechampions.com/~idledragons/post.php?call=getdefinitions&filter=hero_defines,attack_defines,legendary_effect_defines",
   "hero_count": 173,
-  "legendary_effect_count": 110
+  "legendary_effect_count": 110,
+  "scope_count": 110,
+  "unknown_scope_ids": []
 }

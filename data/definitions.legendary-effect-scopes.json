@@ -1,0 +1,516 @@
+[
+  {
+    "id": 1,
+    "kind": "global"
+  },
+  {
+    "id": 2,
+    "kind": "gender",
+    "value": "Male"
+  },
+  {
+    "id": 3,
+    "kind": "gender",
+    "value": "Female"
+  },
+  {
+    "id": 4,
+    "kind": "gender",
+    "value": "Nonbinary"
+  },
+  {
+    "id": 5,
+    "kind": "race",
+    "value": "Human"
+  },
+  {
+    "id": 6,
+    "kind": "race",
+    "value": "Dwarf"
+  },
+  {
+    "id": 7,
+    "kind": "race",
+    "value": "Elf"
+  },
+  {
+    "id": 8,
+    "kind": "race",
+    "value": "Half-Elf"
+  },
+  {
+    "id": 9,
+    "kind": "race",
+    "value": "Aarakocra"
+  },
+  {
+    "id": 10,
+    "kind": "race",
+    "value": "Tiefling"
+  },
+  {
+    "id": 11,
+    "kind": "race",
+    "value": "Firbolg"
+  },
+  {
+    "id": 12,
+    "kind": "race",
+    "value": "Dragonborn"
+  },
+  {
+    "id": 13,
+    "kind": "race",
+    "value": "Tabaxi"
+  },
+  {
+    "id": 14,
+    "kind": "race",
+    "value": "Tortle"
+  },
+  {
+    "id": 15,
+    "kind": "race",
+    "value": "Halfling"
+  },
+  {
+    "id": 16,
+    "kind": "race",
+    "value": "Gnome"
+  },
+  {
+    "id": 17,
+    "kind": "race",
+    "value": "Half-Orc"
+  },
+  {
+    "id": 18,
+    "kind": "race",
+    "value": "Gith"
+  },
+  {
+    "id": 19,
+    "kind": "race",
+    "value": "Warforged"
+  },
+  {
+    "id": 20,
+    "kind": "race",
+    "value": "Kobold"
+  },
+  {
+    "id": 21,
+    "kind": "race",
+    "value": "Aasimar"
+  },
+  {
+    "id": 22,
+    "kind": "race",
+    "value": "Lizardfolk"
+  },
+  {
+    "id": 23,
+    "kind": "race",
+    "value": "Saurial"
+  },
+  {
+    "id": 24,
+    "kind": "race",
+    "value": "Yuan-ti"
+  },
+  {
+    "id": 25,
+    "kind": "race",
+    "value": "Genasi"
+  },
+  {
+    "id": 26,
+    "kind": "race",
+    "value": "Goblin"
+  },
+  {
+    "id": 27,
+    "kind": "race",
+    "value": "Minotaur"
+  },
+  {
+    "id": 28,
+    "kind": "stat_threshold",
+    "stat": "str",
+    "min": 11
+  },
+  {
+    "id": 29,
+    "kind": "stat_threshold",
+    "stat": "str",
+    "min": 13
+  },
+  {
+    "id": 30,
+    "kind": "stat_threshold",
+    "stat": "str",
+    "min": 15
+  },
+  {
+    "id": 31,
+    "kind": "stat_threshold",
+    "stat": "dex",
+    "min": 11
+  },
+  {
+    "id": 32,
+    "kind": "stat_threshold",
+    "stat": "dex",
+    "min": 13
+  },
+  {
+    "id": 33,
+    "kind": "stat_threshold",
+    "stat": "dex",
+    "min": 15
+  },
+  {
+    "id": 34,
+    "kind": "stat_threshold",
+    "stat": "con",
+    "min": 11
+  },
+  {
+    "id": 35,
+    "kind": "stat_threshold",
+    "stat": "con",
+    "min": 13
+  },
+  {
+    "id": 36,
+    "kind": "stat_threshold",
+    "stat": "con",
+    "min": 15
+  },
+  {
+    "id": 37,
+    "kind": "stat_threshold",
+    "stat": "int",
+    "min": 11
+  },
+  {
+    "id": 38,
+    "kind": "stat_threshold",
+    "stat": "int",
+    "min": 13
+  },
+  {
+    "id": 39,
+    "kind": "stat_threshold",
+    "stat": "int",
+    "min": 15
+  },
+  {
+    "id": 40,
+    "kind": "stat_threshold",
+    "stat": "wis",
+    "min": 11
+  },
+  {
+    "id": 41,
+    "kind": "stat_threshold",
+    "stat": "wis",
+    "min": 13
+  },
+  {
+    "id": 42,
+    "kind": "stat_threshold",
+    "stat": "wis",
+    "min": 15
+  },
+  {
+    "id": 43,
+    "kind": "stat_threshold",
+    "stat": "cha",
+    "min": 11
+  },
+  {
+    "id": 44,
+    "kind": "stat_threshold",
+    "stat": "cha",
+    "min": 13
+  },
+  {
+    "id": 45,
+    "kind": "stat_threshold",
+    "stat": "cha",
+    "min": 15
+  },
+  {
+    "id": 46,
+    "kind": "damage_type",
+    "value": "Melee"
+  },
+  {
+    "id": 47,
+    "kind": "damage_type",
+    "value": "Ranged"
+  },
+  {
+    "id": 48,
+    "kind": "damage_type",
+    "value": "Magic"
+  },
+  {
+    "id": 49,
+    "kind": "alignment",
+    "value": "Good"
+  },
+  {
+    "id": 50,
+    "kind": "alignment",
+    "value": "Evil"
+  },
+  {
+    "id": 51,
+    "kind": "alignment",
+    "value": "Lawful"
+  },
+  {
+    "id": 52,
+    "kind": "alignment",
+    "value": "Chaotic"
+  },
+  {
+    "id": 53,
+    "kind": "alignment",
+    "value": "Neutral"
+  },
+  {
+    "id": 54,
+    "kind": "global"
+  },
+  {
+    "id": 55,
+    "kind": "global"
+  },
+  {
+    "id": 56,
+    "kind": "global"
+  },
+  {
+    "id": 57,
+    "kind": "global"
+  },
+  {
+    "id": 58,
+    "kind": "global"
+  },
+  {
+    "id": 59,
+    "kind": "global"
+  },
+  {
+    "id": 60,
+    "kind": "global"
+  },
+  {
+    "id": 61,
+    "kind": "global"
+  },
+  {
+    "id": 62,
+    "kind": "global"
+  },
+  {
+    "id": 63,
+    "kind": "global"
+  },
+  {
+    "id": 64,
+    "kind": "global"
+  },
+  {
+    "id": 65,
+    "kind": "global"
+  },
+  {
+    "id": 66,
+    "kind": "global"
+  },
+  {
+    "id": 67,
+    "kind": "global"
+  },
+  {
+    "id": 68,
+    "kind": "global"
+  },
+  {
+    "id": 69,
+    "kind": "global"
+  },
+  {
+    "id": 70,
+    "kind": "global"
+  },
+  {
+    "id": 71,
+    "kind": "global"
+  },
+  {
+    "id": 72,
+    "kind": "global"
+  },
+  {
+    "id": 73,
+    "kind": "global"
+  },
+  {
+    "id": 74,
+    "kind": "global"
+  },
+  {
+    "id": 75,
+    "kind": "global"
+  },
+  {
+    "id": 76,
+    "kind": "global"
+  },
+  {
+    "id": 77,
+    "kind": "global"
+  },
+  {
+    "id": 78,
+    "kind": "global"
+  },
+  {
+    "id": 79,
+    "kind": "global"
+  },
+  {
+    "id": 80,
+    "kind": "global"
+  },
+  {
+    "id": 81,
+    "kind": "global"
+  },
+  {
+    "id": 82,
+    "kind": "global"
+  },
+  {
+    "id": 83,
+    "kind": "global"
+  },
+  {
+    "id": 84,
+    "kind": "global"
+  },
+  {
+    "id": 85,
+    "kind": "global"
+  },
+  {
+    "id": 86,
+    "kind": "global"
+  },
+  {
+    "id": 87,
+    "kind": "global"
+  },
+  {
+    "id": 88,
+    "kind": "global"
+  },
+  {
+    "id": 89,
+    "kind": "global"
+  },
+  {
+    "id": 90,
+    "kind": "global"
+  },
+  {
+    "id": 91,
+    "kind": "global"
+  },
+  {
+    "id": 92,
+    "kind": "global"
+  },
+  {
+    "id": 93,
+    "kind": "global"
+  },
+  {
+    "id": 94,
+    "kind": "global"
+  },
+  {
+    "id": 95,
+    "kind": "global"
+  },
+  {
+    "id": 96,
+    "kind": "global"
+  },
+  {
+    "id": 97,
+    "kind": "global"
+  },
+  {
+    "id": 98,
+    "kind": "global"
+  },
+  {
+    "id": 99,
+    "kind": "global"
+  },
+  {
+    "id": 100,
+    "kind": "global"
+  },
+  {
+    "id": 101,
+    "kind": "global"
+  },
+  {
+    "id": 102,
+    "kind": "global"
+  },
+  {
+    "id": 103,
+    "kind": "global"
+  },
+  {
+    "id": 104,
+    "kind": "global"
+  },
+  {
+    "id": 105,
+    "kind": "global"
+  },
+  {
+    "id": 106,
+    "kind": "global"
+  },
+  {
+    "id": 107,
+    "kind": "race",
+    "value": "Githyanki"
+  },
+  {
+    "id": 108,
+    "kind": "race",
+    "value": "Giff"
+  },
+  {
+    "id": 109,
+    "kind": "race",
+    "value": "Plasmoid"
+  },
+  {
+    "id": 110,
+    "kind": "race",
+    "value": "Goliath"
+  }
+]

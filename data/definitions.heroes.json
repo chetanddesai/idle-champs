@@ -1,1 +1,6926 @@
-[{"id":1,"name":"Bruenor","seat_id":1,"class":"Fighter","race":"Dwarf (Shield)","legendary_effect_id":[1,56,6,83,43,53]},{"id":2,"name":"Celeste","seat_id":2,"class":"Cleric","race":"Human","legendary_effect_id":[1,56,5,28,87,101]},{"id":3,"name":"Nayeli","seat_id":3,"class":"Paladin","race":"Human","legendary_effect_id":[1,2,5,36,97,46]},{"id":4,"name":"Jarlaxle","seat_id":4,"class":"Rogue","race":"Elf (Drow)","legendary_effect_id":[1,55,7,91,87,103]},{"id":5,"name":"Calliope","seat_id":5,"class":"Bard","race":"Half-Elf","legendary_effect_id":[1,56,8,44,88,105]},{"id":6,"name":"Asharra","seat_id":6,"class":"Wizard","race":"Aarakocra","legendary_effect_id":[1,56,9,43,41,104]},{"id":7,"name":"Minsc","seat_id":7,"class":"Ranger","race":"Human","legendary_effect_id":[54,2,58,29,89,46]},{"id":8,"name":"Delina","seat_id":8,"class":"Sorcerer","race":"Elf (High)","legendary_effect_id":[54,3,60,40,87,101]},{"id":9,"name":"Makos","seat_id":9,"class":"Warlock","race":"Tiefling","legendary_effect_id":[1,2,10,90,81,50]},{"id":10,"name":"Tyril","seat_id":10,"class":"Druid","race":"Firbolg","legendary_effect_id":[1,2,11,36,43,49]},{"id":11,"name":"Jamilah","seat_id":11,"class":"Barbarian","race":"Human","legendary_effect_id":[1,3,5,32,88,106]},{"id":12,"name":"Arkhan","seat_id":12,"class":"Paladin","race":"Dragonborn","legendary_effect_id":[54,2,65,44,88,103]},{"id":13,"name":"Hitch","seat_id":8,"class":"Rogue","race":"Human","legendary_effect_id":[1,3,5,38,41,49]},{"id":14,"name":"Stoki","seat_id":4,"class":"Monk","race":"Gnome","legendary_effect_id":[1,55,16,42,86,106]},{"id":15,"name":"Krond","seat_id":6,"class":"Fighter","race":"Half-Orc","legendary_effect_id":[1,2,70,83,92,52]},{"id":16,"name":"Gromma","seat_id":3,"class":"Druid","race":"Tortle","legendary_effect_id":[54,3,14,44,41,51]},{"id":17,"name":"Dhadius","seat_id":5,"class":"Wizard","race":"Human","legendary_effect_id":[54,2,58,96,39,101]},{"id":18,"name":"Drizzt","seat_id":9,"class":"Ranger","race":"Elf (Drow)","legendary_effect_id":[54,2,7,87,84,102]},{"id":19,"name":"Barrowin","seat_id":10,"class":"Cleric","race":"Dwarf","legendary_effect_id":[54,3,6,34,84,51]},{"id":20,"name":"Regis","seat_id":2,"class":"Rogue","race":"Halfling","legendary_effect_id":[54,2,68,91,34,105]},{"id":21,"name":"Birdsong","seat_id":9,"class":"Bard","race":"Tabaxi","legendary_effect_id":[1,56,13,31,43,46]},{"id":22,"name":"Zorbu","seat_id":12,"class":"Ranger","race":"Gnome","legendary_effect_id":[1,2,16,40,88,49]},{"id":23,"name":"Strix","seat_id":11,"class":"Sorcerer","race":"Tiefling","legendary_effect_id":[1,3,10,43,37,52]},{"id":24,"name":"Nrakk","seat_id":8,"class":"Monk","race":"Githzerai","legendary_effect_id":[1,55,18,36,40,46]},{"id":25,"name":"Catti-brie","seat_id":7,"class":"Fighter","race":"Human","legendary_effect_id":[1,56,5,38,85,52]},{"id":26,"name":"Evelyn","seat_id":6,"class":"Paladin","race":"Human","legendary_effect_id":[1,57,5,45,83,46]},{"id":27,"name":"Binwin","seat_id":3,"class":"Fighter / Barbarian","race":"Dwarf (Mountain)","legendary_effect_id":[54,55,59,40,81,102]},{"id":28,"name":"Deekin","seat_id":1,"class":"Bard","race":"Kobold","legendary_effect_id":[54,55,20,45,34,47]},{"id":29,"name":"Xander","seat_id":5,"class":"Rogue","race":"Human","legendary_effect_id":[1,55,5,32,43,46]},{"id":30,"name":"Azaka","seat_id":12,"class":"Fighter","race":"Human","legendary_effect_id":[1,3,58,43,88,99]},{"id":31,"name":"Ishi","seat_id":4,"class":"Fighter / Rogue","race":"Kobold","legendary_effect_id":[1,56,20,87,90,102]},{"id":32,"name":"Wulfgar","seat_id":10,"class":"Barbarian","race":"Human","legendary_effect_id":[54,2,58,30,43,102]},{"id":33,"name":"Farideh","seat_id":7,"class":"Warlock","race":"Tiefling","legendary_effect_id":[1,3,63,35,90,49]},{"id":34,"name":"Donaar","seat_id":2,"class":"Paladin","race":"Dragonborn","legendary_effect_id":[1,56,12,28,98,102]},{"id":35,"name":"Vlahnya","seat_id":8,"class":"Bard / Wizard","race":"Elf (Eladrin)","legendary_effect_id":[1,3,7,43,40,48]},{"id":36,"name":"Warden","seat_id":11,"class":"Warlock (Hexblade)","race":"Warforged (Skirmisher)","legendary_effect_id":[54,4,72,32,43,50]},{"id":37,"name":"Nerys","seat_id":12,"class":"Cleric","race":"Human","legendary_effect_id":[1,2,58,30,31,46]},{"id":38,"name":"K'thriss","seat_id":1,"class":"Warlock","race":"Elf (Drow)","legendary_effect_id":[1,3,7,90,98,48]},{"id":39,"name":"Paultin","seat_id":4,"class":"Bard","race":"Human","legendary_effect_id":[54,2,5,35,45,52]},{"id":40,"name":"Black Viper","seat_id":7,"class":"Rogue","race":"Human","legendary_effect_id":[1,56,58,86,81,105]},{"id":41,"name":"Rosie","seat_id":10,"class":"Monk","race":"Halfling","legendary_effect_id":[54,3,68,31,87,105]},{"id":42,"name":"Aila","seat_id":9,"class":"Barbarian","race":"Elf (Wild)","legendary_effect_id":[54,55,7,28,35,105]},{"id":43,"name":"Spurt","seat_id":3,"class":"Inventor (Rogue)","race":"Kobold","legendary_effect_id":[1,2,20,32,34,47]},{"id":44,"name":"Qillek","seat_id":5,"class":"Cleric / Bard","race":"Aarakocra","legendary_effect_id":[1,55,9,28,87,102]},{"id":45,"name":"Korth","seat_id":2,"class":"Samurai (Fighter)","race":"Lizardfolk","legendary_effect_id":[54,55,22,34,81,50]},{"id":46,"name":"Walnut","seat_id":8,"class":"Druid","race":"Elf (Wood)","legendary_effect_id":[1,3,7,33,35,51]},{"id":47,"name":"Shandie","seat_id":6,"class":"Rogue","race":"Halfling","legendary_effect_id":[1,3,15,85,44,52]},{"id":48,"name":"Jim","seat_id":7,"class":"Wizard","race":"Human","legendary_effect_id":[54,55,5,84,96,52]},{"id":49,"name":"Turiel","seat_id":1,"class":"Cleric","race":"Aasimar","legendary_effect_id":[1,4,21,93,84,51]},{"id":50,"name":"Pwent","seat_id":5,"class":"Barbarian","race":"Dwarf","legendary_effect_id":[1,3,6,36,85,52]},{"id":51,"name":"Avren","seat_id":11,"class":"Warlock / Sorcerer","race":"Half-Elf","legendary_effect_id":[1,2,8,97,88,53]},{"id":52,"name":"Sentry","seat_id":4,"class":"Paladin","race":"Warforged","legendary_effect_id":[54,3,19,35,44,104]},{"id":53,"name":"Krull","seat_id":6,"class":"Cleric","race":"Tortle","legendary_effect_id":[1,3,14,40,82,103]},{"id":54,"name":"Artemis","seat_id":3,"class":"Rogue","race":"Human","legendary_effect_id":[1,55,58,97,28,104]},{"id":55,"name":"Môrgæn","seat_id":9,"class":"Ranger","race":"Elf (High)","legendary_effect_id":[1,3,7,38,94,53]},{"id":56,"name":"Havilar","seat_id":10,"class":"Fighter","race":"Tiefling","legendary_effect_id":[54,55,10,34,32,102]},{"id":57,"name":"Sisaspia","seat_id":1,"class":"Druid","race":"Yuan-ti Pureblood","legendary_effect_id":[1,3,77,97,91,106]},{"id":58,"name":"Briv","seat_id":5,"class":"Paladin","race":"Half-Orc","legendary_effect_id":[54,55,17,34,43,46]},{"id":59,"name":"Melf","seat_id":12,"class":"Fighter / Wizard","race":"Elf (High)","legendary_effect_id":[54,55,7,37,40,49]},{"id":60,"name":"Krydle","seat_id":2,"class":"Rogue","race":"Half-Elf","legendary_effect_id":[54,2,61,89,28,102]},{"id":61,"name":"Jaheira","seat_id":9,"class":"Fighter / Druid","race":"Half-Elf","legendary_effect_id":[1,3,61,94,44,106]},{"id":62,"name":"Nova","seat_id":11,"class":"Warlock","race":"Air Genasi","legendary_effect_id":[54,57,25,43,37,105]},{"id":63,"name":"Freely","seat_id":7,"class":"Bard / Warlock","race":"Halfling","legendary_effect_id":[54,2,15,33,82,49]},{"id":64,"name":"Beadle","seat_id":8,"class":"Rogue / Wizard","race":"Dwarf","legendary_effect_id":[1,56,58,31,28,99]},{"id":65,"name":"Omin","seat_id":3,"class":"Cleric","race":"Half-Elf","legendary_effect_id":[1,56,8,28,43,99]},{"id":66,"name":"Lazaapz","seat_id":9,"class":"Artificer","race":"Goblin","legendary_effect_id":[1,3,91,34,33,53]},{"id":67,"name":"Dragonbait","seat_id":11,"class":"Paladin","race":"Saurial","legendary_effect_id":[1,55,23,44,37,51]},{"id":68,"name":"Ulkoria","seat_id":10,"class":"Wizard","race":"Dwarf","legendary_effect_id":[1,56,6,34,39,49]},{"id":69,"name":"Torogar","seat_id":10,"class":"Barbarian","race":"Minotaur","legendary_effect_id":[1,2,80,88,85,99]},{"id":70,"name":"Ezmerelda","seat_id":1,"class":"Fighter / Wizard","race":"Human","legendary_effect_id":[1,2,5,37,43,105]},{"id":71,"name":"Penelope","seat_id":12,"class":"Druid / Warlock","race":"Halfling","legendary_effect_id":[1,2,15,84,42,99]},{"id":72,"name":"Lucius","seat_id":7,"class":"Sorcerer","race":"Elf (High)","legendary_effect_id":[1,55,7,84,87,104]},{"id":73,"name":"Baeloth","seat_id":4,"class":"Sorcerer","race":"Elf (Drow)","legendary_effect_id":[1,3,7,32,87,50]},{"id":74,"name":"Talin","seat_id":2,"class":"Rogue","race":"Tiefling","legendary_effect_id":[1,4,10,94,45,49]},{"id":75,"name":"Hew Maan","seat_id":8,"class":"Rogue / Bard","race":"Kobold / 'Human'","legendary_effect_id":[54,3,73,45,35,100]},{"id":76,"name":"Orisha","seat_id":11,"class":"Cleric / Bard","race":"Aasimar","legendary_effect_id":[1,3,21,45,31,53]},{"id":77,"name":"Alyndra","seat_id":6,"class":"Wizard / Cleric","race":"Elf (High)","legendary_effect_id":[54,3,60,41,37,53]},{"id":78,"name":"Orkira","seat_id":1,"class":"Cleric","race":"Dragonborn","legendary_effect_id":[1,2,65,98,36,52]},{"id":79,"name":"Shaka","seat_id":9,"class":"Warlock","race":"Tiefling","legendary_effect_id":[54,2,10,44,34,48]},{"id":80,"name":"Mehen","seat_id":3,"class":"Fighter","race":"Dragonborn","legendary_effect_id":[1,56,65,43,30,49]},{"id":81,"name":"Selise","seat_id":12,"class":"Paladin","race":"Human","legendary_effect_id":[1,55,5,37,31,106]},{"id":82,"name":"Sgt. Knox","seat_id":6,"class":"Fighter","race":"Human","legendary_effect_id":[1,56,58,31,28,99]},{"id":83,"name":"Ellywick","seat_id":10,"class":"Bard","race":"Gnome","legendary_effect_id":[54,56,16,32,93,48]},{"id":84,"name":"Prudence","seat_id":5,"class":"Warlock","race":"Tiefling","legendary_effect_id":[54,3,10,92,97,50]},{"id":85,"name":"Corazón","seat_id":8,"class":"Rogue","race":"Human","legendary_effect_id":[1,2,5,90,44,99]},{"id":86,"name":"Reya","seat_id":6,"class":"Paladin","race":"Human / Celestial","legendary_effect_id":[1,3,58,83,34,102]},{"id":87,"name":"NERDS","seat_id":1,"class":"Fighter / Ranger / Bard / Cleric / Rogue / Wizard","race":"NERDS","legendary_effect_id":[54,57,1,35,43,105]},{"id":88,"name":"Xerophon","seat_id":7,"class":"Rogue","race":"Doppelganger","legendary_effect_id":[1,4,35,37,33,46]},{"id":89,"name":"D'hani","seat_id":1,"class":"Kensei Monk","race":"Aarakocra","legendary_effect_id":[1,56,62,33,81,99]},{"id":90,"name":"Brig","seat_id":3,"class":"Rogue / Bard","race":"Human","legendary_effect_id":[54,56,58,41,33,105]},{"id":91,"name":"Widdle","seat_id":2,"class":"Wizard","race":"Dhampir Gnome","legendary_effect_id":[1,3,16,37,29,106]},{"id":92,"name":"Yorven","seat_id":10,"class":"Barbarian / Druid","race":"Harengon","legendary_effect_id":[54,2,1,87,83,52]},{"id":93,"name":"Viconia","seat_id":5,"class":"Cleric","race":"Elf (Drow)","legendary_effect_id":[1,2,60,40,90,53]},{"id":94,"name":"Rust","seat_id":11,"class":"Rogue","race":"Tabaxi","legendary_effect_id":[1,3,13,37,93,106]},{"id":95,"name":"Vi","seat_id":12,"class":"Artificer","race":"Gnome","legendary_effect_id":[1,56,16,38,43,100]},{"id":96,"name":"Desmond","seat_id":4,"class":"Ranger","race":"Human","legendary_effect_id":[1,55,58,90,30,52]},{"id":97,"name":"Tatyana","seat_id":8,"class":"Barbarian / Druid","race":"Air Genasi","legendary_effect_id":[1,3,25,89,93,106]},{"id":98,"name":"Gazrick","seat_id":7,"class":"Druid","race":"Gnome (Rock)","legendary_effect_id":[1,55,16,35,38,53]},{"id":99,"name":"Dungeon Master","seat_id":6,"class":"Wizard","race":"Human","legendary_effect_id":[1,56,58,81,43,48]},{"id":100,"name":"Nordom","seat_id":9,"class":"Fighter","race":"Modron","legendary_effect_id":[54,4,1,29,91,51]},{"id":101,"name":"Merilwen","seat_id":2,"class":"Druid","race":"Elf (Wood)","legendary_effect_id":[1,2,7,38,31,101]},{"id":102,"name":"Nahara","seat_id":3,"class":"Warlock / Bard","race":"Aasimar (Reborn)","legendary_effect_id":[54,56,21,84,87,105]},{"id":103,"name":"Valentine","seat_id":5,"class":"Sorcerer","race":"Half-Elf (Reborn)","legendary_effect_id":[54,3,8,94,85,106]},{"id":104,"name":"Voronika","seat_id":1,"class":"Druid","race":"Elf (Eladrin)","legendary_effect_id":[1,55,60,36,43,101]},{"id":105,"name":"Dob","seat_id":12,"class":"Bard","race":"Half-Orc","legendary_effect_id":[1,56,17,31,43,101]},{"id":106,"name":"Blooshi","seat_id":2,"class":"Warlock","race":"Bullywug","legendary_effect_id":[54,55,1,91,87,48]},{"id":108,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":109,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":110,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":111,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":112,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":113,"name":"Egbert","seat_id":7,"class":"Paladin","race":"Dragonborn","legendary_effect_id":[54,2,12,83,35,49]},{"id":114,"name":"Kent","seat_id":4,"class":"Rogue","race":"Tiefling","legendary_effect_id":[1,2,10,44,88,106]},{"id":115,"name":"Virgil","seat_id":10,"class":"Sorcerer","race":"Aasimar","legendary_effect_id":[1,56,21,96,34,49]},{"id":116,"name":"Warduke","seat_id":8,"class":"Fighter","race":"Human","legendary_effect_id":[54,55,5,93,88,103]},{"id":117,"name":"Imoen","seat_id":11,"class":"Rogue / Wizard","race":"Human","legendary_effect_id":[1,55,5,43,35,49]},{"id":118,"name":"Fen","seat_id":6,"class":"Warlock / Rogue","race":"Dhampir Elf (Drow)","legendary_effect_id":[1,56,7,93,28,50]},{"id":119,"name":"Brother Uriah","seat_id":9,"class":"Cleric","race":"Human","legendary_effect_id":[1,3,58,95,37,49]},{"id":120,"name":"Solaak","seat_id":2,"class":"Ranger","race":"Kalashtar","legendary_effect_id":[54,2,55,41,37,53]},{"id":121,"name":"Miria","seat_id":12,"class":"Wizard","race":"Elf (Shadar-kai)","legendary_effect_id":[1,3,7,93,33,101]},{"id":122,"name":"Antrius","seat_id":4,"class":"Bard","race":"Human","legendary_effect_id":[1,3,58,85,45,52]},{"id":123,"name":"Nixie","seat_id":1,"class":"Sorcerer","race":"Tiefling","legendary_effect_id":[1,3,63,31,89,101]},{"id":124,"name":"Evandra","seat_id":5,"class":"Fighter","race":"Half-Elf","legendary_effect_id":[54,55,61,34,83,53]},{"id":125,"name":"BBEG","seat_id":3,"class":"Wizard","race":"Elf (Drow)","legendary_effect_id":[54,3,7,40,95,51]},{"id":126,"name":"Strongheart","seat_id":11,"class":"Paladin","race":"Human","legendary_effect_id":[1,2,5,29,31,46]},{"id":127,"name":"Vin Ursa","seat_id":7,"class":"Fighter / Rogue","race":"Plasmoid","legendary_effect_id":[1,4,54,34,38,51]},{"id":128,"name":"Lae'zel","seat_id":2,"class":"Fighter","race":"Githyanki","legendary_effect_id":[54,3,107,90,85,99]},{"id":129,"name":"Astarion","seat_id":10,"class":"Rogue","race":"Elf (High)","legendary_effect_id":[1,55,60,38,34,50]},{"id":130,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":131,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":132,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":133,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":134,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":136,"name":"Commodore Krux","seat_id":4,"class":"Fighter","race":"Giff","legendary_effect_id":[1,55,54,37,88,100]},{"id":138,"name":"Certainty Dran","seat_id":5,"class":"Wizard / Bard","race":"Half-Elf / Aasimar","legendary_effect_id":[1,3,8,38,97,102]},{"id":139,"name":"Thellora","seat_id":1,"class":"Paladin","race":"Centaur","legendary_effect_id":[54,2,104,34,37,46]},{"id":140,"name":"Jang Sao","seat_id":8,"class":"Druid / Wizard","race":"Satyr","legendary_effect_id":[1,2,85,41,33,47]},{"id":141,"name":"Shadowheart","seat_id":6,"class":"Cleric","race":"Half-Elf","legendary_effect_id":[54,2,8,84,31,104]},{"id":142,"name":"Wyll","seat_id":12,"class":"Warlock","race":"Human","legendary_effect_id":[54,2,5,34,38,49]},{"id":143,"name":"Karlach","seat_id":4,"class":"Barbarian","race":"Tiefling","legendary_effect_id":[54,3,10,85,96,105]},{"id":144,"name":"Presto","seat_id":2,"class":"Wizard","race":"Human","legendary_effect_id":[1,3,5,38,40,106]},{"id":145,"name":"Dynaheir","seat_id":3,"class":"Wizard","race":"Human","legendary_effect_id":[54,55,58,36,37,49]},{"id":146,"name":"The Dark Urge","seat_id":11,"class":"Sorcerer","race":"Dragonborn","legendary_effect_id":[54,55,65,32,89,50]},{"id":147,"name":"Gale","seat_id":1,"class":"Wizard","race":"Human","legendary_effect_id":[54,56,5,37,32,53]},{"id":148,"name":"Diana","seat_id":9,"class":"Monk","race":"Human","legendary_effect_id":[54,3,5,40,81,51]},{"id":149,"name":"Duke Ravengard","seat_id":8,"class":"Fighter","race":"Human","legendary_effect_id":[1,3,58,96,43,46]},{"id":150,"name":"Aeon","seat_id":10,"class":"Artificer / Bard","race":"Goliath","legendary_effect_id":[1,3,54,37,40,103]},{"id":151,"name":"Umberto","seat_id":7,"class":"Druid","race":"Human","legendary_effect_id":[1,56,5,89,42,104]},{"id":152,"name":"Bobby","seat_id":12,"class":"Barbarian","race":"Human","legendary_effect_id":[1,2,5,28,85,52]},{"id":153,"name":"Kas","seat_id":6,"class":"Fighter","race":"Human","legendary_effect_id":[1,55,58,39,83,99]},{"id":154,"name":"Minthara","seat_id":3,"class":"Paladin","race":"Elf (Drow)","legendary_effect_id":[1,3,7,32,97,103]},{"id":155,"name":"Wren","seat_id":3,"class":"Monk / Barbarian / Sorcerer","race":"Dwarf / Tabaxi / Warforged","legendary_effect_id":[1,56,19,93,94,53]},{"id":156,"name":"Halsin","seat_id":3,"class":"Druid","race":"Elf (Wood)","legendary_effect_id":[1,57,7,29,35,49]},{"id":157,"name":"Eric","seat_id":4,"class":"Fighter","race":"Human","legendary_effect_id":[1,55,5,31,34,49]},{"id":158,"name":"Kalix","seat_id":5,"class":"Ranger","race":"Thri-kreen","legendary_effect_id":[1,3,103,31,96,47]},{"id":159,"name":"Volo","seat_id":9,"class":"Wizard","race":"Human","legendary_effect_id":[54,2,5,43,38,105]},{"id":160,"name":"Sheila","seat_id":7,"class":"Rogue","race":"Human","legendary_effect_id":[54,3,5,94,96,53]},{"id":161,"name":"Grimm","seat_id":2,"class":"Barbarian","race":"Human","legendary_effect_id":[1,55,58,31,44,52]},{"id":162,"name":"Vlithryn","seat_id":11,"class":"Cleric","race":"Triton","legendary_effect_id":[1,56,10,40,88,105]},{"id":163,"name":"Hank","seat_id":1,"class":"Ranger","race":"Human","legendary_effect_id":[1,55,58,33,41,47]},{"id":164,"name":"Tess","seat_id":8,"class":"Rogue","race":"Elf (Wood)","legendary_effect_id":[1,3,58,84,87,49]},{"id":165,"name":"Baldric","seat_id":12,"class":"Cleric","race":"Dwarf","legendary_effect_id":[1,3,5,41,39,105]},{"id":166,"name":"Cazrin","seat_id":10,"class":"Wizard","race":"Human","legendary_effect_id":[1,3,5,35,94,52]},{"id":167,"name":"Windfall","seat_id":5,"class":"Bard","race":"Tiefling","legendary_effect_id":[1,56,10,43,88,103]},{"id":168,"name":"King of Shadows","seat_id":9,"class":"Barbarian / Warlock","race":"Human","legendary_effect_id":[1,2,5,30,86,103]},{"id":169,"name":"Skylla","seat_id":4,"class":"Warlock","race":"Human","legendary_effect_id":[1,56,58,44,94,50]},{"id":170,"name":"Lark","seat_id":6,"class":"Bard","race":"Tiefling","legendary_effect_id":[1,2,10,45,52,48]},{"id":171,"name":"Anson","seat_id":1,"class":"Fighter","race":"Human","legendary_effect_id":[1,3,5,37,96,102]},{"id":172,"name":"Kyre","seat_id":5,"class":"Monk","race":"Human","legendary_effect_id":[1,58,86,94,102,101]},{"id":173,"name":"Raistlin","seat_id":2,"class":"Wizard","race":"Human","legendary_effect_id":[1,2,5,39,92,48]},{"id":174,"name":"Tasslehoff","seat_id":11,"class":"Rogue","race":"Kender","legendary_effect_id":[1,2,5,90,106,48]},{"id":175,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null},{"id":176,"name":"Y4E15","seat_id":0,"class":"???","race":"???","legendary_effect_id":null}]
+[
+  {
+    "id": 1,
+    "name": "Bruenor",
+    "seat_id": 1,
+    "class": "Fighter",
+    "race": "Dwarf (Shield)",
+    "tags": [
+      "male",
+      "dwarf",
+      "fighter",
+      "support",
+      "neutral",
+      "good",
+      "companion",
+      "evergreen",
+      "core",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 17,
+      "dex": 10,
+      "con": 16,
+      "int": 8,
+      "wis": 13,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      6,
+      83,
+      43,
+      53
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Celeste",
+    "seat_id": 2,
+    "class": "Cleric",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "cleric",
+      "support",
+      "healing",
+      "lawful",
+      "good",
+      "evergreen",
+      "core",
+      "unaffiliated",
+      "positional"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 8,
+      "con": 13,
+      "int": 12,
+      "wis": 15,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      5,
+      28,
+      87,
+      101
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Nayeli",
+    "seat_id": 3,
+    "class": "Paladin",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "paladin",
+      "tanking",
+      "support",
+      "lawful",
+      "good",
+      "evergreen",
+      "core",
+      "unaffiliated",
+      "positional"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 12,
+      "con": 16,
+      "int": 8,
+      "wis": 10,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      5,
+      36,
+      97,
+      46
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Jarlaxle",
+    "seat_id": 4,
+    "class": "Rogue",
+    "race": "Elf (Drow)",
+    "tags": [
+      "male",
+      "elf",
+      "drow",
+      "rogue",
+      "dps",
+      "gold",
+      "neutral",
+      "evil",
+      "evergreen",
+      "core",
+      "unaffiliated",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 18,
+      "con": 13,
+      "int": 16,
+      "wis": 11,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      7,
+      91,
+      87,
+      103
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Calliope",
+    "seat_id": 5,
+    "class": "Bard",
+    "race": "Half-Elf",
+    "tags": [
+      "female",
+      "half-elf",
+      "bard",
+      "support",
+      "healing",
+      "chaotic",
+      "good",
+      "forcegrey",
+      "evergreen",
+      "core",
+      "positional"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 16,
+      "con": 14,
+      "int": 12,
+      "wis": 12,
+      "cha": 19
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      8,
+      44,
+      88,
+      105
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Asharra",
+    "seat_id": 6,
+    "class": "Wizard",
+    "race": "Aarakocra",
+    "tags": [
+      "female",
+      "aarakocra",
+      "wizard",
+      "dps",
+      "support",
+      "lawful",
+      "neutral",
+      "evergreen",
+      "core",
+      "unaffiliated",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 11,
+      "con": 9,
+      "int": 17,
+      "wis": 15,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      9,
+      43,
+      41,
+      104
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Minsc",
+    "seat_id": 7,
+    "class": "Ranger",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "space-hamster",
+      "ranger",
+      "dps",
+      "support",
+      "chaotic",
+      "good",
+      "baldursgate",
+      "speed",
+      "evergreen",
+      "core",
+      "hunter",
+      "spec_hunter_humanoid",
+      "spec_hunter_beast",
+      "spec_hunter_undead",
+      "spec_hunter_fey",
+      "spec_hunter_monstrosity"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 12,
+      "con": 17,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      58,
+      29,
+      89,
+      46
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Delina",
+    "seat_id": 8,
+    "class": "Sorcerer",
+    "race": "Elf (High)",
+    "tags": [
+      "female",
+      "elf",
+      "sorcerer",
+      "dps",
+      "chaotic",
+      "good",
+      "baldursgate",
+      "evergreen",
+      "core"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 16,
+      "con": 15,
+      "int": 15,
+      "wis": 13,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      60,
+      40,
+      87,
+      101
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Makos",
+    "seat_id": 9,
+    "class": "Warlock",
+    "race": "Tiefling",
+    "tags": [
+      "male",
+      "tiefling",
+      "warlock",
+      "dps",
+      "support",
+      "gold",
+      "neutral",
+      "evil",
+      "evergreen",
+      "core",
+      "unaffiliated",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 11,
+      "dex": 10,
+      "con": 14,
+      "int": 14,
+      "wis": 8,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      10,
+      90,
+      81,
+      50
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Tyril",
+    "seat_id": 10,
+    "class": "Druid",
+    "race": "Firbolg",
+    "tags": [
+      "male",
+      "firbolg",
+      "druid",
+      "support",
+      "tanking",
+      "healing",
+      "neutral",
+      "good",
+      "forcegrey",
+      "evergreen",
+      "core",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 15,
+      "con": 15,
+      "int": 13,
+      "wis": 18,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      11,
+      36,
+      43,
+      49
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Jamilah",
+    "seat_id": 11,
+    "class": "Barbarian",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "barbarian",
+      "dps",
+      "neutral",
+      "forcegrey",
+      "evergreen",
+      "core",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 13,
+      "con": 17,
+      "int": 10,
+      "wis": 15,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      5,
+      32,
+      88,
+      106
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Arkhan",
+    "seat_id": 12,
+    "class": "Paladin",
+    "race": "Dragonborn",
+    "tags": [
+      "male",
+      "dragonborn",
+      "paladin",
+      "dps",
+      "tanking",
+      "neutral",
+      "evil",
+      "forcegrey",
+      "darkorder",
+      "evergreen",
+      "core",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 20,
+      "dex": 14,
+      "con": 14,
+      "int": 10,
+      "wis": 12,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      65,
+      44,
+      88,
+      103
+    ]
+  },
+  {
+    "id": 13,
+    "name": "Hitch",
+    "seat_id": 8,
+    "class": "Rogue",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "rogue",
+      "support",
+      "chaotic",
+      "good",
+      "forcegrey",
+      "evergreen"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 11,
+      "dex": 18,
+      "con": 12,
+      "int": 13,
+      "wis": 15,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      5,
+      38,
+      41,
+      49
+    ]
+  },
+  {
+    "id": 14,
+    "name": "Stoki",
+    "seat_id": 4,
+    "class": "Monk",
+    "race": "Gnome",
+    "tags": [
+      "female",
+      "gnome",
+      "monk",
+      "support",
+      "gold",
+      "lawful",
+      "neutral",
+      "event",
+      "cneoriginal",
+      "y1",
+      "unaffiliated",
+      "control_stun",
+      "small",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 11,
+      "dex": 18,
+      "con": 15,
+      "int": 13,
+      "wis": 17,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      16,
+      42,
+      86,
+      106
+    ]
+  },
+  {
+    "id": 15,
+    "name": "Krond",
+    "seat_id": 6,
+    "class": "Fighter",
+    "race": "Half-Orc",
+    "tags": [
+      "male",
+      "half-orc",
+      "fighter",
+      "dps",
+      "chaotic",
+      "evil",
+      "event",
+      "cneoriginal",
+      "y1",
+      "unaffiliated",
+      "spec_debuff",
+      "support"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 12,
+      "con": 17,
+      "int": 17,
+      "wis": 13,
+      "cha": 9
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      70,
+      83,
+      92,
+      52
+    ]
+  },
+  {
+    "id": 16,
+    "name": "Gromma",
+    "seat_id": 3,
+    "class": "Druid",
+    "race": "Tortle",
+    "tags": [
+      "female",
+      "tortle",
+      "druid",
+      "dps",
+      "support",
+      "tanking",
+      "lawful",
+      "neutral",
+      "event",
+      "cneoriginal",
+      "y1",
+      "unaffiliated",
+      "spec_debuff",
+      "spec_control",
+      "spec_control_slow",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 10,
+      "con": 18,
+      "int": 12,
+      "wis": 17,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      14,
+      44,
+      41,
+      51
+    ]
+  },
+  {
+    "id": 17,
+    "name": "Dhadius",
+    "seat_id": 5,
+    "class": "Wizard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "wizard",
+      "dps",
+      "support",
+      "debuff",
+      "chaotic",
+      "neutral",
+      "event",
+      "y1",
+      "unaffiliated",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 12,
+      "con": 10,
+      "int": 18,
+      "wis": 9,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      58,
+      96,
+      39,
+      101
+    ]
+  },
+  {
+    "id": 18,
+    "name": "Drizzt",
+    "seat_id": 9,
+    "class": "Ranger",
+    "race": "Elf (Drow)",
+    "tags": [
+      "male",
+      "elf",
+      "drow",
+      "ranger",
+      "dps",
+      "lawful",
+      "good",
+      "companion",
+      "evergreen",
+      "control",
+      "control_fumble"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 19,
+      "con": 14,
+      "int": 12,
+      "wis": 14,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      7,
+      87,
+      84,
+      102
+    ]
+  },
+  {
+    "id": 19,
+    "name": "Barrowin",
+    "seat_id": 10,
+    "class": "Cleric",
+    "race": "Dwarf",
+    "tags": [
+      "female",
+      "dwarf",
+      "cleric",
+      "support",
+      "healing",
+      "tanking",
+      "lawful",
+      "good",
+      "event",
+      "y1",
+      "unaffiliated",
+      "positional",
+      "tales"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 12,
+      "con": 15,
+      "int": 11,
+      "wis": 18,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      6,
+      34,
+      84,
+      51
+    ]
+  },
+  {
+    "id": 20,
+    "name": "Regis",
+    "seat_id": 2,
+    "class": "Rogue",
+    "race": "Halfling",
+    "tags": [
+      "male",
+      "halfling",
+      "rogue",
+      "support",
+      "healing",
+      "gold",
+      "chaotic",
+      "neutral",
+      "companion",
+      "event",
+      "y1",
+      "positional",
+      "small",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 19,
+      "con": 14,
+      "int": 13,
+      "wis": 10,
+      "cha": 15
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      68,
+      91,
+      34,
+      105
+    ]
+  },
+  {
+    "id": 21,
+    "name": "Birdsong",
+    "seat_id": 9,
+    "class": "Bard",
+    "race": "Tabaxi",
+    "tags": [
+      "female",
+      "tabaxi",
+      "bard",
+      "support",
+      "dps",
+      "lawful",
+      "neutral",
+      "event",
+      "y1",
+      "unaffiliated",
+      "positional",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 18,
+      "con": 12,
+      "int": 13,
+      "wis": 11,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      13,
+      31,
+      43,
+      46
+    ]
+  },
+  {
+    "id": 22,
+    "name": "Zorbu",
+    "seat_id": 12,
+    "class": "Ranger",
+    "race": "Gnome",
+    "tags": [
+      "male",
+      "gnome",
+      "ranger",
+      "dps",
+      "support",
+      "chaotic",
+      "good",
+      "event",
+      "cneoriginal",
+      "y1",
+      "unaffiliated",
+      "hunter",
+      "positional",
+      "small"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 17,
+      "con": 14,
+      "int": 12,
+      "wis": 16,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      16,
+      40,
+      88,
+      49
+    ]
+  },
+  {
+    "id": 23,
+    "name": "Strix",
+    "seat_id": 11,
+    "class": "Sorcerer",
+    "race": "Tiefling",
+    "tags": [
+      "female",
+      "tiefling",
+      "sorcerer",
+      "dps",
+      "support",
+      "chaotic",
+      "good",
+      "wafflecrew",
+      "acqinc",
+      "event",
+      "y1",
+      "debuff",
+      "positional"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 12,
+      "con": 14,
+      "int": 16,
+      "wis": 11,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      10,
+      43,
+      37,
+      52
+    ]
+  },
+  {
+    "id": 24,
+    "name": "Nrakk",
+    "seat_id": 8,
+    "class": "Monk",
+    "race": "Githzerai",
+    "tags": [
+      "male",
+      "gith",
+      "githzerai",
+      "monk",
+      "support",
+      "lawful",
+      "neutral",
+      "event",
+      "cneoriginal",
+      "y1",
+      "unaffiliated",
+      "debuff",
+      "positional",
+      "control",
+      "control_stun",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 13,
+      "dex": 17,
+      "con": 15,
+      "int": 12,
+      "wis": 19,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      18,
+      36,
+      40,
+      46
+    ]
+  },
+  {
+    "id": 25,
+    "name": "Catti-brie",
+    "seat_id": 7,
+    "class": "Fighter",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "fighter",
+      "dps",
+      "support",
+      "chaotic",
+      "good",
+      "companion",
+      "event",
+      "y1",
+      "debuff",
+      "positional",
+      "control",
+      "control_stun",
+      "tales"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 15,
+      "dex": 18,
+      "con": 14,
+      "int": 17,
+      "wis": 11,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      5,
+      38,
+      85,
+      52
+    ]
+  },
+  {
+    "id": 26,
+    "name": "Evelyn",
+    "seat_id": 6,
+    "class": "Paladin",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "paladin",
+      "tanking",
+      "support",
+      "neutral",
+      "good",
+      "wafflecrew",
+      "acqinc",
+      "event",
+      "y1",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 19,
+      "dex": 14,
+      "con": 16,
+      "int": 11,
+      "wis": 12,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      57,
+      5,
+      45,
+      83,
+      46
+    ]
+  },
+  {
+    "id": 27,
+    "name": "Binwin",
+    "seat_id": 3,
+    "class": "Fighter / Barbarian",
+    "race": "Dwarf (Mountain)",
+    "tags": [
+      "male",
+      "dwarf",
+      "fighter",
+      "barbarian",
+      "dps",
+      "lawful",
+      "good",
+      "event",
+      "y1",
+      "unaffiliated",
+      "breaking"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 8,
+      "con": 18,
+      "int": 10,
+      "wis": 11,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      59,
+      40,
+      81,
+      102
+    ]
+  },
+  {
+    "id": 28,
+    "name": "Deekin",
+    "seat_id": 1,
+    "class": "Bard",
+    "race": "Kobold",
+    "tags": [
+      "male",
+      "kobold",
+      "bard",
+      "support",
+      "neutral",
+      "event",
+      "speed",
+      "y1",
+      "unaffiliated",
+      "small",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 15,
+      "int": 10,
+      "wis": 10,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      20,
+      45,
+      34,
+      47
+    ]
+  },
+  {
+    "id": 29,
+    "name": "Xander",
+    "seat_id": 5,
+    "class": "Rogue",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "rogue",
+      "support",
+      "chaotic",
+      "good",
+      "event",
+      "cneoriginal",
+      "speed",
+      "y1",
+      "unaffiliated",
+      "positional"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 20,
+      "con": 10,
+      "int": 14,
+      "wis": 15,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      5,
+      32,
+      43,
+      46
+    ]
+  },
+  {
+    "id": 30,
+    "name": "Azaka",
+    "seat_id": 12,
+    "class": "Fighter",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "lycanthrope",
+      "fighter",
+      "lawful",
+      "neutral",
+      "support",
+      "dps",
+      "gold",
+      "evergreen",
+      "unaffiliated",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 19,
+      "dex": 14,
+      "con": 16,
+      "int": 11,
+      "wis": 9,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      58,
+      43,
+      88,
+      99
+    ]
+  },
+  {
+    "id": 31,
+    "name": "Ishi",
+    "seat_id": 4,
+    "class": "Fighter / Rogue",
+    "race": "Kobold",
+    "tags": [
+      "female",
+      "kobold",
+      "fighter",
+      "rogue",
+      "chaotic",
+      "good",
+      "dps",
+      "gold",
+      "event",
+      "y1",
+      "unaffiliated",
+      "small"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 18,
+      "con": 16,
+      "int": 12,
+      "wis": 14,
+      "cha": 15
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      20,
+      87,
+      90,
+      102
+    ]
+  },
+  {
+    "id": 32,
+    "name": "Wulfgar",
+    "seat_id": 10,
+    "class": "Barbarian",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "barbarian",
+      "support",
+      "tanking",
+      "chaotic",
+      "good",
+      "companion",
+      "event",
+      "y1",
+      "control",
+      "breaking",
+      "control_stun"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 20,
+      "dex": 13,
+      "con": 14,
+      "int": 11,
+      "wis": 9,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      58,
+      30,
+      43,
+      102
+    ]
+  },
+  {
+    "id": 33,
+    "name": "Farideh",
+    "seat_id": 7,
+    "class": "Warlock",
+    "race": "Tiefling",
+    "tags": [
+      "female",
+      "tiefling",
+      "warlock",
+      "neutral",
+      "good",
+      "dps",
+      "event",
+      "brimstone",
+      "y2",
+      "spec_hunter",
+      "spec_hunter_fiends",
+      "spec_debuff",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 14,
+      "con": 14,
+      "int": 14,
+      "wis": 13,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      63,
+      35,
+      90,
+      49
+    ]
+  },
+  {
+    "id": 34,
+    "name": "Donaar",
+    "seat_id": 2,
+    "class": "Paladin",
+    "race": "Dragonborn",
+    "tags": [
+      "male",
+      "dragonborn",
+      "paladin",
+      "support",
+      "healing",
+      "gold",
+      "chaotic",
+      "good",
+      "event",
+      "cteam",
+      "y2",
+      "debuff",
+      "positional",
+      "control",
+      "control_stun",
+      "control_knockback",
+      "control_fumble"
+    ],
+    "damage_types": [
+      "melee",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 8,
+      "con": 14,
+      "int": 10,
+      "wis": 10,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      12,
+      28,
+      98,
+      102
+    ]
+  },
+  {
+    "id": 35,
+    "name": "Vlahnya",
+    "seat_id": 8,
+    "class": "Bard / Wizard",
+    "race": "Elf (Eladrin)",
+    "tags": [
+      "female",
+      "elf",
+      "eladrin",
+      "bard",
+      "wizard",
+      "support",
+      "neutral",
+      "good",
+      "event",
+      "sirensrealm",
+      "y2",
+      "control",
+      "control_stun",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 10,
+      "int": 14,
+      "wis": 14,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      7,
+      43,
+      40,
+      48
+    ]
+  },
+  {
+    "id": 36,
+    "name": "Warden",
+    "seat_id": 11,
+    "class": "Warlock (Hexblade)",
+    "race": "Warforged (Skirmisher)",
+    "tags": [
+      "warforged",
+      "construct",
+      "warlock",
+      "support",
+      "dps",
+      "chaotic",
+      "evil",
+      "cneoriginal",
+      "event",
+      "y2",
+      "unaffiliated",
+      "debuff"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 16,
+      "con": 12,
+      "int": 8,
+      "wis": 11,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      54,
+      4,
+      72,
+      32,
+      43,
+      50
+    ]
+  },
+  {
+    "id": 37,
+    "name": "Nerys",
+    "seat_id": 12,
+    "class": "Cleric",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "cleric",
+      "support",
+      "healing",
+      "lawful",
+      "good",
+      "baldursgate",
+      "y2",
+      "event",
+      "hunter",
+      "hunter_undead"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 13,
+      "con": 15,
+      "int": 12,
+      "wis": 17,
+      "cha": 15
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      58,
+      30,
+      31,
+      46
+    ]
+  },
+  {
+    "id": 38,
+    "name": "K'thriss",
+    "seat_id": 1,
+    "class": "Warlock",
+    "race": "Elf (Drow)",
+    "tags": [
+      "male",
+      "elf",
+      "drow",
+      "warlock",
+      "support",
+      "chaotic",
+      "neutral",
+      "cteam",
+      "event",
+      "y2",
+      "positional",
+      "control",
+      "gold",
+      "control_slow",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 12,
+      "int": 14,
+      "wis": 11,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      7,
+      90,
+      98,
+      48
+    ]
+  },
+  {
+    "id": 39,
+    "name": "Paultin",
+    "seat_id": 4,
+    "class": "Bard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "bard",
+      "support",
+      "gold",
+      "chaotic",
+      "neutral",
+      "wafflecrew",
+      "event",
+      "y2",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 15,
+      "con": 14,
+      "int": 14,
+      "wis": 12,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      5,
+      35,
+      45,
+      52
+    ]
+  },
+  {
+    "id": 40,
+    "name": "Black Viper",
+    "seat_id": 7,
+    "class": "Rogue",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "rogue",
+      "dps",
+      "chaotic",
+      "neutral",
+      "event",
+      "y2",
+      "unaffiliated",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 11,
+      "dex": 18,
+      "con": 14,
+      "int": 11,
+      "wis": 11,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      58,
+      86,
+      81,
+      105
+    ]
+  },
+  {
+    "id": 41,
+    "name": "Rosie",
+    "seat_id": 10,
+    "class": "Monk",
+    "race": "Halfling",
+    "tags": [
+      "female",
+      "halfling",
+      "monk",
+      "dps",
+      "chaotic",
+      "good",
+      "cteam",
+      "event",
+      "y2",
+      "small"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 16,
+      "con": 12,
+      "int": 12,
+      "wis": 14,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      68,
+      31,
+      87,
+      105
+    ]
+  },
+  {
+    "id": 42,
+    "name": "Aila",
+    "seat_id": 9,
+    "class": "Barbarian",
+    "race": "Elf (Wild)",
+    "tags": [
+      "female",
+      "elf",
+      "wildelf",
+      "barbarian",
+      "tanking",
+      "support",
+      "chaotic",
+      "neutral",
+      "aerois",
+      "event",
+      "y2",
+      "debuff",
+      "control",
+      "control_stun",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 18,
+      "con": 16,
+      "int": 9,
+      "wis": 13,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      7,
+      28,
+      35,
+      105
+    ]
+  },
+  {
+    "id": 43,
+    "name": "Spurt",
+    "seat_id": 3,
+    "class": "Inventor (Rogue)",
+    "race": "Kobold",
+    "tags": [
+      "male",
+      "kobold",
+      "rogue",
+      "support",
+      "lawful",
+      "evil",
+      "event",
+      "y2",
+      "unaffiliated",
+      "debuff",
+      "positional",
+      "tales",
+      "small"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 7,
+      "dex": 15,
+      "con": 12,
+      "int": 8,
+      "wis": 7,
+      "cha": 8
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      20,
+      32,
+      34,
+      47
+    ]
+  },
+  {
+    "id": 44,
+    "name": "Qillek",
+    "seat_id": 5,
+    "class": "Cleric / Bard",
+    "race": "Aarakocra",
+    "tags": [
+      "male",
+      "aarakocra",
+      "bard",
+      "cleric",
+      "healing",
+      "support",
+      "gold",
+      "lawful",
+      "good",
+      "aerois",
+      "event",
+      "y2"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 15,
+      "con": 12,
+      "int": 13,
+      "wis": 18,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      9,
+      28,
+      87,
+      102
+    ]
+  },
+  {
+    "id": 45,
+    "name": "Korth",
+    "seat_id": 2,
+    "class": "Samurai (Fighter)",
+    "race": "Lizardfolk",
+    "tags": [
+      "male",
+      "lizardfolk",
+      "fighter",
+      "samurai",
+      "support",
+      "healing",
+      "neutral",
+      "evil",
+      "event",
+      "cneoriginal",
+      "y2",
+      "unaffiliated",
+      "debuff",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 18,
+      "con": 16,
+      "int": 10,
+      "wis": 13,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      22,
+      34,
+      81,
+      50
+    ]
+  },
+  {
+    "id": 46,
+    "name": "Walnut",
+    "seat_id": 8,
+    "class": "Druid",
+    "race": "Elf (Wood)",
+    "tags": [
+      "female",
+      "elf",
+      "druid",
+      "tanking",
+      "support",
+      "lawful",
+      "neutral",
+      "cteam",
+      "event",
+      "y2",
+      "positional",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 16,
+      "con": 14,
+      "int": 10,
+      "wis": 20,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      7,
+      33,
+      35,
+      51
+    ]
+  },
+  {
+    "id": 47,
+    "name": "Shandie",
+    "seat_id": 6,
+    "class": "Rogue",
+    "race": "Halfling",
+    "tags": [
+      "female",
+      "halfling",
+      "rogue",
+      "support",
+      "chaotic",
+      "good",
+      "baldursgate",
+      "event",
+      "y2",
+      "speed",
+      "small"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 18,
+      "con": 15,
+      "int": 13,
+      "wis": 12,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      15,
+      85,
+      44,
+      52
+    ]
+  },
+  {
+    "id": 48,
+    "name": "Jim",
+    "seat_id": 7,
+    "class": "Wizard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "wizard",
+      "dps",
+      "support",
+      "chaotic",
+      "neutral",
+      "acqinc",
+      "event",
+      "y2",
+      "gold",
+      "positional",
+      "debuff",
+      "control",
+      "control_stun",
+      "control_slow",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 10,
+      "int": 18,
+      "wis": 12,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      5,
+      84,
+      96,
+      52
+    ]
+  },
+  {
+    "id": 49,
+    "name": "Turiel",
+    "seat_id": 1,
+    "class": "Cleric",
+    "race": "Aasimar",
+    "tags": [
+      "male",
+      "aasimar",
+      "cleric",
+      "support",
+      "lawful",
+      "good",
+      "cneoriginal",
+      "event",
+      "y2",
+      "unaffiliated",
+      "hunter",
+      "hunter_fiend"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 11,
+      "con": 16,
+      "int": 13,
+      "wis": 17,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      4,
+      21,
+      93,
+      84,
+      51
+    ]
+  },
+  {
+    "id": 50,
+    "name": "Pwent",
+    "seat_id": 5,
+    "class": "Barbarian",
+    "race": "Dwarf",
+    "tags": [
+      "male",
+      "dwarf",
+      "barbarian",
+      "support",
+      "chaotic",
+      "good",
+      "event",
+      "y3",
+      "unaffiliated",
+      "debuff",
+      "positional"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 14,
+      "con": 17,
+      "int": 9,
+      "wis": 12,
+      "cha": 8
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      6,
+      36,
+      85,
+      52
+    ]
+  },
+  {
+    "id": 51,
+    "name": "Avren",
+    "seat_id": 11,
+    "class": "Warlock / Sorcerer",
+    "race": "Half-Elf",
+    "tags": [
+      "male",
+      "half-elf",
+      "warlock",
+      "sorcerer",
+      "support",
+      "chaotic",
+      "neutral",
+      "event",
+      "planes",
+      "y3",
+      "control",
+      "control_stun",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 16,
+      "con": 15,
+      "int": 13,
+      "wis": 10,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      8,
+      97,
+      88,
+      53
+    ]
+  },
+  {
+    "id": 52,
+    "name": "Sentry",
+    "seat_id": 4,
+    "class": "Paladin",
+    "race": "Warforged",
+    "tags": [
+      "female",
+      "warforged",
+      "paladin",
+      "tanking",
+      "support",
+      "lawful",
+      "good",
+      "aerois",
+      "event",
+      "speed",
+      "y3",
+      "positional",
+      "spec_control",
+      "spec_control_stun"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 10,
+      "con": 15,
+      "int": 8,
+      "wis": 14,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      19,
+      35,
+      44,
+      104
+    ]
+  },
+  {
+    "id": 53,
+    "name": "Krull",
+    "seat_id": 6,
+    "class": "Cleric",
+    "race": "Tortle",
+    "tags": [
+      "male",
+      "tortle",
+      "cleric",
+      "support",
+      "gold",
+      "lawful",
+      "evil",
+      "event",
+      "darkorder",
+      "y3",
+      "debuff"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 20,
+      "dex": 14,
+      "con": 15,
+      "int": 12,
+      "wis": 20,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      14,
+      40,
+      82,
+      103
+    ]
+  },
+  {
+    "id": 54,
+    "name": "Artemis",
+    "seat_id": 3,
+    "class": "Rogue",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "rogue",
+      "dps",
+      "lawful",
+      "evil",
+      "event",
+      "y3",
+      "unaffiliated"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 20,
+      "con": 15,
+      "int": 16,
+      "wis": 16,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      58,
+      97,
+      28,
+      104
+    ]
+  },
+  {
+    "id": 55,
+    "name": "Môrgæn",
+    "seat_id": 9,
+    "class": "Ranger",
+    "race": "Elf (High)",
+    "tags": [
+      "female",
+      "elf",
+      "ranger",
+      "chaotic",
+      "neutral",
+      "support",
+      "gold",
+      "acqinc",
+      "event",
+      "y3",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 20,
+      "con": 12,
+      "int": 14,
+      "wis": 15,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      7,
+      38,
+      94,
+      53
+    ]
+  },
+  {
+    "id": 56,
+    "name": "Havilar",
+    "seat_id": 10,
+    "class": "Fighter",
+    "race": "Tiefling",
+    "tags": [
+      "female",
+      "tiefling",
+      "fighter",
+      "chaotic",
+      "good",
+      "tanking",
+      "support",
+      "event",
+      "brimstone",
+      "speed",
+      "y3",
+      "positional",
+      "tales"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 15,
+      "con": 13,
+      "int": 9,
+      "wis": 12,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      10,
+      34,
+      32,
+      102
+    ]
+  },
+  {
+    "id": 57,
+    "name": "Sisaspia",
+    "seat_id": 1,
+    "class": "Druid",
+    "race": "Yuan-ti Pureblood",
+    "tags": [
+      "female",
+      "yuan-ti",
+      "druid",
+      "neutral",
+      "evil",
+      "healing",
+      "support",
+      "debuff",
+      "event",
+      "cneoriginal",
+      "y3",
+      "unaffiliated",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 16,
+      "con": 15,
+      "int": 13,
+      "wis": 18,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      77,
+      97,
+      91,
+      106
+    ]
+  },
+  {
+    "id": 58,
+    "name": "Briv",
+    "seat_id": 5,
+    "class": "Paladin",
+    "race": "Half-Orc",
+    "tags": [
+      "male",
+      "half-orc",
+      "paladin",
+      "chaotic",
+      "good",
+      "support",
+      "tanking",
+      "healing",
+      "event",
+      "planes",
+      "speed",
+      "y3"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 14,
+      "con": 16,
+      "int": 10,
+      "wis": 8,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      17,
+      34,
+      43,
+      46
+    ]
+  },
+  {
+    "id": 59,
+    "name": "Melf",
+    "seat_id": 12,
+    "class": "Fighter / Wizard",
+    "race": "Elf (High)",
+    "tags": [
+      "male",
+      "elf",
+      "fighter",
+      "wizard",
+      "neutral",
+      "good",
+      "support",
+      "event",
+      "speed",
+      "y3",
+      "unaffiliated",
+      "positional",
+      "debuff",
+      "tales",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 17,
+      "dex": 15,
+      "con": 14,
+      "int": 19,
+      "wis": 11,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      7,
+      37,
+      40,
+      49
+    ]
+  },
+  {
+    "id": 60,
+    "name": "Krydle",
+    "seat_id": 2,
+    "class": "Rogue",
+    "race": "Half-Elf",
+    "tags": [
+      "male",
+      "half-elf",
+      "rogue",
+      "chaotic",
+      "good",
+      "support",
+      "tanking",
+      "event",
+      "y3",
+      "baldursgate",
+      "positional"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 17,
+      "con": 15,
+      "int": 13,
+      "wis": 11,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      61,
+      89,
+      28,
+      102
+    ]
+  },
+  {
+    "id": 61,
+    "name": "Jaheira",
+    "seat_id": 9,
+    "class": "Fighter / Druid",
+    "race": "Half-Elf",
+    "tags": [
+      "female",
+      "half-elf",
+      "fighter",
+      "druid",
+      "neutral",
+      "dps",
+      "support",
+      "event",
+      "y3",
+      "baldursgate",
+      "hunter",
+      "control",
+      "control_root",
+      "hunter_beast",
+      "spec_hunter_fiend",
+      "spec_hunter_humanoid",
+      "spec_hunter_undead",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 15,
+      "dex": 14,
+      "con": 17,
+      "int": 10,
+      "wis": 14,
+      "cha": 15
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      61,
+      94,
+      44,
+      106
+    ]
+  },
+  {
+    "id": 62,
+    "name": "Nova",
+    "seat_id": 11,
+    "class": "Warlock",
+    "race": "Air Genasi",
+    "tags": [
+      "female",
+      "genasi",
+      "warlock",
+      "chaotic",
+      "good",
+      "tanking",
+      "support",
+      "event",
+      "aerois",
+      "y3",
+      "debuff",
+      "positional",
+      "control",
+      "control_slow",
+      "control_weaken"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 7,
+      "dex": 16,
+      "con": 16,
+      "int": 15,
+      "wis": 8,
+      "cha": 20
+    },
+    "legendary_effect_id": [
+      54,
+      57,
+      25,
+      43,
+      37,
+      105
+    ]
+  },
+  {
+    "id": 63,
+    "name": "Freely",
+    "seat_id": 7,
+    "class": "Bard / Warlock",
+    "race": "Halfling",
+    "tags": [
+      "male",
+      "halfling",
+      "bard",
+      "warlock",
+      "neutral",
+      "good",
+      "support",
+      "gold",
+      "event",
+      "planes",
+      "y3",
+      "debuff",
+      "control",
+      "control_stun",
+      "small",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 13,
+      "dex": 17,
+      "con": 10,
+      "int": 8,
+      "wis": 10,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      15,
+      33,
+      82,
+      49
+    ]
+  },
+  {
+    "id": 64,
+    "name": "Beadle",
+    "seat_id": 8,
+    "class": "Rogue / Wizard",
+    "race": "Dwarf",
+    "tags": [
+      "male",
+      "dwarf",
+      "rogue",
+      "wizard",
+      "neutral",
+      "unaffiliated",
+      "support",
+      "gold",
+      "control",
+      "event",
+      "y3",
+      "control_stun",
+      "control_fumble",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 13,
+      "dex": 17,
+      "con": 12,
+      "int": 16,
+      "wis": 10,
+      "cha": 8
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      58,
+      31,
+      28,
+      99
+    ]
+  },
+  {
+    "id": 65,
+    "name": "Omin",
+    "seat_id": 3,
+    "class": "Cleric",
+    "race": "Half-Elf",
+    "tags": [
+      "male",
+      "half-elf",
+      "cleric",
+      "lawful",
+      "neutral",
+      "gold",
+      "support",
+      "healing",
+      "acqinc",
+      "event",
+      "y3",
+      "positional",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 8,
+      "con": 14,
+      "int": 11,
+      "wis": 18,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      8,
+      28,
+      43,
+      99
+    ]
+  },
+  {
+    "id": 66,
+    "name": "Lazaapz",
+    "seat_id": 9,
+    "class": "Artificer",
+    "race": "Goblin",
+    "tags": [
+      "female",
+      "goblin",
+      "artificer",
+      "tanking",
+      "support",
+      "neutral",
+      "evil",
+      "cneoriginal",
+      "event",
+      "y3",
+      "unaffiliated",
+      "spec_debuff",
+      "control",
+      "control_reposition",
+      "small",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 16,
+      "con": 16,
+      "int": 18,
+      "wis": 10,
+      "cha": 8
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      91,
+      34,
+      33,
+      53
+    ]
+  },
+  {
+    "id": 67,
+    "name": "Dragonbait",
+    "seat_id": 11,
+    "class": "Paladin",
+    "race": "Saurial",
+    "tags": [
+      "male",
+      "saurial",
+      "paladin",
+      "tanking",
+      "support",
+      "lawful",
+      "good",
+      "evergreen",
+      "unaffiliated"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 15,
+      "dex": 13,
+      "con": 17,
+      "int": 14,
+      "wis": 16,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      23,
+      44,
+      37,
+      51
+    ]
+  },
+  {
+    "id": 68,
+    "name": "Ulkoria",
+    "seat_id": 10,
+    "class": "Wizard",
+    "race": "Dwarf",
+    "tags": [
+      "female",
+      "dwarf",
+      "wizard",
+      "neutral",
+      "good",
+      "support",
+      "evergreen",
+      "unaffiliated",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 14,
+      "con": 12,
+      "int": 20,
+      "wis": 15,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      6,
+      34,
+      39,
+      49
+    ]
+  },
+  {
+    "id": 69,
+    "name": "Torogar",
+    "seat_id": 10,
+    "class": "Barbarian",
+    "race": "Minotaur",
+    "tags": [
+      "male",
+      "minotaur",
+      "barbarian",
+      "lawful",
+      "evil",
+      "support",
+      "dps",
+      "darkorder",
+      "event",
+      "y4",
+      "debuff",
+      "control",
+      "control_stun",
+      "control_pacify"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 23,
+      "dex": 17,
+      "con": 14,
+      "int": 8,
+      "wis": 9,
+      "cha": 15
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      80,
+      88,
+      85,
+      99
+    ]
+  },
+  {
+    "id": 70,
+    "name": "Ezmerelda",
+    "seat_id": 1,
+    "class": "Fighter / Wizard",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "wizard",
+      "fighter",
+      "chaotic",
+      "good",
+      "support",
+      "event",
+      "y4",
+      "unaffiliated",
+      "debuff",
+      "hunter",
+      "speed",
+      "spec_breaking",
+      "hunter_undead",
+      "tales"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 19,
+      "con": 16,
+      "int": 16,
+      "wis": 11,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      5,
+      37,
+      43,
+      105
+    ]
+  },
+  {
+    "id": 71,
+    "name": "Penelope",
+    "seat_id": 12,
+    "class": "Druid / Warlock",
+    "race": "Halfling",
+    "tags": [
+      "female",
+      "halfling",
+      "druid",
+      "warlock",
+      "chaotic",
+      "good",
+      "support",
+      "gold",
+      "healing",
+      "event",
+      "planes",
+      "y4",
+      "debuff",
+      "positional",
+      "control",
+      "control_slow",
+      "control_knockback",
+      "small"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 16,
+      "con": 14,
+      "int": 8,
+      "wis": 17,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      15,
+      84,
+      42,
+      99
+    ]
+  },
+  {
+    "id": 72,
+    "name": "Lucius",
+    "seat_id": 7,
+    "class": "Sorcerer",
+    "race": "Elf (High)",
+    "tags": [
+      "male",
+      "elf",
+      "sorcerer",
+      "lawful",
+      "neutral",
+      "dps",
+      "debuff",
+      "aerois",
+      "event",
+      "y4",
+      "control",
+      "breaking",
+      "control_stun",
+      "control_slow",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 13,
+      "dex": 14,
+      "con": 13,
+      "int": 11,
+      "wis": 13,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      7,
+      84,
+      87,
+      104
+    ]
+  },
+  {
+    "id": 73,
+    "name": "Baeloth",
+    "seat_id": 4,
+    "class": "Sorcerer",
+    "race": "Elf (Drow)",
+    "tags": [
+      "male",
+      "elf",
+      "drow",
+      "sorcerer",
+      "chaotic",
+      "evil",
+      "gold",
+      "support",
+      "event",
+      "baldursgate",
+      "y4",
+      "positional",
+      "control",
+      "control_slow",
+      "tales"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 14,
+      "con": 16,
+      "int": 19,
+      "wis": 12,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      7,
+      32,
+      87,
+      50
+    ]
+  },
+  {
+    "id": 74,
+    "name": "Talin",
+    "seat_id": 2,
+    "class": "Rogue",
+    "race": "Tiefling",
+    "tags": [
+      "male",
+      "tiefling",
+      "rogue",
+      "chaotic",
+      "good",
+      "support",
+      "event",
+      "y4",
+      "unaffiliated",
+      "debuff",
+      "control_slow"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 18,
+      "con": 12,
+      "int": 13,
+      "wis": 13,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      4,
+      10,
+      94,
+      45,
+      49
+    ]
+  },
+  {
+    "id": 75,
+    "name": "Hew Maan",
+    "seat_id": 8,
+    "class": "Rogue / Bard",
+    "race": "Kobold / 'Human'",
+    "tags": [
+      "male",
+      "female",
+      "kobold",
+      "human",
+      "rogue",
+      "bard",
+      "lawful",
+      "evil",
+      "support",
+      "cneoriginal",
+      "event",
+      "speed",
+      "y4",
+      "unaffiliated",
+      "control",
+      "breaking",
+      "control_slow",
+      "small"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 11,
+      "dex": 12,
+      "con": 16,
+      "int": 12,
+      "wis": 8,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      73,
+      45,
+      35,
+      100
+    ]
+  },
+  {
+    "id": 76,
+    "name": "Orisha",
+    "seat_id": 11,
+    "class": "Cleric / Bard",
+    "race": "Aasimar",
+    "tags": [
+      "female",
+      "aasimar",
+      "cleric",
+      "bard",
+      "neutral",
+      "good",
+      "support",
+      "dps",
+      "event",
+      "sirensrealm",
+      "y4",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 13,
+      "con": 10,
+      "int": 13,
+      "wis": 17,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      21,
+      45,
+      31,
+      53
+    ]
+  },
+  {
+    "id": 77,
+    "name": "Alyndra",
+    "seat_id": 6,
+    "class": "Wizard / Cleric",
+    "race": "Elf (High)",
+    "tags": [
+      "female",
+      "elf",
+      "wizard",
+      "cleric",
+      "neutral",
+      "support",
+      "planes",
+      "event",
+      "y4",
+      "control",
+      "control_slow",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 14,
+      "int": 18,
+      "wis": 14,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      60,
+      41,
+      37,
+      53
+    ]
+  },
+  {
+    "id": 78,
+    "name": "Orkira",
+    "seat_id": 1,
+    "class": "Cleric",
+    "race": "Dragonborn",
+    "tags": [
+      "female",
+      "dragonborn",
+      "cleric",
+      "chaotic",
+      "good",
+      "healing",
+      "support",
+      "event",
+      "planes",
+      "y4",
+      "debuff"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 13,
+      "dex": 14,
+      "con": 16,
+      "int": 8,
+      "wis": 20,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      65,
+      98,
+      36,
+      52
+    ]
+  },
+  {
+    "id": 79,
+    "name": "Shaka",
+    "seat_id": 9,
+    "class": "Warlock",
+    "race": "Tiefling",
+    "tags": [
+      "male",
+      "tiefling",
+      "warlock",
+      "neutral",
+      "good",
+      "support",
+      "healing",
+      "rivalswaterdeep",
+      "event",
+      "y4",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 16,
+      "con": 15,
+      "int": 16,
+      "wis": 13,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      10,
+      44,
+      34,
+      48
+    ]
+  },
+  {
+    "id": 80,
+    "name": "Mehen",
+    "seat_id": 3,
+    "class": "Fighter",
+    "race": "Dragonborn",
+    "tags": [
+      "male",
+      "dragonborn",
+      "fighter",
+      "neutral",
+      "good",
+      "support",
+      "gold",
+      "brimstone",
+      "event",
+      "y4",
+      "positional",
+      "debuff",
+      "control",
+      "control_stun",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 19,
+      "dex": 8,
+      "con": 15,
+      "int": 13,
+      "wis": 12,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      65,
+      43,
+      30,
+      49
+    ]
+  },
+  {
+    "id": 81,
+    "name": "Selise",
+    "seat_id": 12,
+    "class": "Paladin",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "paladin",
+      "lawful",
+      "neutral",
+      "support",
+      "tanking",
+      "rivalswaterdeep",
+      "event",
+      "y4",
+      "debuff",
+      "positional",
+      "control",
+      "breaking",
+      "control_stun",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 19,
+      "dex": 11,
+      "con": 11,
+      "int": 15,
+      "wis": 13,
+      "cha": 15
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      5,
+      37,
+      31,
+      106
+    ]
+  },
+  {
+    "id": 82,
+    "name": "Sgt. Knox",
+    "seat_id": 6,
+    "class": "Fighter",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "fighter",
+      "neutral",
+      "good",
+      "tanking",
+      "support",
+      "event",
+      "y4",
+      "unaffiliated",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 19,
+      "dex": 12,
+      "con": 15,
+      "int": 12,
+      "wis": 10,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      58,
+      31,
+      28,
+      99
+    ]
+  },
+  {
+    "id": 83,
+    "name": "Ellywick",
+    "seat_id": 10,
+    "class": "Bard",
+    "race": "Gnome",
+    "tags": [
+      "female",
+      "gnome",
+      "bard",
+      "chaotic",
+      "neutral",
+      "support",
+      "gold",
+      "healing",
+      "event",
+      "y4",
+      "unaffiliated",
+      "positional",
+      "small",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 17,
+      "con": 14,
+      "int": 13,
+      "wis": 12,
+      "cha": 20
+    },
+    "legendary_effect_id": [
+      54,
+      56,
+      16,
+      32,
+      93,
+      48
+    ]
+  },
+  {
+    "id": 84,
+    "name": "Prudence",
+    "seat_id": 5,
+    "class": "Warlock",
+    "race": "Tiefling",
+    "tags": [
+      "female",
+      "tiefling",
+      "warlock",
+      "chaotic",
+      "evil",
+      "dps",
+      "oxventure",
+      "event",
+      "y4"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 12,
+      "con": 17,
+      "int": 15,
+      "wis": 12,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      10,
+      92,
+      97,
+      50
+    ]
+  },
+  {
+    "id": 85,
+    "name": "Corazón",
+    "seat_id": 8,
+    "class": "Rogue",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "rogue",
+      "chaotic",
+      "neutral",
+      "support",
+      "oxventure",
+      "event",
+      "y4",
+      "control",
+      "control_slow",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 13,
+      "dex": 18,
+      "con": 12,
+      "int": 16,
+      "wis": 15,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      5,
+      90,
+      44,
+      99
+    ]
+  },
+  {
+    "id": 86,
+    "name": "Reya",
+    "seat_id": 6,
+    "class": "Paladin",
+    "race": "Human / Celestial",
+    "tags": [
+      "female",
+      "human",
+      "celestial",
+      "paladin",
+      "lawful",
+      "good",
+      "support",
+      "evergreen",
+      "unaffiliated",
+      "hunter",
+      "positional",
+      "hunter_fiend"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 12,
+      "con": 14,
+      "int": 13,
+      "wis": 11,
+      "cha": 20
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      58,
+      83,
+      34,
+      102
+    ]
+  },
+  {
+    "id": 87,
+    "name": "NERDS",
+    "seat_id": 1,
+    "class": "Fighter / Ranger / Bard / Cleric / Rogue / Wizard",
+    "race": "NERDS",
+    "tags": [
+      "nerds",
+      "rogue",
+      "wizard",
+      "fighter",
+      "ranger",
+      "cleric",
+      "bard",
+      "chaotic",
+      "neutral",
+      "support",
+      "tanking",
+      "healing",
+      "dps",
+      "evergreen",
+      "unaffiliated",
+      "debuff",
+      "positional",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 12,
+      "con": 13,
+      "int": 12,
+      "wis": 11,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      54,
+      57,
+      1,
+      35,
+      43,
+      105
+    ]
+  },
+  {
+    "id": 88,
+    "name": "Xerophon",
+    "seat_id": 7,
+    "class": "Rogue",
+    "race": "Doppelganger",
+    "tags": [
+      "doppelganger",
+      "rogue",
+      "neutral",
+      "support",
+      "evergreen",
+      "unaffiliated",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 18,
+      "con": 13,
+      "int": 12,
+      "wis": 14,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      4,
+      35,
+      37,
+      33,
+      46
+    ]
+  },
+  {
+    "id": 89,
+    "name": "D'hani",
+    "seat_id": 1,
+    "class": "Kensei Monk",
+    "race": "Aarakocra",
+    "tags": [
+      "female",
+      "aarakocra",
+      "monk",
+      "chaotic",
+      "good",
+      "dps",
+      "gold",
+      "event",
+      "rivalswaterdeep",
+      "y5",
+      "debuff",
+      "control",
+      "control_stun"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 11,
+      "dex": 20,
+      "con": 14,
+      "int": 11,
+      "wis": 20,
+      "cha": 7
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      62,
+      33,
+      81,
+      99
+    ]
+  },
+  {
+    "id": 90,
+    "name": "Brig",
+    "seat_id": 3,
+    "class": "Rogue / Bard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "rogue",
+      "bard",
+      "chaotic",
+      "good",
+      "support",
+      "event",
+      "sirensrealm",
+      "y5"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 16,
+      "con": 12,
+      "int": 12,
+      "wis": 13,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      54,
+      56,
+      58,
+      41,
+      33,
+      105
+    ]
+  },
+  {
+    "id": 91,
+    "name": "Widdle",
+    "seat_id": 2,
+    "class": "Wizard",
+    "race": "Dhampir Gnome",
+    "tags": [
+      "female",
+      "gnome",
+      "wizard",
+      "chaotic",
+      "neutral",
+      "support",
+      "healing",
+      "speed",
+      "planes",
+      "event",
+      "y5",
+      "positional",
+      "small",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 15,
+      "con": 13,
+      "int": 17,
+      "wis": 12,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      16,
+      37,
+      29,
+      106
+    ]
+  },
+  {
+    "id": 92,
+    "name": "Yorven",
+    "seat_id": 10,
+    "class": "Barbarian / Druid",
+    "race": "Harengon",
+    "tags": [
+      "male",
+      "harengon",
+      "barbarian",
+      "druid",
+      "chaotic",
+      "neutral",
+      "dps",
+      "support",
+      "event",
+      "y5",
+      "unaffiliated",
+      "spec_debuff",
+      "control",
+      "cneoriginal",
+      "control_root",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 14,
+      "con": 14,
+      "int": 6,
+      "wis": 13,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      1,
+      87,
+      83,
+      52
+    ]
+  },
+  {
+    "id": 93,
+    "name": "Viconia",
+    "seat_id": 5,
+    "class": "Cleric",
+    "race": "Elf (Drow)",
+    "tags": [
+      "female",
+      "elf",
+      "drow",
+      "cleric",
+      "neutral",
+      "evil",
+      "support",
+      "healing",
+      "event",
+      "y5",
+      "baldursgate",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 19,
+      "con": 8,
+      "int": 16,
+      "wis": 18,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      60,
+      40,
+      90,
+      53
+    ]
+  },
+  {
+    "id": 94,
+    "name": "Rust",
+    "seat_id": 11,
+    "class": "Rogue",
+    "race": "Tabaxi",
+    "tags": [
+      "male",
+      "tabaxi",
+      "rogue",
+      "neutral",
+      "support",
+      "gold",
+      "oxventure",
+      "event",
+      "y5",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee",
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 18,
+      "con": 15,
+      "int": 11,
+      "wis": 12,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      13,
+      37,
+      93,
+      106
+    ]
+  },
+  {
+    "id": 95,
+    "name": "Vi",
+    "seat_id": 12,
+    "class": "Artificer",
+    "race": "Gnome",
+    "tags": [
+      "female",
+      "gnome",
+      "artificer",
+      "neutral",
+      "good",
+      "support",
+      "gold",
+      "speed",
+      "acqinc",
+      "event",
+      "y5",
+      "debuff",
+      "control",
+      "control_stun",
+      "small",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 12,
+      "con": 16,
+      "int": 18,
+      "wis": 13,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      16,
+      38,
+      43,
+      100
+    ]
+  },
+  {
+    "id": 96,
+    "name": "Desmond",
+    "seat_id": 4,
+    "class": "Ranger",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "lycanthrope",
+      "ranger",
+      "chaotic",
+      "good",
+      "support",
+      "blackdicesociety",
+      "event",
+      "y5",
+      "positional",
+      "control",
+      "control_knockback"
+    ],
+    "damage_types": [
+      "melee",
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 15,
+      "con": 11,
+      "int": 11,
+      "wis": 12,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      58,
+      90,
+      30,
+      52
+    ]
+  },
+  {
+    "id": 97,
+    "name": "Tatyana",
+    "seat_id": 8,
+    "class": "Barbarian / Druid",
+    "race": "Air Genasi",
+    "tags": [
+      "female",
+      "genasi",
+      "barbarian",
+      "druid",
+      "chaotic",
+      "neutral",
+      "tanking",
+      "support",
+      "speed",
+      "blackdicesociety",
+      "event",
+      "y5",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 13,
+      "con": 16,
+      "int": 8,
+      "wis": 14,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      25,
+      89,
+      93,
+      106
+    ]
+  },
+  {
+    "id": 98,
+    "name": "Gazrick",
+    "seat_id": 7,
+    "class": "Druid",
+    "race": "Gnome (Rock)",
+    "tags": [
+      "male",
+      "gnome",
+      "druid",
+      "neutral",
+      "good",
+      "support",
+      "gold",
+      "rivalswaterdeep",
+      "event",
+      "y5",
+      "debuff",
+      "positional",
+      "control",
+      "breaking",
+      "control_stun",
+      "small",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 10,
+      "con": 13,
+      "int": 16,
+      "wis": 20,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      16,
+      35,
+      38,
+      53
+    ]
+  },
+  {
+    "id": 99,
+    "name": "Dungeon Master",
+    "seat_id": 6,
+    "class": "Wizard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "wizard",
+      "lawful",
+      "good",
+      "support",
+      "gold",
+      "healing",
+      "event",
+      "y5",
+      "unaffiliated"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 18,
+      "con": 18,
+      "int": 18,
+      "wis": 18,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      58,
+      81,
+      43,
+      48
+    ]
+  },
+  {
+    "id": 100,
+    "name": "Nordom",
+    "seat_id": 9,
+    "class": "Fighter",
+    "race": "Modron",
+    "tags": [
+      "modron",
+      "fighter",
+      "lawful",
+      "neutral",
+      "support",
+      "spec_control",
+      "spec_control_knockback",
+      "spec_debuff",
+      "event",
+      "y5",
+      "unaffiliated",
+      "positional",
+      "tales",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 16,
+      "con": 16,
+      "int": 16,
+      "wis": 8,
+      "cha": 8
+    },
+    "legendary_effect_id": [
+      54,
+      4,
+      1,
+      29,
+      91,
+      51
+    ]
+  },
+  {
+    "id": 101,
+    "name": "Merilwen",
+    "seat_id": 2,
+    "class": "Druid",
+    "race": "Elf (Wood)",
+    "tags": [
+      "female",
+      "elf",
+      "druid",
+      "neutral",
+      "support",
+      "gold",
+      "oxventure",
+      "event",
+      "y5",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 17,
+      "con": 15,
+      "int": 14,
+      "wis": 20,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      7,
+      38,
+      31,
+      101
+    ]
+  },
+  {
+    "id": 102,
+    "name": "Nahara",
+    "seat_id": 3,
+    "class": "Warlock / Bard",
+    "race": "Aasimar (Reborn)",
+    "tags": [
+      "blackdicesociety",
+      "event",
+      "female",
+      "aasimar",
+      "warlock",
+      "bard",
+      "chaotic",
+      "neutral",
+      "dps",
+      "speed",
+      "y5",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 16,
+      "con": 12,
+      "int": 10,
+      "wis": 13,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      54,
+      56,
+      21,
+      84,
+      87,
+      105
+    ]
+  },
+  {
+    "id": 103,
+    "name": "Valentine",
+    "seat_id": 5,
+    "class": "Sorcerer",
+    "race": "Half-Elf (Reborn)",
+    "tags": [
+      "female",
+      "half-elf",
+      "sorcerer",
+      "neutral",
+      "support",
+      "gold",
+      "blackdicesociety",
+      "event",
+      "y5",
+      "control",
+      "control_stun",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 13,
+      "con": 14,
+      "int": 12,
+      "wis": 13,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      8,
+      94,
+      85,
+      106
+    ]
+  },
+  {
+    "id": 104,
+    "name": "Voronika",
+    "seat_id": 1,
+    "class": "Druid",
+    "race": "Elf (Eladrin)",
+    "tags": [
+      "female",
+      "elf",
+      "eladrin",
+      "druid",
+      "chaotic",
+      "evil",
+      "support",
+      "blackdicesociety",
+      "event",
+      "y5",
+      "positional"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 18,
+      "con": 18,
+      "int": 12,
+      "wis": 23,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      60,
+      36,
+      43,
+      101
+    ]
+  },
+  {
+    "id": 105,
+    "name": "Dob",
+    "seat_id": 12,
+    "class": "Bard",
+    "race": "Half-Orc",
+    "tags": [
+      "male",
+      "bard",
+      "half-orc",
+      "oxventure",
+      "support",
+      "gold",
+      "chaotic",
+      "good",
+      "event",
+      "y5",
+      "positional",
+      "control",
+      "control_knockback"
+    ],
+    "damage_types": [
+      "melee",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 18,
+      "con": 17,
+      "int": 13,
+      "wis": 14,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      17,
+      31,
+      43,
+      101
+    ]
+  },
+  {
+    "id": 106,
+    "name": "Blooshi",
+    "seat_id": 2,
+    "class": "Warlock",
+    "race": "Bullywug",
+    "tags": [
+      "female",
+      "bullywug",
+      "warlock",
+      "neutral",
+      "evil",
+      "tanking",
+      "support",
+      "cneoriginal",
+      "unaffiliated",
+      "evergreen",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 14,
+      "con": 16,
+      "int": 13,
+      "wis": 8,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      1,
+      91,
+      87,
+      48
+    ]
+  },
+  {
+    "id": 108,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 109,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 110,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 111,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 112,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 113,
+    "name": "Egbert",
+    "seat_id": 7,
+    "class": "Paladin",
+    "race": "Dragonborn",
+    "tags": [
+      "male",
+      "dragonborn",
+      "paladin",
+      "chaotic",
+      "good",
+      "tanking",
+      "support",
+      "healing",
+      "gold",
+      "oxventure",
+      "event",
+      "y6",
+      "positional",
+      "spec_debuff",
+      "control",
+      "control_knockback"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 14,
+      "con": 14,
+      "int": 10,
+      "wis": 8,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      12,
+      83,
+      35,
+      49
+    ]
+  },
+  {
+    "id": 114,
+    "name": "Kent",
+    "seat_id": 4,
+    "class": "Rogue",
+    "race": "Tiefling",
+    "tags": [
+      "male",
+      "tiefling",
+      "rogue",
+      "neutral",
+      "good",
+      "support",
+      "dps",
+      "rivalswaterdeep",
+      "event",
+      "y6",
+      "positional",
+      "control",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 20,
+      "con": 14,
+      "int": 14,
+      "wis": 10,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      10,
+      44,
+      88,
+      106
+    ]
+  },
+  {
+    "id": 115,
+    "name": "Virgil",
+    "seat_id": 10,
+    "class": "Sorcerer",
+    "race": "Aasimar",
+    "tags": [
+      "male",
+      "aasimar",
+      "sorcerer",
+      "neutral",
+      "good",
+      "support",
+      "speed",
+      "rivalswaterdeep",
+      "event",
+      "y6",
+      "positional",
+      "spec_control",
+      "spec_control_stun",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 13,
+      "con": 14,
+      "int": 13,
+      "wis": 12,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      21,
+      96,
+      34,
+      49
+    ]
+  },
+  {
+    "id": 116,
+    "name": "Warduke",
+    "seat_id": 8,
+    "class": "Fighter",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "fighter",
+      "chaotic",
+      "evil",
+      "dps",
+      "tanking",
+      "event",
+      "y6",
+      "unaffiliated"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 19,
+      "dex": 11,
+      "con": 17,
+      "int": 9,
+      "wis": 11,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      5,
+      93,
+      88,
+      103
+    ]
+  },
+  {
+    "id": 117,
+    "name": "Imoen",
+    "seat_id": 11,
+    "class": "Rogue / Wizard",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "rogue",
+      "wizard",
+      "event",
+      "baldursgate",
+      "support",
+      "healing",
+      "neutral",
+      "good",
+      "y6",
+      "hunter",
+      "positional",
+      "spec_hunter_beast",
+      "spec_hunter_dragon",
+      "spec_hunter_monstrosity",
+      "spec_hunter_abberation",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 18,
+      "con": 16,
+      "int": 17,
+      "wis": 11,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      5,
+      43,
+      35,
+      49
+    ]
+  },
+  {
+    "id": 118,
+    "name": "Fen",
+    "seat_id": 6,
+    "class": "Warlock / Rogue",
+    "race": "Dhampir Elf (Drow)",
+    "tags": [
+      "female",
+      "elf",
+      "drow",
+      "warlock",
+      "rogue",
+      "chaotic",
+      "evil",
+      "dps",
+      "support",
+      "blackdicesociety",
+      "event",
+      "y6",
+      "positional"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 14,
+      "con": 16,
+      "int": 13,
+      "wis": 12,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      7,
+      93,
+      28,
+      50
+    ]
+  },
+  {
+    "id": 119,
+    "name": "Brother Uriah",
+    "seat_id": 9,
+    "class": "Cleric",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "cleric",
+      "support",
+      "healing",
+      "lawful",
+      "good",
+      "blackdicesociety",
+      "event",
+      "y6",
+      "hunter",
+      "positional",
+      "spec_hunter",
+      "spec_hunter_undead",
+      "spec_hunter_fiend"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 12,
+      "int": 12,
+      "wis": 22,
+      "cha": 15
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      58,
+      95,
+      37,
+      49
+    ]
+  },
+  {
+    "id": 120,
+    "name": "Solaak",
+    "seat_id": 2,
+    "class": "Ranger",
+    "race": "Kalashtar",
+    "tags": [
+      "male",
+      "kalashtar",
+      "ranger",
+      "neutral",
+      "good",
+      "support",
+      "event",
+      "y6",
+      "unaffiliated",
+      "control",
+      "control_knockback",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 18,
+      "con": 14,
+      "int": 13,
+      "wis": 15,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      55,
+      41,
+      37,
+      53
+    ]
+  },
+  {
+    "id": 121,
+    "name": "Miria",
+    "seat_id": 12,
+    "class": "Wizard",
+    "race": "Elf (Shadar-kai)",
+    "tags": [
+      "female",
+      "shadarkai",
+      "elf",
+      "wizard",
+      "lawful",
+      "evil",
+      "support",
+      "tanking",
+      "event",
+      "y6",
+      "unaffiliated",
+      "positional",
+      "control",
+      "control_weaken"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 16,
+      "con": 14,
+      "int": 20,
+      "wis": 13,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      7,
+      93,
+      33,
+      101
+    ]
+  },
+  {
+    "id": 122,
+    "name": "Antrius",
+    "seat_id": 4,
+    "class": "Bard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "bard",
+      "chaotic",
+      "good",
+      "support",
+      "healing",
+      "awfulones",
+      "event",
+      "y6",
+      "debuff",
+      "positional"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 14,
+      "con": 13,
+      "int": 10,
+      "wis": 12,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      58,
+      85,
+      45,
+      52
+    ]
+  },
+  {
+    "id": 123,
+    "name": "Nixie",
+    "seat_id": 1,
+    "class": "Sorcerer",
+    "race": "Tiefling",
+    "tags": [
+      "female",
+      "tiefling",
+      "sorcerer",
+      "chaotic",
+      "neutral",
+      "dps",
+      "support",
+      "gold",
+      "awfulones",
+      "event",
+      "y6",
+      "control",
+      "control_stun",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 14,
+      "con": 17,
+      "int": 3,
+      "wis": 8,
+      "cha": 20
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      63,
+      31,
+      89,
+      101
+    ]
+  },
+  {
+    "id": 124,
+    "name": "Evandra",
+    "seat_id": 5,
+    "class": "Fighter",
+    "race": "Half-Elf",
+    "tags": [
+      "female",
+      "half-elf",
+      "fighter",
+      "chaotic",
+      "neutral",
+      "support",
+      "tanking",
+      "gold",
+      "awfulones",
+      "event",
+      "y6",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 17,
+      "dex": 12,
+      "con": 16,
+      "int": 12,
+      "wis": 9,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      61,
+      34,
+      83,
+      53
+    ]
+  },
+  {
+    "id": 125,
+    "name": "BBEG",
+    "seat_id": 3,
+    "class": "Wizard",
+    "race": "Elf (Drow)",
+    "tags": [
+      "male",
+      "drow",
+      "elf",
+      "wizard",
+      "lawful",
+      "evil",
+      "support",
+      "speed",
+      "unaffiliated",
+      "event",
+      "y6"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 13,
+      "con": 8,
+      "int": 18,
+      "wis": 15,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      7,
+      40,
+      95,
+      51
+    ]
+  },
+  {
+    "id": 126,
+    "name": "Strongheart",
+    "seat_id": 11,
+    "class": "Paladin",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "paladin",
+      "lawful",
+      "good",
+      "support",
+      "healing",
+      "event",
+      "unaffiliated",
+      "y6",
+      "positional",
+      "tales"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 15,
+      "dex": 12,
+      "con": 13,
+      "int": 12,
+      "wis": 13,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      5,
+      29,
+      31,
+      46
+    ]
+  },
+  {
+    "id": 127,
+    "name": "Vin Ursa",
+    "seat_id": 7,
+    "class": "Fighter / Rogue",
+    "race": "Plasmoid",
+    "tags": [
+      "female",
+      "plasmoid",
+      "fighter",
+      "lawful",
+      "rogue",
+      "evil",
+      "support",
+      "gold",
+      "unaffiliated",
+      "cneoriginal",
+      "event",
+      "y6",
+      "hunter",
+      "positional",
+      "small"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 20,
+      "con": 12,
+      "int": 13,
+      "wis": 17,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      1,
+      4,
+      54,
+      34,
+      38,
+      51
+    ]
+  },
+  {
+    "id": 128,
+    "name": "Lae'zel",
+    "seat_id": 2,
+    "class": "Fighter",
+    "race": "Githyanki",
+    "tags": [
+      "female",
+      "gith",
+      "githyanki",
+      "fighter",
+      "lawful",
+      "evil",
+      "support",
+      "dps",
+      "speed",
+      "absoluteadversaries",
+      "event",
+      "y6",
+      "hunter",
+      "positional",
+      "hunter_aberration",
+      "tales"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 17,
+      "dex": 13,
+      "con": 14,
+      "int": 11,
+      "wis": 12,
+      "cha": 8
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      107,
+      90,
+      85,
+      99
+    ]
+  },
+  {
+    "id": 129,
+    "name": "Astarion",
+    "seat_id": 10,
+    "class": "Rogue",
+    "race": "Elf (High)",
+    "tags": [
+      "male",
+      "elf",
+      "rogue",
+      "neutral",
+      "evil",
+      "support",
+      "gold",
+      "absoluteadversaries",
+      "event",
+      "y6",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 17,
+      "con": 14,
+      "int": 13,
+      "wis": 13,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      60,
+      38,
+      34,
+      50
+    ]
+  },
+  {
+    "id": 130,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 131,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 132,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 133,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 134,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 136,
+    "name": "Commodore Krux",
+    "seat_id": 4,
+    "class": "Fighter",
+    "race": "Giff",
+    "tags": [
+      "male",
+      "giff",
+      "fighter",
+      "lawful",
+      "good",
+      "dps",
+      "tanking",
+      "support",
+      "unaffiliated",
+      "evergreen",
+      "hunter",
+      "positional",
+      "spec_control",
+      "spec_control_knockback"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 14,
+      "con": 17,
+      "int": 11,
+      "wis": 12,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      54,
+      37,
+      88,
+      100
+    ]
+  },
+  {
+    "id": 138,
+    "name": "Certainty Dran",
+    "seat_id": 5,
+    "class": "Wizard / Bard",
+    "race": "Half-Elf / Aasimar",
+    "tags": [
+      "female",
+      "half-elf",
+      "aasimar",
+      "wizard",
+      "bard",
+      "neutral",
+      "good",
+      "support",
+      "gold",
+      "acqinc",
+      "event",
+      "y7",
+      "positional",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 12,
+      "con": 12,
+      "int": 16,
+      "wis": 13,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      8,
+      38,
+      97,
+      102
+    ]
+  },
+  {
+    "id": 139,
+    "name": "Thellora",
+    "seat_id": 1,
+    "class": "Paladin",
+    "race": "Centaur",
+    "tags": [
+      "female",
+      "centaur",
+      "paladin",
+      "lawful",
+      "neutral",
+      "support",
+      "tanking",
+      "speed",
+      "event",
+      "y7",
+      "unaffiliated",
+      "positional",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 12,
+      "con": 13,
+      "int": 11,
+      "wis": 8,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      104,
+      34,
+      37,
+      46
+    ]
+  },
+  {
+    "id": 140,
+    "name": "Jang Sao",
+    "seat_id": 8,
+    "class": "Druid / Wizard",
+    "race": "Satyr",
+    "tags": [
+      "female",
+      "satyr",
+      "druid",
+      "wizard",
+      "neutral",
+      "support",
+      "healing",
+      "event",
+      "y7",
+      "unaffiliated",
+      "positional",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 15,
+      "con": 10,
+      "int": 14,
+      "wis": 20,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      85,
+      41,
+      33,
+      47
+    ]
+  },
+  {
+    "id": 141,
+    "name": "Shadowheart",
+    "seat_id": 6,
+    "class": "Cleric",
+    "race": "Half-Elf",
+    "tags": [
+      "female",
+      "half-elf",
+      "cleric",
+      "lawful",
+      "neutral",
+      "support",
+      "healing",
+      "absoluteadversaries",
+      "event",
+      "y7",
+      "positional",
+      "tales",
+      "geneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 14,
+      "con": 14,
+      "int": 10,
+      "wis": 16,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      8,
+      84,
+      31,
+      104
+    ]
+  },
+  {
+    "id": 142,
+    "name": "Wyll",
+    "seat_id": 12,
+    "class": "Warlock",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "warlock",
+      "neutral",
+      "good",
+      "support",
+      "absoluteadversaries",
+      "event",
+      "y7",
+      "hunter",
+      "hunter_fiend",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee",
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 13,
+      "con": 15,
+      "int": 14,
+      "wis": 11,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      5,
+      34,
+      38,
+      49
+    ]
+  },
+  {
+    "id": 143,
+    "name": "Karlach",
+    "seat_id": 4,
+    "class": "Barbarian",
+    "race": "Tiefling",
+    "tags": [
+      "female",
+      "tiefling",
+      "barbarian",
+      "chaotic",
+      "good",
+      "dps",
+      "support",
+      "tanking",
+      "absoluteadversaries",
+      "event",
+      "y7",
+      "positional"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 15,
+      "dex": 13,
+      "con": 14,
+      "int": 9,
+      "wis": 12,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      10,
+      85,
+      96,
+      105
+    ]
+  },
+  {
+    "id": 144,
+    "name": "Presto",
+    "seat_id": 2,
+    "class": "Wizard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "wizard",
+      "neutral",
+      "good",
+      "support",
+      "saturdaymorningsquad",
+      "event",
+      "y7",
+      "debuff",
+      "positional",
+      "control",
+      "control_stun",
+      "control_slow",
+      "control_knockback",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 9,
+      "con": 12,
+      "int": 16,
+      "wis": 14,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      5,
+      38,
+      40,
+      106
+    ]
+  },
+  {
+    "id": 145,
+    "name": "Dynaheir",
+    "seat_id": 3,
+    "class": "Wizard",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "wizard",
+      "lawful",
+      "good",
+      "support",
+      "speed",
+      "baldursgate",
+      "event",
+      "y7",
+      "hunter",
+      "hunter_humanoid",
+      "tales"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 11,
+      "dex": 13,
+      "con": 16,
+      "int": 17,
+      "wis": 15,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      58,
+      36,
+      37,
+      49
+    ]
+  },
+  {
+    "id": 146,
+    "name": "The Dark Urge",
+    "seat_id": 11,
+    "class": "Sorcerer",
+    "race": "Dragonborn",
+    "tags": [
+      "male",
+      "chaotic",
+      "evil",
+      "dragonborn",
+      "sorcerer",
+      "dps",
+      "absoluteadversaries",
+      "event",
+      "y7",
+      "spec_control"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 13,
+      "con": 15,
+      "int": 12,
+      "wis": 10,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      54,
+      55,
+      65,
+      32,
+      89,
+      50
+    ]
+  },
+  {
+    "id": 147,
+    "name": "Gale",
+    "seat_id": 1,
+    "class": "Wizard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "wizard",
+      "neutral",
+      "support",
+      "absoluteadversaries",
+      "event",
+      "y7",
+      "debuff",
+      "positional",
+      "spec_control",
+      "spec_control_fumble",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 13,
+      "con": 15,
+      "int": 17,
+      "wis": 10,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      54,
+      56,
+      5,
+      37,
+      32,
+      53
+    ]
+  },
+  {
+    "id": 148,
+    "name": "Diana",
+    "seat_id": 9,
+    "class": "Monk",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "monk",
+      "lawful",
+      "good",
+      "support",
+      "speed",
+      "saturdaymorningsquad",
+      "event",
+      "y7",
+      "control",
+      "control_knockback"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 16,
+      "con": 12,
+      "int": 11,
+      "wis": 13,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      5,
+      40,
+      81,
+      51
+    ]
+  },
+  {
+    "id": 149,
+    "name": "Duke Ravengard",
+    "seat_id": 8,
+    "class": "Fighter",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "fighter",
+      "lawful",
+      "neutral",
+      "support",
+      "event",
+      "y7",
+      "unaffiliated",
+      "spec_control",
+      "spec_control_knockback",
+      "tales",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 17,
+      "dex": 14,
+      "con": 16,
+      "int": 11,
+      "wis": 10,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      58,
+      96,
+      43,
+      46
+    ]
+  },
+  {
+    "id": 150,
+    "name": "Aeon",
+    "seat_id": 10,
+    "class": "Artificer / Bard",
+    "race": "Goliath",
+    "tags": [
+      "female",
+      "goliath",
+      "bard",
+      "artificer",
+      "lawful",
+      "evil",
+      "support",
+      "debuff",
+      "event",
+      "y7",
+      "unaffiliated",
+      "positional"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 12,
+      "int": 20,
+      "wis": 14,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      54,
+      37,
+      40,
+      103
+    ]
+  },
+  {
+    "id": 151,
+    "name": "Umberto",
+    "seat_id": 7,
+    "class": "Druid",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "druid",
+      "lawful",
+      "good",
+      "tanking",
+      "support",
+      "debuff",
+      "event",
+      "y7",
+      "unaffiliated",
+      "positional"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 15,
+      "dex": 9,
+      "con": 16,
+      "int": 11,
+      "wis": 17,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      5,
+      89,
+      42,
+      104
+    ]
+  },
+  {
+    "id": 152,
+    "name": "Bobby",
+    "seat_id": 12,
+    "class": "Barbarian",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "barbarian",
+      "chaotic",
+      "good",
+      "dps",
+      "support",
+      "saturdaymorningsquad",
+      "event",
+      "y8",
+      "positional",
+      "spec_control",
+      "spec_control_stun",
+      "spec_control_knockback"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 15,
+      "con": 12,
+      "int": 9,
+      "wis": 8,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      5,
+      28,
+      85,
+      52
+    ]
+  },
+  {
+    "id": 153,
+    "name": "Kas",
+    "seat_id": 6,
+    "class": "Fighter",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "fighter",
+      "neutral",
+      "evil",
+      "dps",
+      "healing",
+      "undead",
+      "unaffiliated",
+      "event",
+      "y8",
+      "tales",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 26,
+      "dex": 20,
+      "con": 22,
+      "int": 24,
+      "wis": 19,
+      "cha": 26
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      58,
+      39,
+      83,
+      99
+    ]
+  },
+  {
+    "id": 154,
+    "name": "Minthara",
+    "seat_id": 3,
+    "class": "Paladin",
+    "race": "Elf (Drow)",
+    "tags": [
+      "female",
+      "elf",
+      "drow",
+      "paladin",
+      "neutral",
+      "evil",
+      "support",
+      "debuff",
+      "tanking",
+      "absoluteadversaries",
+      "event",
+      "y8",
+      "breaking",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 15,
+      "con": 14,
+      "int": 10,
+      "wis": 12,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      7,
+      32,
+      97,
+      103
+    ]
+  },
+  {
+    "id": 155,
+    "name": "Wren",
+    "seat_id": 3,
+    "class": "Monk / Barbarian / Sorcerer",
+    "race": "Dwarf / Tabaxi / Warforged",
+    "tags": [
+      "female",
+      "dwarf",
+      "tabaxi",
+      "warforged",
+      "monk",
+      "barbarian",
+      "sorcerer",
+      "neutral",
+      "good",
+      "support",
+      "dps",
+      "tanking",
+      "debuff",
+      "evergreen",
+      "unaffiliated",
+      "positional",
+      "control",
+      "control_stun",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 12,
+      "con": 14,
+      "int": 13,
+      "wis": 13,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      19,
+      93,
+      94,
+      53
+    ]
+  },
+  {
+    "id": 156,
+    "name": "Halsin",
+    "seat_id": 3,
+    "class": "Druid",
+    "race": "Elf (Wood)",
+    "tags": [
+      "male",
+      "elf",
+      "druid",
+      "neutral",
+      "good",
+      "support",
+      "healing",
+      "speed",
+      "absoluteadversaries",
+      "y8",
+      "event",
+      "control",
+      "control_reposition",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 11,
+      "con": 14,
+      "int": 10,
+      "wis": 17,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      57,
+      7,
+      29,
+      35,
+      49
+    ]
+  },
+  {
+    "id": 157,
+    "name": "Eric",
+    "seat_id": 4,
+    "class": "Fighter",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "fighter",
+      "neutral",
+      "good",
+      "support",
+      "tanking",
+      "gold",
+      "control",
+      "saturdaymorningsquad",
+      "event",
+      "y8",
+      "control_knockback",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 13,
+      "dex": 12,
+      "con": 14,
+      "int": 11,
+      "wis": 10,
+      "cha": 9
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      5,
+      31,
+      34,
+      49
+    ]
+  },
+  {
+    "id": 158,
+    "name": "Kalix",
+    "seat_id": 5,
+    "class": "Ranger",
+    "race": "Thri-kreen",
+    "tags": [
+      "male",
+      "thrikreen",
+      "ranger",
+      "lawful",
+      "evil",
+      "support",
+      "hunter",
+      "cneoriginal",
+      "event",
+      "unaffiliated",
+      "y8",
+      "spec_speed",
+      "hunter_humanoid",
+      "tales"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 18,
+      "con": 14,
+      "int": 13,
+      "wis": 11,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      103,
+      31,
+      96,
+      47
+    ]
+  },
+  {
+    "id": 159,
+    "name": "Volo",
+    "seat_id": 9,
+    "class": "Wizard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "wizard",
+      "chaotic",
+      "good",
+      "support",
+      "event",
+      "y8",
+      "spec_hunter",
+      "spec_hunter_undead",
+      "unaffiliated"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 12,
+      "con": 10,
+      "int": 15,
+      "wis": 11,
+      "cha": 16
+    },
+    "legendary_effect_id": [
+      54,
+      2,
+      5,
+      43,
+      38,
+      105
+    ]
+  },
+  {
+    "id": 160,
+    "name": "Sheila",
+    "seat_id": 7,
+    "class": "Rogue",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "rogue",
+      "neutral",
+      "good",
+      "support",
+      "debuff",
+      "saturdaymorningsquad",
+      "event",
+      "y8",
+      "spec_control",
+      "spec_control_stun",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 14,
+      "con": 11,
+      "int": 11,
+      "wis": 15,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      54,
+      3,
+      5,
+      94,
+      96,
+      53
+    ]
+  },
+  {
+    "id": 161,
+    "name": "Grimm",
+    "seat_id": 2,
+    "class": "Barbarian",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "barbarian",
+      "chaotic",
+      "good",
+      "dps",
+      "tanking",
+      "breaking",
+      "unaffiliated",
+      "event",
+      "y8",
+      "spec_gold",
+      "spec_hunter",
+      "spec_hunter_giant"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 18,
+      "dex": 12,
+      "con": 16,
+      "int": 12,
+      "wis": 9,
+      "cha": 14
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      58,
+      31,
+      44,
+      52
+    ]
+  },
+  {
+    "id": 162,
+    "name": "Vlithryn",
+    "seat_id": 11,
+    "class": "Cleric",
+    "race": "Triton",
+    "tags": [
+      "female",
+      "triton",
+      "cleric",
+      "lawful",
+      "good",
+      "support",
+      "healing",
+      "control",
+      "awfulones",
+      "event",
+      "y8",
+      "control_knockback"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 10,
+      "con": 16,
+      "int": 15,
+      "wis": 16,
+      "cha": 8
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      10,
+      40,
+      88,
+      105
+    ]
+  },
+  {
+    "id": 163,
+    "name": "Hank",
+    "seat_id": 1,
+    "class": "Ranger",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "ranger",
+      "lawful",
+      "good",
+      "support",
+      "control",
+      "saturdaymorningsquad",
+      "event",
+      "y8",
+      "spec_hunter",
+      "control_knockback",
+      "spec_hunter_dragon",
+      "tales"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 13,
+      "dex": 17,
+      "con": 12,
+      "int": 10,
+      "wis": 14,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      1,
+      55,
+      58,
+      33,
+      41,
+      47
+    ]
+  },
+  {
+    "id": 164,
+    "name": "Tess",
+    "seat_id": 8,
+    "class": "Rogue",
+    "race": "Elf (Wood)",
+    "tags": [
+      "female",
+      "elf",
+      "rogue",
+      "chaotic",
+      "good",
+      "support",
+      "fallbacks",
+      "event",
+      "y8"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 17,
+      "con": 12,
+      "int": 15,
+      "wis": 13,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      58,
+      84,
+      87,
+      49
+    ]
+  },
+  {
+    "id": 165,
+    "name": "Baldric",
+    "seat_id": 12,
+    "class": "Cleric",
+    "race": "Dwarf",
+    "tags": [
+      "male",
+      "dwarf",
+      "cleric",
+      "lawful",
+      "neutral",
+      "support",
+      "healing",
+      "fallbacks",
+      "event",
+      "y8",
+      "spec_gold",
+      "geneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 10,
+      "con": 12,
+      "int": 13,
+      "wis": 17,
+      "cha": 15
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      5,
+      41,
+      39,
+      105
+    ]
+  },
+  {
+    "id": 166,
+    "name": "Cazrin",
+    "seat_id": 10,
+    "class": "Wizard",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "wizard",
+      "chaotic",
+      "good",
+      "dps",
+      "support",
+      "fallbacks",
+      "event",
+      "y9"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 13,
+      "con": 14,
+      "int": 18,
+      "wis": 13,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      5,
+      35,
+      94,
+      52
+    ]
+  },
+  {
+    "id": 167,
+    "name": "Windfall",
+    "seat_id": 5,
+    "class": "Bard",
+    "race": "Tiefling",
+    "tags": [
+      "female",
+      "tiefling",
+      "bard",
+      "chaotic",
+      "evil",
+      "dps",
+      "support",
+      "gold",
+      "unaffiliated",
+      "evergreen",
+      "spec_control",
+      "spec_breaking",
+      "spec_control_stun",
+      "spec_control_slow"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 14,
+      "dex": 24,
+      "con": 20,
+      "int": 22,
+      "wis": 18,
+      "cha": 26
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      10,
+      43,
+      88,
+      103
+    ]
+  },
+  {
+    "id": 168,
+    "name": "King of Shadows",
+    "seat_id": 9,
+    "class": "Barbarian / Warlock",
+    "race": "Human",
+    "tags": [
+      "male",
+      "undead",
+      "human",
+      "barbarian",
+      "warlock",
+      "lawful",
+      "evil",
+      "support",
+      "tanking",
+      "dps",
+      "unaffiliated",
+      "event",
+      "y9"
+    ],
+    "damage_types": [
+      "melee",
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 20,
+      "dex": 26,
+      "con": 18,
+      "int": 14,
+      "wis": 14,
+      "cha": 20
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      5,
+      30,
+      86,
+      103
+    ]
+  },
+  {
+    "id": 169,
+    "name": "Skylla",
+    "seat_id": 4,
+    "class": "Warlock",
+    "race": "Human",
+    "tags": [
+      "female",
+      "human",
+      "warlock",
+      "chaotic",
+      "evil",
+      "support",
+      "debuff",
+      "spec_breaking",
+      "unaffiliated",
+      "event",
+      "y9"
+    ],
+    "damage_types": [
+      "melee",
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 11,
+      "con": 14,
+      "int": 12,
+      "wis": 15,
+      "cha": 17
+    },
+    "legendary_effect_id": [
+      1,
+      56,
+      58,
+      44,
+      94,
+      50
+    ]
+  },
+  {
+    "id": 170,
+    "name": "Lark",
+    "seat_id": 6,
+    "class": "Bard",
+    "race": "Tiefling",
+    "tags": [
+      "event",
+      "male",
+      "tiefling",
+      "bard",
+      "chaotic",
+      "neutral",
+      "support",
+      "speed",
+      "debuff",
+      "fallbacks",
+      "y9",
+      "geneutral"
+    ],
+    "damage_types": [
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 12,
+      "dex": 13,
+      "con": 13,
+      "int": 12,
+      "wis": 10,
+      "cha": 18
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      10,
+      45,
+      52,
+      48
+    ]
+  },
+  {
+    "id": 171,
+    "name": "Anson",
+    "seat_id": 1,
+    "class": "Fighter",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "fighter",
+      "neutral",
+      "good",
+      "support",
+      "tanking",
+      "control",
+      "fallbacks",
+      "event",
+      "y9",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "melee"
+    ],
+    "ability_scores": {
+      "str": 16,
+      "dex": 14,
+      "con": 14,
+      "int": 11,
+      "wis": 11,
+      "cha": 12
+    },
+    "legendary_effect_id": [
+      1,
+      3,
+      5,
+      37,
+      96,
+      102
+    ]
+  },
+  {
+    "id": 172,
+    "name": "Kyre",
+    "seat_id": 5,
+    "class": "Monk",
+    "race": "Human",
+    "tags": [
+      "event",
+      "human",
+      "monk",
+      "lawful",
+      "good",
+      "support",
+      "control",
+      "unaffiliated",
+      "y9"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 8,
+      "dex": 16,
+      "con": 14,
+      "int": 13,
+      "wis": 14,
+      "cha": 13
+    },
+    "legendary_effect_id": [
+      1,
+      58,
+      86,
+      94,
+      102,
+      101
+    ]
+  },
+  {
+    "id": 173,
+    "name": "Raistlin",
+    "seat_id": 2,
+    "class": "Wizard",
+    "race": "Human",
+    "tags": [
+      "male",
+      "human",
+      "wizard",
+      "neutral",
+      "dps",
+      "heroeslance",
+      "event",
+      "y9",
+      "geneutral",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 9,
+      "dex": 16,
+      "con": 9,
+      "int": 18,
+      "wis": 12,
+      "cha": 10
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      5,
+      39,
+      92,
+      48
+    ]
+  },
+  {
+    "id": 174,
+    "name": "Tasslehoff",
+    "seat_id": 11,
+    "class": "Rogue",
+    "race": "Kender",
+    "tags": [
+      "male",
+      "kender",
+      "rogue",
+      "neutral",
+      "good",
+      "support",
+      "speed",
+      "heroeslance",
+      "event",
+      "y9",
+      "small",
+      "lcneutral"
+    ],
+    "damage_types": [
+      "ranged"
+    ],
+    "ability_scores": {
+      "str": 13,
+      "dex": 16,
+      "con": 14,
+      "int": 11,
+      "wis": 15,
+      "cha": 11
+    },
+    "legendary_effect_id": [
+      1,
+      2,
+      5,
+      90,
+      106,
+      48
+    ]
+  },
+  {
+    "id": 175,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  },
+  {
+    "id": 176,
+    "name": "Y4E15",
+    "seat_id": 0,
+    "class": "???",
+    "race": "???",
+    "tags": [
+      "delina"
+    ],
+    "damage_types": [
+      "ranged",
+      "magic"
+    ],
+    "ability_scores": {
+      "str": 10,
+      "dex": 10,
+      "con": 10,
+      "int": 10,
+      "wis": 10,
+      "cha": 10
+    },
+    "legendary_effect_id": null
+  }
+]

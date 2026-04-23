@@ -197,15 +197,19 @@ The Idle Champions API does **not** expose a structured targeting field for lege
 
 **Scope taxonomy** (parsed from the description of every `hero_dps_multiplier_mult` effect, all of which follow the pattern `"Increases the damage of all X by $(amount)%"`):
 
-| Scope kind         | Examples                                                                    | Hero record field to match              |
-| ------------------ | --------------------------------------------------------------------------- | --------------------------------------- |
-| `race`             | Human, Dwarf, Elf, Half-Elf, Dragonborn, Tiefling, Warforged, Gnome, Kobold, Aasimar, Aarakocra, Tabaxi, Tortle, Halfling, Firbolg, Gith, Githyanki, Giff, Plasmoid, Goliath, Genasi, Goblin, Minotaur, Lizardfolk, Saurial, Yuan-ti, Half-Orc | `hero.race` (exact)                     |
-| `gender`           | Male, Female, Nonbinary                                                     | `hero.gender` (exact)                   |
-| `alignment`        | Good, Evil, Lawful, Chaotic, Neutral                                        | `hero.alignment` (exact)                |
-| `damage_type`      | Melee, Ranged, Magic                                                        | `hero.damage_type` (exact)              |
-| `stat_threshold`   | "Champions with a STR score of 11 or higher" (and 13, 15; for STR/DEX/CON/INT/WIS/CHA) | `hero.base_stats[stat] >= min`          |
+| Scope kind         | Examples                                                                                                                                                                      | Hero record field used for matching     |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| `race`             | Human, Dwarf, Elf, Half-Elf, Dragonborn, Tiefling, Warforged, Gnome, Kobold, Aasimar, Aarakocra, Tabaxi, Tortle, Halfling, Firbolg, Gith, Githyanki, Giff, Plasmoid, Goliath, Genasi, Goblin, Minotaur, Lizardfolk, Saurial, Yuan-ti, Half-Orc | `hero.tags.includes('human')` — API pre-tokenizes |
+| `gender`           | Male, Female, Nonbinary                                                                                                                                                        | `hero.tags.includes('female')`          |
+| `alignment`        | Good, Evil, Lawful, Chaotic, Neutral                                                                                                                                          | `hero.tags.includes('good')` — the API splits two-word alignments (e.g., "Chaotic Good" → `['chaotic','good']`) into separate tags, so matching is a clean set membership check per axis |
+| `damage_type`      | Melee, Ranged, Magic                                                                                                                                                          | `hero.damage_types.includes('magic')` — array, because heroes can be in multiple buckets (e.g., Cazrin is both `magic` and `ranged`). Derived at refresh time from the hero's `base_attack_id` |
+| `stat_threshold`   | "Champions with a STR score of 11 or higher" (and 13, 15; for STR/DEX/CON/INT/WIS/CHA)                                                                                         | `hero.ability_scores[stat] >= min` — keys are lowercase (`str`, `dex`, `con`, `int`, `wis`, `cha`) |
 
-Note: hero **class** is never used in legendary effect scoping. The game has a data typo "Halfing" → we normalize to "Halfling" at refresh time. Anything the parser can't classify is tagged `{"kind": "unknown"}` and surfaces a console warning so a new scope shape introduced by CE is caught quickly.
+Notes:
+- Hero **class** is never used in legendary effect scoping (though the tags array still carries the class tag for display).
+- The game has a data typo — description text uses "Halfing" but hero tags correctly spell "halfling". Normalized to "Halfling" at refresh time, then lowercased at match time.
+- `Nonbinary` has zero matching heroes in the current roster, but the effect exists in the pool; the matcher correctly returns `false` for all heroes until/unless a hero is tagged `nonbinary`.
+- Anything the parser can't classify is tagged `{"kind": "unknown"}`, its id is appended to `unknown_scope_ids` in the metadata file, and a stderr warning fires. The run still succeeds — it's a soft tripwire, not a build failure.
 
 **Runtime matcher (pure, deterministic, no I/O):**
 
@@ -213,18 +217,20 @@ Note: hero **class** is never used in legendary effect scoping. The game has a d
 function effectAffectsHero(scope, hero) {
   switch (scope.kind) {
     case 'global':          return true;
-    case 'race':            return hero.race === scope.value;
-    case 'gender':          return hero.gender === scope.value;
-    case 'alignment':       return hero.alignment === scope.value;
-    case 'damage_type':     return hero.damage_type === scope.value;
-    case 'stat_threshold':  return (hero.base_stats[scope.stat] ?? 0) >= scope.min;
+    case 'race':            return hero.tags.includes(scope.value.toLowerCase());
+    case 'gender':          return hero.tags.includes(scope.value.toLowerCase());
+    case 'alignment':       return hero.tags.includes(scope.value.toLowerCase());
+    case 'damage_type':     return hero.damage_types.includes(scope.value.toLowerCase());
+    case 'stat_threshold':  return (hero.ability_scores?.[scope.stat] ?? 0) >= scope.min;
     case 'unknown':         // fall through to conservative no
     default:                return false;
   }
 }
 ```
 
-The site runs this once per legendary effect in the pool against the selected DPS; results cache in-session.
+The site runs this once per legendary effect in the pool against the selected DPS; results cache in-session. On a freshly refreshed bundle, every effect matches a known kind, so the `unknown` branch is dead code — but it's present because a game update is the natural way for it to become live, at which point `unknown_scope_ids` in the checksum file tells us exactly what to teach the parser about.
+
+**Empirical sanity check** (against Cazrin — Human / Female / Chaotic Good / Wizard / Ranged+Magic / INT 18, DEX 13, WIS 13, CHA 13, CON 14, STR 8): the matcher reports 71 of 110 legendary effects affect her — 54 global, plus one gender (Female), one race (Human), two alignments (Chaotic + Good), two damage types (Ranged + Magic), and 11 stat thresholds (all of the DEX/CON/INT/WIS/CHA tiers she clears, including INT ≥ 15). Bruenor (Male Dwarf Fighter, Melee, INT 8) lands at 68 effects with a completely different scoped set, confirming the matcher differentiates correctly.
 
 #### 3.2.3 Core workflow
 
@@ -374,17 +380,19 @@ Landing view when valid credentials exist. Shows:
 
 | File                                      | Contents                                                                                                                                                                                                                                                              | Approx size |
 | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `data/definitions.heroes.json`                  | Trimmed `hero_defines` — one entry per hero with `id`, `name`, `seat_id`, `class`, `race`, `gender`, `alignment`, `damage_type`, `base_stats` (`{STR,DEX,CON,INT,WIS,CHA}`), `legendary_effect_id`. The five classification axes used by the forge-run scope matcher (race, gender, alignment, damage_type, base_stats) are the exact fields consumed by §3.2.2. All other hero fields (graphic IDs, level curves, feats, etc.) dropped. | ~30 KB      |
-| `data/definitions.legendary-effects.json`       | Trimmed `legendary_effect_defines` — one entry per effect with `id`, `effect_string`, `targets`, `description`. The `description` template uses `$amount` / `$(amount)` placeholders as documented in `[server-calls.md](./server-calls.md#resolving-legendary-effect-ids)`. | ~20 KB      |
-| `data/definitions.legendary-effect-scopes.json` | **Derived**, not fetched. Produced by `scripts/refresh-defs.js` by parsing each effect's description. One entry per effect: `{id, kind, value?, stat?, min?}` where `kind ∈ {global, race, gender, alignment, damage_type, stat_threshold, unknown}`. Enables the O(1) runtime matcher in §3.2.2 with no runtime regex. | ~4 KB       |
+| `data/definitions.heroes.json`                  | Trimmed + enriched `hero_defines` — one entry per hero with `id`, `name`, `seat_id`, `class`, `race`, `tags` (lowercased string array — pre-tokenized race / gender / alignment / class / role / campaign / etc.), `damage_types` (lowercased string array, subset of `["melee", "ranged", "magic"]` derived at refresh time by joining `attack_defines[base_attack_id]`), `ability_scores` (`{str,dex,con,int,wis,cha}`), `legendary_effect_id`. The five classification axes used by the forge-run scope matcher (tags for race/gender/alignment, plus damage_types and ability_scores) are the exact fields consumed by §3.2.2. All other hero fields (graphic IDs, level curves, feats, etc.) dropped. | ~105 KB     |
+| `data/definitions.legendary-effects.json`       | Trimmed `legendary_effect_defines` — one entry per effect with `id`, `effect_string`, `targets`, `description`. The `description` template uses `$amount` / `$(amount)` placeholders as documented in `[server-calls.md](./server-calls.md#resolving-legendary-effect-ids)`. | ~25 KB      |
+| `data/definitions.legendary-effect-scopes.json` | **Derived**, not fetched. Produced by `scripts/refresh-defs.js` by parsing each effect's description. One entry per effect: `{id, kind, value?, stat?, min?}` where `kind ∈ {global, race, gender, alignment, damage_type, stat_threshold, unknown}`. Enables the O(1) runtime matcher in §3.2.2 with no runtime regex. | ~6 KB       |
 | `data/definitions.checksum.json`                | Metadata: `server_checksum` (null for filtered responses — server doesn't include a checksum when a `filter` is supplied), `fetched_at`, `hero_count`, `legendary_effect_count`, `scope_count`, `unknown_scope_ids` (effect IDs the scope parser couldn't classify — flag for investigation on next refresh), `source`. | < 1 KB      |
 
 
-Total bundle weight: **~55 KB** (comfortably under the §2.3 300 KB shell budget).
+Total bundle weight: **~135 KB uncompressed / ~13 KB gzipped** (what GitHub Pages actually serves). Comfortably under the §2.3 300 KB shell budget. All four files are pretty-printed with 2-space indentation so they diff cleanly in PRs and are readable in the browser.
 
-**Fields dropped deliberately.** `hero_defines` entries from the live API are ~2 KB each (173 × 2 KB = ~340 KB). We keep only the fields the UI and the scope matcher use and drop everything else. This is the single biggest contributor to the bundle staying in the tens-of-kilobytes range.
+**Fields dropped deliberately.** `hero_defines` entries from the live API are ~2 KB each (173 × 2 KB = ~340 KB). We keep only the fields the UI and the scope matcher use. `attack_defines` is fetched at refresh time to derive `damage_types` but never persisted; only the per-hero record ships.
 
-**Scope derivation (at refresh time).** The refresh script parses every `hero_dps_multiplier_mult` effect's description against the template `"Increases the damage of all X by"` and maps the captured token to a `kind`/`value` pair per §3.2.2. Effects starting with `global_` are tagged `{kind: "global"}` without parsing. Any effect that doesn't match either shape is tagged `{kind: "unknown"}`, its ID is appended to `unknown_scope_ids`, and a stderr warning fires — making it obvious when a new game update introduces an effect shape the parser doesn't recognize. The known "Halfing" typo in the game data is normalized to "Halfling" at derivation time.
+**Scope derivation (at refresh time).** The refresh script parses every `hero_dps_multiplier_mult` effect's description against the template `"Increases the damage of all X by"` and maps the captured token to a `kind`/`value` pair per §3.2.2. Effects starting with `global_` are tagged `{kind: "global"}` without parsing. Stat-threshold effects use a dedicated regex. Any effect that doesn't match a known shape is tagged `{kind: "unknown"}`, its ID is appended to `unknown_scope_ids`, and a stderr warning fires — making it obvious when a new game update introduces an effect shape the parser doesn't recognize. The "Halfing" typo in the game's effect description is normalized to "Halfling" at derivation time (hero tags already spell it correctly).
+
+**Damage-type derivation.** Per-hero `damage_types` is computed at refresh time as the intersection of `{melee, ranged, magic}` with the union of `attack_defines[hero.base_attack_id].tags` and `...damage_types`. This cleanly lands heroes in multiple buckets when appropriate (e.g., Cazrin's Magic Missile is `tags:["ranged"]` + `damage_types:["magic"]` → hero `damage_types = ["ranged", "magic"]`). All 173 heroes currently classify into at least one of the three buckets.
 
 #### Runtime read order
 
