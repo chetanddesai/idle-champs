@@ -20,7 +20,7 @@ Plain HTML/CSS/JS served from GitHub Pages — no build step, no backend. Creden
 | Path                        | Purpose                                                                                     |
 | --------------------------- | ------------------------------------------------------------------------------------------- |
 | `index.html`, `css/`, `js/` | Site shell, routing, category views, and `serverCalls.js` API client. (Coming in V1 build.) |
-| `img/`, `site.webmanifest`  | Favicons & manifest — copied verbatim from ic-specs so the two sites read as one family.    |
+| `img/`, `site.webmanifest`  | Favicons & manifest — shared with my sibling site `[ic-specs](https://github.com/chetanddesai/ic-specs)` so the two read as one family. |
 | `data/`                     | Bundled trimmed game definitions used as a zero-network baseline for labels (see below).    |
 | `scripts/refresh-defs.js`   | Regenerates `data/*.json` from a live `getdefinitions` call.                                |
 | `docs/`                     | PRD, API reference, and scrubbed sample responses.                                          |
@@ -81,24 +81,10 @@ Commit the updated files. A typical refresh cadence is "after any Idle Champions
 
 ## Acknowledgments
 
-- **[Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls)** — the foundational community reference for the Idle Champions play-server API. The endpoint catalog and parameter shapes in `[docs/server-calls.md](./docs/server-calls.md)` were learned from Emmote's project; the empirical notes, response-enrichment strategy, and suggested client-side data models are our own additions. Huge thanks to [@Emmotes](https://github.com/Emmotes) for doing the hard work of making this API understandable to the community.
-- **[chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs)** — sibling project this repo inherits its visual language from. All files in `[img/](./img/)` and `[site.webmanifest](./site.webmanifest)` are copied verbatim from that repo.
+- **`[Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls)`** — the foundational community reference for the Idle Champions play-server API. The endpoint catalog and parameter shapes in `[docs/server-calls.md](./docs/server-calls.md)` were learned from Emmote's project; the empirical notes, response-enrichment strategy, and suggested client-side data models are this project's own additions. Thanks to [@Emmotes](https://github.com/Emmotes) for the foundational work and for making the repo MIT-licensed so the community tooling story is cleanly aligned.
+- **`[chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs)`** — sibling site I maintain that shares this project's visual language. Favicons and `site.webmanifest` are the same assets across both.
 - **Codename Entertainment / Wizards of the Coast** — authors of *Idle Champions of the Forgotten Realms*. This project is an unaffiliated fan-made tool; all game names, characters, and trademarks belong to their respective owners.
 
 ## License
 
-This repo uses a split license so each kind of content gets the treatment it deserves:
-
-
-| Content                                                                       | License                                | File                             |
-| ----------------------------------------------------------------------------- | -------------------------------------- | -------------------------------- |
-| Source code — HTML, CSS, JS, `data/*.json`, `scripts/refresh-defs.js`, config | **MIT**                                | `[LICENSE](./LICENSE)`           |
-| Documentation — everything under `docs/` and this `README.md`                 | **CC BY 4.0**                          | `[LICENSE-docs](./LICENSE-docs)` |
-| Favicons in `img/` and `site.webmanifest`                                     | Inherited from `chetanddesai/ic-specs` | See that repo                    |
-
-
-**Why this split?** MIT is the convention across Idle Champions community tooling and has the smallest legal surface for a static fan site — short, permissive, familiar. CC BY 4.0 is the canonical "credit required" license for prose; it ensures downstream reusers of `[docs/server-calls.md](./docs/server-calls.md)` preserve the attribution chain back to Emmote's foundational work. Using MIT on documentation would be legal but mismatched in intent; CC BY on code would add awkward attribution requirements to every JavaScript file. Matching each license to its content type keeps the intent clear and the obligations minimal.
-
-### A note on upstream licensing
-
-At the time of writing, `[Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls)` does not carry a `LICENSE` file, which means it defaults to "all rights reserved" under copyright law. This repo therefore does **not** redistribute any of Emmote's source code or prose — it only references facts about the public Idle Champions API, which are not copyrightable (see Google v. Oracle, 2021). A PR proposing an MIT license upstream has been submitted at `[Emmotes/ic_servercalls#3](https://github.com/Emmotes/ic_servercalls/pull/3)`; once that lands the attribution story will be even cleaner.
+All code and documentation in this repo are © Chetan Desai and licensed under **MIT**; see `[LICENSE](./LICENSE)`.

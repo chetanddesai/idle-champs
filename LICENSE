@@ -19,24 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Scope: This license covers the source code of this repository — HTML, CSS,
-JavaScript (including scripts/refresh-defs.js), data/*.json bundles, and
-configuration files.
-
-Documentation under docs/ is licensed separately under CC BY 4.0; see
-LICENSE-docs.
-
-Third-party assets:
-- Favicons in img/ and site.webmanifest are copied verbatim from
-  chetanddesai/ic-specs. They are the work of the ic-specs project and
-  reused here under MIT; credit to that project.
-- API endpoint names, parameter shapes, and response schemas referenced
-  throughout are facts about the Idle Champions play-server API operated by
-  Codename Entertainment. They are not copyrightable facts and are not
-  claimed by this repository. The organization of those facts into a
-  reference document was informed by Emmotes/ic_servercalls (see README
-  Acknowledgments); none of Emmote's source code or prose is redistributed
-  here.

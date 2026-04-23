@@ -66,21 +66,21 @@ Additional categories (Patrons, Events, Chests, Blacksmith, Potions, etc.) are l
 
 ### 2.4 Favicons, Manifest & Branding
 
-**Branding is inherited directly from the sibling project [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs)** so the two sites feel like one family. All favicon and touch-icon files are copied verbatim from that repo's `img/` directory into this repo's `img/` directory (committed, no regeneration). The web app manifest is copied verbatim into the repo root as `site.webmanifest`.
+**The visual language is shared with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs)** so the two read as one family. All favicon and touch-icon files are the same assets across both repos (committed to `img/`, no regeneration). The web app manifest lives at the repo root as `site.webmanifest`.
 
 
 | Asset                            | Specification                                                                                                                                                                |
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `img/favicon.svg`                | SVG favicon — copied from ic-specs                                                                                                                                           |
-| `img/favicon-32x32.png`          | 32×32 PNG favicon — copied from ic-specs                                                                                                                                     |
-| `img/favicon-16x16.png`          | 16×16 PNG favicon — copied from ic-specs                                                                                                                                     |
-| `img/apple-touch-icon.png`       | 180×180 Apple touch icon — copied from ic-specs                                                                                                                              |
-| `img/android-chrome-192x192.png` | 192×192 Android icon — copied from ic-specs                                                                                                                                  |
-| `img/android-chrome-512x512.png` | 512×512 Android icon — copied from ic-specs                                                                                                                                  |
-| `site.webmanifest`               | Copied from ic-specs, edited only to update `name` / `short_name` for this site. `theme_color` and `background_color` remain `#0f0e17` to keep the visual family consistent. |
+| `img/favicon.svg`                | SVG favicon — shared with ic-specs                                                                                                                                           |
+| `img/favicon-32x32.png`          | 32×32 PNG favicon — shared with ic-specs                                                                                                                                     |
+| `img/favicon-16x16.png`          | 16×16 PNG favicon — shared with ic-specs                                                                                                                                     |
+| `img/apple-touch-icon.png`       | 180×180 Apple touch icon — shared with ic-specs                                                                                                                              |
+| `img/android-chrome-192x192.png` | 192×192 Android icon — shared with ic-specs                                                                                                                                  |
+| `img/android-chrome-512x512.png` | 512×512 Android icon — shared with ic-specs                                                                                                                                  |
+| `site.webmanifest`               | Shared shape with ic-specs; `name` / `short_name` are specific to this site. `theme_color` and `background_color` remain `#0f0e17` to keep the visual family consistent.     |
 
 
-The `<head>` of `index.html` must reference the icons with the same paths and attribute order as ic-specs:
+The `<head>` of `index.html` must reference the icons with the same paths and attribute order as the sibling `ic-specs` site:
 
 ```html
 <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
@@ -314,7 +314,7 @@ The script:
 /
 ├── index.html                      # Site shell, header, settings drawer, category outlets
 ├── css/
-│   ├── base.css                    # Reset + design tokens (copied from ic-specs §7.1) + typography
+│   ├── base.css                    # Reset + design tokens (shared with ic-specs; see §7.1) + typography
 │   ├── layout.css                  # Header, drawer, responsive grid
 │   └── components.css              # Cards, tables, buttons, dropdowns, toasts
 ├── js/
@@ -330,7 +330,7 @@ The script:
 │   └── lib/
 │       ├── dom.js                  # Tiny DOM helpers (no framework dependency)
 │       └── format.js               # Number / cost / timestamp formatting
-├── img/                            # Favicons / touch icons — copied verbatim from ic-specs
+├── img/                            # Favicons / touch icons — shared with my sibling ic-specs site
 │   ├── favicon.svg
 │   ├── favicon-16x16.png
 │   ├── favicon-32x32.png
@@ -346,7 +346,7 @@ The script:
 ├── .credentials.example.json       # Template for local creds used by refresh-defs.js — commit
 ├── .credentials.json               # Gitignored. Never commit. Required only for refresh-defs.js.
 ├── .gitignore
-├── site.webmanifest                # Copied from ic-specs; only name/short_name edited
+├── site.webmanifest                # Same shape as ic-specs; name/short_name specific to this site
 └── docs/
     ├── PRD.md                      # This document
     ├── server-calls.md             # API reference
@@ -410,9 +410,9 @@ To add a new category in a future release:
 
 ## 7. Visual Design Direction
 
-**The visual language is inherited verbatim from [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs)** so the two sites read as a family. The CSS design tokens, font stack, header gradient, card treatment, gold-accent button / selected states, and footer pattern all match ic-specs. Any new UI primitives introduced by this project (roster table, settings drawer, toasts, confirmation dialog) must be designed on top of the same token set.
+**The visual language is shared with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs)** so the two read as one family. The CSS design tokens, font stack, header gradient, card treatment, gold-accent button / selected states, and footer pattern all match. Any new UI primitives introduced by this project (roster table, settings drawer, toasts, confirmation dialog) are designed on top of the same token set. This section is authoritative and self-contained — the tokens and patterns below are the spec, not a reference to another repo.
 
-### 7.1 Design Tokens (match ic-specs exactly)
+### 7.1 Design Tokens
 
 ```css
 :root {
@@ -510,7 +510,7 @@ The site uses the same public play-server endpoints the official game client use
 | 7   | **Framework**                     | Vanilla HTML/CSS/JS. No React/Vue/Svelte build step. A tiny DOM helper module is acceptable.                                                                                                                                                                                                                                         |
 | 8   | **Data caching**                  | Definitions: bundled trimmed baseline in `data/*.json` (committed) + optional live-delta merge into `localStorage` (see §4.2). Play-server URL cached 24h. User/legendary state is in-memory per session and invalidated on mutation.                                                                                                |
 | 9   | **Disclaimer**                    | Footer + About section clearly state unaffiliated fan-made tool; trademarks belong to Codename Entertainment / Wizards of the Coast.                                                                                                                                                                                                 |
-| 10  | **Branding & styling**            | Inherited directly from the sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). `img/` favicons and `site.webmanifest` are copied verbatim from that repo (see §2.4). CSS tokens, font stack, header/footer/card patterns match ic-specs exactly (see §7). The two sites must read as one visual family. |
+| 10  | **Branding & styling**            | Shared with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). `img/` favicons and `site.webmanifest` are the same assets across both (see §2.4). CSS tokens, font stack, header/footer/card patterns are identical (see §7). The two sites read as one visual family; PRD §7 is the self-contained authoritative spec. |
 | 11  | **Definitions strategy**          | Ship trimmed baseline in `data/*.json` (committed), refresh via `scripts/refresh-defs.js` after major game updates, optionally fetch live deltas in the background and merge into `localStorage`. Runtime read order: localStorage → bundled `data/` → `(unknown …)` placeholder (see §4.2 & §4.3).                                  |
 | 12  | **Credential handling (tooling)** | `scripts/refresh-defs.js` reads credentials **only** from `.credentials.json` at the repo root. That file is gitignored. `.credentials.example.json` is the committed template. No CLI-arg or env-var fallback is provided, keeping the credential surface small and auditable.                                                      |
 
@@ -554,7 +554,7 @@ The site uses the same public play-server endpoints the official game client use
 - `serverCalls.js` handles the four documented error conditions (`switch_play_server`, `Outdated instance id`, `Security hash failure`, `non-atomic`) per the behavior table in `[docs/server-calls.md](./server-calls.md)`.
 - Credentials are never transmitted to any host other than `*.idlechampions.com`.
 - No external analytics, ad, or telemetry network requests are made.
-- Visual parity with [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs): identical design tokens (§7.1), fonts (§7.2), header pattern with top-right Contribute pill (§7.3), card treatment (§7.4), and footer pattern (§7.6). Favicons and manifest are byte-identical copies (§2.4).
+- Visual consistency with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs): same design tokens (§7.1), fonts (§7.2), header pattern with top-right Contribute pill (§7.3), card treatment (§7.4), and footer pattern (§7.6). Favicons and manifest are the same assets across both repos (§2.4).
 - Bundled definition files (`data/*.json`) total under 50 KB, cover every label needed by the Legendary and Specializations views, and enable the site to render correctly with zero network round trips.
 - `scripts/refresh-defs.js` regenerates the bundled files end-to-end from credentials in `.credentials.json` (gitignored) with no arguments, and never writes credentials into any committed file.
 
@@ -562,7 +562,7 @@ The site uses the same public play-server endpoints the official game client use
 
 ## 13. References
 
-- [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs) — sibling Idle Champions companion site. Source of this project's branding (favicons, manifest) and visual system (design tokens, fonts, header / card / footer patterns).
+- [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs) — sibling Idle Champions companion site I maintain. Shares this project's branding (favicons, manifest) and visual system (design tokens, fonts, header / card / footer patterns). PRD §7 is the authoritative design spec, so this project is self-contained if the sibling repo ever changes or moves.
 - [Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls) — reference JavaScript client for the Idle Champions play-server API.
 - `[docs/server-calls.md](./server-calls.md)` — complete local reference of the API calls used by this project.
 - [Idle Champions of the Forgotten Realms](https://www.idlechampions.com/) — the game this site is a companion to (Codename Entertainment / Wizards of the Coast).
