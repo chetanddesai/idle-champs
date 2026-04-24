@@ -192,7 +192,7 @@ Pick your DPS once; switch tabs freely. Only heroes and slots relevant to the ch
   - **`details.reset_currencies[]` — per-favor balances.** An array of `{id, current_amount, total_earned, …}` entries, not a map — the client builds an `id → entry` lookup at ingest. Joined against `slot.reset_currency_id` to compute favor eligibility.
   - Note: `details.loot` carries the player's loot inventory (for epic-gear gating on future Craft flows). It does **not** hold either currency balance — Scales are in `stats`, favor is in `reset_currencies`.
 - **`getlegendarydetails`** remains documented for completeness but is **not called in V1** — it's strictly a proper subset of `getuserdetails.details.legendary_details`. If a future mutation ever fails to reflect in `getuserdetails` without delay, the V1 design falls back to calling `getlegendarydetails` on post-mutation refresh only.
-- **`getdefinitions`** (filtered) → `hero_defines` and `legendary_effect_defines` ship from the bundled baseline in `data/` (see §4.2); `campaign_defines` is additionally required — it is the **only** source for favor display names. Each entry carries a `reset_currency_id` and a `short_name` (e.g. "Tiamat's Favor"); the Legendary view joins on `slot.reset_currency_id → campaign_defines[].reset_currency_id → campaign_defines[].short_name`. There is **no** `reset_currency_defines` group on this endpoint — `getdefinitions` does not expose one, and any documentation or code that reads `getuserdetails.defines.reset_currency_defines` is chasing a path that does not exist in the live payload (empirically verified 2026-04-24). `campaign_defines` is added to the bundled baseline as a V1 follow-up before Forge Run ships; see §4.2.
+- **`getdefinitions`** (filtered) → `hero_defines`, `legendary_effect_defines`, and `campaign_defines` all ship from the bundled baseline in `data/` (see §4.2). `campaign_defines` is the **only** source for favor display names: each entry with a favor currency carries a `reset_currency_id` and a `short_name` (empirically the campaign's short name — "Grand Tour", "Tomb of Annihilation", "Feast of the Moon" — not a standalone "X's Favor" string). The Legendary view joins on `slot.reset_currency_id → campaign_defines[].reset_currency_id → campaign_defines[].short_name`. There is **no** `reset_currency_defines` group on this endpoint — `getdefinitions` does not expose one, and any documentation or code that reads `getuserdetails.defines.reset_currency_defines` is chasing a path that does not exist in the live payload (empirically verified 2026-04-24).
 
 #### 3.2.2 Scope classification — "does this effect affect the DPS?"
 
@@ -480,10 +480,11 @@ Landing view when valid credentials exist. Shows:
 | `data/definitions.heroes.json`                  | Trimmed + enriched `hero_defines` — one entry per hero with `id`, `name`, `seat_id`, `class`, `race`, `tags` (lowercased string array — pre-tokenized race / gender / alignment / class / role / campaign / etc.), `damage_types` (lowercased string array, subset of `["melee", "ranged", "magic"]` derived at refresh time by joining `attack_defines[base_attack_id]`), `ability_scores` (`{str,dex,con,int,wis,cha}`), `legendary_effect_id`. The five classification axes used by the legendary scope matcher (tags for race/gender/alignment, plus damage_types and ability_scores) are the exact fields consumed by §3.2.2. All other hero fields (graphic IDs, level curves, feats, etc.) dropped. | ~105 KB     |
 | `data/definitions.legendary-effects.json`       | Trimmed `legendary_effect_defines` — one entry per effect with `id`, `effect_string`, `targets`, `description`. The `description` template uses `$amount` / `$(amount)` placeholders as documented in `[server-calls.md](./server-calls.md#resolving-legendary-effect-ids)`.                                                                                                                                                                                                                                                                                                                                                                                                                               | ~25 KB      |
 | `data/definitions.legendary-effect-scopes.json` | **Derived**, not fetched. Produced by `scripts/refresh-defs.js` by parsing each effect's description. One entry per effect: `{id, kind, value?, stat?, min?}` where `kind ∈ {global, race, gender, alignment, damage_type, stat_threshold, unknown}`. Enables the O(1) runtime matcher in §3.2.2 with no runtime regex.                                                                                                                                                                                                                                                                                                                                                                                    | ~6 KB       |
-| `data/definitions.checksum.json`                | Metadata: `server_checksum` (null for filtered responses — server doesn't include a checksum when a `filter` is supplied), `fetched_at`, `hero_count`, `legendary_effect_count`, `scope_count`, `unknown_scope_ids` (effect IDs the scope parser couldn't classify — flag for investigation on next refresh), `source`.                                                                                                                                                                                                                                                                                                                                                                                    | < 1 KB      |
+| `data/definitions.favors.json`                  | Trimmed `campaign_defines` — one entry per campaign that has a reset currency, `{reset_currency_id, short_name, name, campaign_id}`, sorted by `reset_currency_id`. The sole source for rendering human-readable favor labels (used by the Forge Run favor breakdown panel). Only entries where `reset_currency_id != null && != 0` ship; duplicates on `reset_currency_id` dedupe to the first campaign (empirically none — every favor currency maps to exactly one campaign).                                                                                                                                                                                                                          | ~4 KB       |
+| `data/definitions.checksum.json`                | Metadata: `server_checksum` (null for filtered responses — server doesn't include a checksum when a `filter` is supplied), `fetched_at`, `hero_count`, `legendary_effect_count`, `scope_count`, `favor_count`, `unknown_scope_ids` (effect IDs the scope parser couldn't classify — flag for investigation on next refresh), `favors_missing_short_name` (reset_currency_ids without a display label — expected to be empty; non-empty on a refresh means the UI will fall back to `Favor #<id>`), `source`.                                                                                                                                                                                               | < 1 KB      |
 
 
-Total bundle weight: **~135 KB uncompressed / ~13 KB gzipped** (what GitHub Pages actually serves). Comfortably under the §2.3 300 KB shell budget. All four files are pretty-printed with 2-space indentation so they diff cleanly in PRs and are readable in the browser.
+Total bundle weight: **~140 KB uncompressed / ~14 KB gzipped** (what GitHub Pages actually serves). Comfortably under the §2.3 300 KB shell budget. All five files are pretty-printed with 2-space indentation so they diff cleanly in PRs and are readable in the browser.
 
 **Fields dropped deliberately.** `hero_defines` entries from the live API are ~2 KB each (173 × 2 KB = ~340 KB). We keep only the fields the UI and the scope matcher use. `attack_defines` is fetched at refresh time to derive `damage_types` but never persisted; only the per-hero record ships.
 
@@ -501,7 +502,7 @@ For every label that needs resolving at runtime, the site looks up IDs in this o
 
 #### Opportunistic background refresh
 
-On each page load, after the bundled data is rendered, the site optionally fires `getdefinitions?filter=hero_defines,legendary_effect_defines` in the background. Any entries it returns are merged into `localStorage` under `icHelper.defs.hero_defines` and `icHelper.defs.legendary_effect_defines`, and views refresh their labels from those if present. If the bundled baseline already covers everything the current state references, the user never sees a label flicker.
+On each page load, after the bundled data is rendered, the site optionally fires `getdefinitions?filter=hero_defines,legendary_effect_defines,campaign_defines` in the background. Any entries it returns are merged into `localStorage` under `icHelper.defs.hero_defines`, `icHelper.defs.legendary_effect_defines`, and `icHelper.defs.campaign_defines`, and views refresh their labels from those if present. If the bundled baseline already covers everything the current state references, the user never sees a label flicker.
 
 > **Empirical note for V1 implementers:** filtered `getdefinitions` responses do **not** include a top-level `checksum` field (only unfiltered responses do). The V1 refresh strategy therefore always re-fetches the filtered groups wholesale rather than trying to use `checksum` for delta-only responses. This keeps the refresh simple; if V2 ever needs checksum-based deltas it will need an unfiltered call.
 
@@ -525,9 +526,9 @@ The script:
 1. Reads `.credentials.json`; fails with a clear error if missing or malformed.
 2. Calls `getPlayServerForDefinitions` against the master server.
 3. Calls `getuserdetails` to obtain `instance_id`, transparently retrying on `switch_play_server`.
-4. Calls `getdefinitions?filter=hero_defines,legendary_effect_defines`.
-5. Trims each entry to the V1-required fields listed in §4.2.
-6. Writes the three bundled files in `data/`, sorted by `id` for stable diffs.
+4. Calls `getdefinitions?filter=hero_defines,attack_defines,legendary_effect_defines,campaign_defines`.
+5. Trims each entry to the V1-required fields listed in §4.2 and derives the scope and favor bundles.
+6. Writes the four data bundles + checksum metadata in `data/`, sorted by `id` / `reset_currency_id` for stable diffs.
 
 **Recommended cadence.** Run after any Idle Champions year/season release or whenever the UI begins rendering `(unknown hero N)` placeholders, then commit the updated `data/*.json`.
 
@@ -556,8 +557,9 @@ The script:
 │   │   └── specializations.js      # §3.3
 │   └── lib/
 │       ├── dom.js                  # Tiny DOM helpers (no framework dependency)
-│       ├── format.js               # Number / cost / timestamp formatting
-│       └── scopeMatcher.js         # Pure classifier for legendary-effect scope → hero match (§3.2.2)
+│       ├── format.js               # Pure number / favor / time / phase formatters (see tests/format.test.js)
+│       ├── scopeMatcher.js         # Pure classifier for legendary-effect scope → hero match (§3.2.2)
+│       └── legendaryModel.js       # Pure runtime data model for Forge Run + Reforge views (§3.2)
 ├── img/                            # Favicons / touch icons — shared with my sibling ic-specs site
 │   ├── favicon.svg
 │   ├── favicon-16x16.png
@@ -569,13 +571,18 @@ The script:
 │   ├── definitions.heroes.json
 │   ├── definitions.legendary-effects.json
 │   ├── definitions.legendary-effect-scopes.json  # Derived scope tags, see §3.2.2 / §4.2
+│   ├── definitions.favors.json                   # reset_currency_id → short_name lookup, see §4.2
 │   └── definitions.checksum.json
 ├── scripts/
 │   └── refresh-defs.js             # Regenerates data/*.json from live getdefinitions (see §4.3)
 ├── test/                           # Node `node:test` suites — run with `npm test`
 │   ├── scopeMatcher.test.js        # Unit tests for js/lib/scopeMatcher.js
+│   ├── legendaryModel.test.js      # Unit tests for js/lib/legendaryModel.js
+│   ├── format.test.js              # Unit tests for js/lib/format.js
 │   └── fixtures/
-│       └── scopeMatcher.fixtures.js # Frozen hero + scope fixtures (see header comment)
+│       ├── scopeMatcher.fixtures.js     # Frozen hero + scope fixtures
+│       ├── legendaryModel.fixtures.js   # Frozen classifier + balance fixtures
+│       └── format.fixtures.js           # Frozen numeric / time / phase fixtures
 ├── package.json                    # `"type": "module"`, zero runtime deps, `test` + `refresh` scripts
 ├── .credentials.example.json       # Template for local creds used by refresh-defs.js — commit
 ├── .credentials.json               # Gitignored. Never commit. Required only for refresh-defs.js.

@@ -1,0 +1,170 @@
+[
+  {
+    "reset_currency_id": 1,
+    "short_name": "Grand Tour",
+    "name": "A Grand Tour of the Sword Coast",
+    "campaign_id": 1
+  },
+  {
+    "reset_currency_id": 2,
+    "short_name": "Highharvestide",
+    "name": "Highharvestide",
+    "campaign_id": 3
+  },
+  {
+    "reset_currency_id": 3,
+    "short_name": "Tomb of Annihilation",
+    "name": "Tomb of Annihilation",
+    "campaign_id": 2
+  },
+  {
+    "reset_currency_id": 4,
+    "short_name": "Liar's Night",
+    "name": "Liar's Night",
+    "campaign_id": 4
+  },
+  {
+    "reset_currency_id": 5,
+    "short_name": "Feast of the Moon",
+    "name": "Feast of the Moon",
+    "campaign_id": 5
+  },
+  {
+    "reset_currency_id": 6,
+    "short_name": "Simril",
+    "name": "Simril",
+    "campaign_id": 6
+  },
+  {
+    "reset_currency_id": 7,
+    "short_name": "Wintershield",
+    "name": "Wintershield",
+    "campaign_id": 7
+  },
+  {
+    "reset_currency_id": 8,
+    "short_name": "Midwinter",
+    "name": "Midwinter",
+    "campaign_id": 8
+  },
+  {
+    "reset_currency_id": 9,
+    "short_name": "Grand Revel",
+    "name": "Grand Revel",
+    "campaign_id": 9
+  },
+  {
+    "reset_currency_id": 10,
+    "short_name": "Fleetswake",
+    "name": "Fleetswake",
+    "campaign_id": 10
+  },
+  {
+    "reset_currency_id": 11,
+    "short_name": "Festival of Fools",
+    "name": "Festival of Fools",
+    "campaign_id": 11
+  },
+  {
+    "reset_currency_id": 12,
+    "short_name": "Greengrass",
+    "name": "Greengrass",
+    "campaign_id": 12
+  },
+  {
+    "reset_currency_id": 13,
+    "short_name": "The Running",
+    "name": "The Running",
+    "campaign_id": 13
+  },
+  {
+    "reset_currency_id": 14,
+    "short_name": "The Great Modron March",
+    "name": "The Great Modron March",
+    "campaign_id": 14
+  },
+  {
+    "reset_currency_id": 15,
+    "short_name": "Dragon Heist",
+    "name": "Waterdeep: Dragon Heist",
+    "campaign_id": 15
+  },
+  {
+    "reset_currency_id": 16,
+    "short_name": "Dragondown",
+    "name": "Dragondown",
+    "campaign_id": 16
+  },
+  {
+    "reset_currency_id": 17,
+    "short_name": "Time Gates",
+    "name": "Time Gates",
+    "campaign_id": 17
+  },
+  {
+    "reset_currency_id": 18,
+    "short_name": "Founders' Day",
+    "name": "Founders' Day",
+    "campaign_id": 18
+  },
+  {
+    "reset_currency_id": 19,
+    "short_name": "Midsummer",
+    "name": "Midsummer",
+    "campaign_id": 19
+  },
+  {
+    "reset_currency_id": 20,
+    "short_name": "Ahghairon's Day",
+    "name": "Ahghairon's Day",
+    "campaign_id": 20
+  },
+  {
+    "reset_currency_id": 21,
+    "short_name": "Brightswords",
+    "name": "Brightswords",
+    "campaign_id": 21
+  },
+  {
+    "reset_currency_id": 22,
+    "short_name": "Descent into Avernus",
+    "name": "Baldur's Gate: Descent into Avernus",
+    "campaign_id": 22
+  },
+  {
+    "reset_currency_id": 23,
+    "short_name": "Rime of the Frostmaiden",
+    "name": "Icewind Dale: Rime of the Frostmaiden",
+    "campaign_id": 24
+  },
+  {
+    "reset_currency_id": 25,
+    "short_name": "Witchlight",
+    "name": "The Wild Beyond the Witchlight",
+    "campaign_id": 27
+  },
+  {
+    "reset_currency_id": 30,
+    "short_name": "Xaryxis",
+    "name": "Light of Xaryxis",
+    "campaign_id": 28
+  },
+  {
+    "reset_currency_id": 31,
+    "short_name": "Fortune's Wheel",
+    "name": "Turn of Fortune's Wheel",
+    "campaign_id": 29
+  },
+  {
+    "reset_currency_id": 35,
+    "short_name": "Vecna",
+    "name": "Vecna: Eve of Ruin",
+    "campaign_id": 31
+  },
+  {
+    "reset_currency_id": 36,
+    "short_name": "Tales",
+    "name": "Tales of the Champions",
+    "campaign_id": 32
+  }
+]

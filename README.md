@@ -71,10 +71,12 @@ The script:
 1. Reads `.credentials.json`.
 2. Discovers the current play server via `getPlayServerForDefinitions`.
 3. Fetches `instance_id` via `getuserdetails`, transparently retrying on `switch_play_server`.
-4. Fetches `getdefinitions?filter=hero_defines,legendary_effect_defines`.
-5. Trims each entry to the V1-required fields and writes:
+4. Fetches `getdefinitions?filter=hero_defines,attack_defines,legendary_effect_defines,campaign_defines`.
+5. Trims each entry to the V1-required fields, derives the scope tags, and writes:
   - `data/definitions.heroes.json`
   - `data/definitions.legendary-effects.json`
+  - `data/definitions.legendary-effect-scopes.json`
+  - `data/definitions.favors.json`
   - `data/definitions.checksum.json`
 
 Commit the updated files. A typical refresh cadence is "after any Idle Champions year/season release, or whenever the UI begins rendering `(unknown hero N)` placeholders."

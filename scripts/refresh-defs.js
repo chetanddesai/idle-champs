@@ -9,6 +9,7 @@
  *   - data/definitions.heroes.json                      (trimmed + enriched hero_defines)
  *   - data/definitions.legendary-effects.json           (trimmed legendary_effect_defines)
  *   - data/definitions.legendary-effect-scopes.json     (derived scope tags per effect)
+ *   - data/definitions.favors.json                      (reset_currency_id → short_name lookup)
  *   - data/definitions.checksum.json                    (metadata, counts, unknown scopes)
  *
  * Hero enrichment (see PRD §4.2):
@@ -206,7 +207,7 @@ async function main() {
   if (!instanceId) die('getuserdetails did not return details.instance_id');
   console.log(`[refresh-defs]   instance_id = ${instanceId}`);
 
-  console.log(`[refresh-defs] Fetching getdefinitions (filtered: heroes, attacks, legendary effects)…`);
+  console.log(`[refresh-defs] Fetching getdefinitions (filtered: heroes, attacks, legendary effects, campaigns)…`);
   const defs = await call(ud.serverUrl, 'getdefinitions', {
     user_id: creds.user_id,
     hash: creds.hash,
@@ -214,17 +215,24 @@ async function main() {
     supports_chunked_defs: '0',
     new_achievements: '1',
     challenge_sets_no_deltas: '0',
-    filter: 'hero_defines,attack_defines,legendary_effect_defines',
+    filter: 'hero_defines,attack_defines,legendary_effect_defines,campaign_defines',
   });
   const body = defs.body;
 
   const heroDefines = body.hero_defines;
   const attackDefines = body.attack_defines;
   const effectDefines = body.legendary_effect_defines;
+  const campaignDefines = body.campaign_defines;
   if (!Array.isArray(heroDefines) || !Array.isArray(attackDefines) || !Array.isArray(effectDefines)) {
     die(
       'Response missing hero_defines, attack_defines, or legendary_effect_defines. ' +
       'Server may have returned a delta-only payload; try clearing data/definitions.checksum.json and re-running.'
+    );
+  }
+  if (!Array.isArray(campaignDefines)) {
+    die(
+      'Response missing campaign_defines. ' +
+      'Required for favor display-name resolution (server-calls.md → Favor display-name resolution).'
     );
   }
 
@@ -270,26 +278,52 @@ async function main() {
     })
     .sort((a, b) => a.id - b.id);
 
+  // Favor bundle: one record per campaign that has an associated reset currency.
+  // We dedupe on reset_currency_id just in case two campaigns share a currency
+  // (not expected, but deterministic if it happens — first wins by campaign id).
+  const favorsById = new Map();
+  for (const c of campaignDefines) {
+    const rid = c.reset_currency_id;
+    if (rid == null || rid === 0) continue;
+    if (favorsById.has(rid)) continue;
+    favorsById.set(rid, {
+      reset_currency_id: rid,
+      short_name: c.short_name ?? null,
+      name: c.name ?? null,
+      campaign_id: c.id ?? null,
+    });
+  }
+  const favors = [...favorsById.values()].sort(
+    (a, b) => a.reset_currency_id - b.reset_currency_id
+  );
+  const favorsMissingShortName = favors
+    .filter((f) => !f.short_name)
+    .map((f) => f.reset_currency_id);
+
   fs.mkdirSync(DATA_DIR, { recursive: true });
   const heroesPath = path.join(DATA_DIR, 'definitions.heroes.json');
   const effectsPath = path.join(DATA_DIR, 'definitions.legendary-effects.json');
   const scopesPath = path.join(DATA_DIR, 'definitions.legendary-effect-scopes.json');
+  const favorsPath = path.join(DATA_DIR, 'definitions.favors.json');
   const metaPath = path.join(DATA_DIR, 'definitions.checksum.json');
 
   fs.writeFileSync(heroesPath, JSON.stringify(heroes, null, 2) + '\n');
   fs.writeFileSync(effectsPath, JSON.stringify(effects, null, 2) + '\n');
   fs.writeFileSync(scopesPath, JSON.stringify(scopes, null, 2) + '\n');
+  fs.writeFileSync(favorsPath, JSON.stringify(favors, null, 2) + '\n');
   fs.writeFileSync(
     metaPath,
     JSON.stringify(
       {
         server_checksum: body.checksum ?? null,
         fetched_at: new Date().toISOString(),
-        source: `${ud.serverUrl}post.php?call=getdefinitions&filter=hero_defines,attack_defines,legendary_effect_defines`,
+        source: `${ud.serverUrl}post.php?call=getdefinitions&filter=hero_defines,attack_defines,legendary_effect_defines,campaign_defines`,
         hero_count: heroes.length,
         legendary_effect_count: effects.length,
         scope_count: scopes.length,
+        favor_count: favors.length,
         unknown_scope_ids: unknownScopeIds,
+        favors_missing_short_name: favorsMissingShortName,
       },
       null,
       2
@@ -301,6 +335,7 @@ async function main() {
   console.log(`  ${heroesPath}  (${size(heroesPath)} bytes, ${heroes.length} heroes)`);
   console.log(`  ${effectsPath}  (${size(effectsPath)} bytes, ${effects.length} effects)`);
   console.log(`  ${scopesPath}  (${size(scopesPath)} bytes, ${scopes.length} scopes)`);
+  console.log(`  ${favorsPath}  (${size(favorsPath)} bytes, ${favors.length} favors)`);
   console.log(`  ${metaPath}   (checksum=${body.checksum ?? 'n/a'})`);
 
   if (unknownScopeIds.length > 0) {
@@ -311,6 +346,13 @@ async function main() {
     );
   } else {
     console.log(`[refresh-defs] All ${scopes.length} effects classified into known scope kinds.`);
+  }
+  if (favorsMissingShortName.length > 0) {
+    console.warn(
+      `[refresh-defs] WARNING: ${favorsMissingShortName.length} favor(s) have no short_name.\n` +
+      `  reset_currency_ids: ${favorsMissingShortName.join(', ')}\n` +
+      `  Display will fall back to "Favor #<id>" until fixed upstream.`
+    );
   }
   console.log(`[refresh-defs] Done.`);
 }

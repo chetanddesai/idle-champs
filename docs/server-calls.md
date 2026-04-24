@@ -100,7 +100,7 @@ This keeps every category view to at most one "live" state fetch, with one cache
 
 There is **no `reset_currency_defines` group** in `getdefinitions` and **no `defines.reset_currency_defines` object** embedded in `getuserdetails`. Both were documented as existing in earlier drafts of this file; empirical probing of the live API on 2026-04-24 confirmed neither is present — the group name simply does not exist in the play server's current define surface.
 
-The canonical source for favor display names is **`campaign_defines`**. Each campaign entry that has an associated favor currency carries a `reset_currency_id` and a `short_name` (e.g. `"Tiamat's Favor"`, `"Torm's Favor"`). The resolution path is:
+The canonical source for favor display names is **`campaign_defines`**. Each campaign entry that has an associated favor currency carries a `reset_currency_id` and a `short_name`. Empirically `short_name` is the **campaign's** short name — e.g. `"Grand Tour"`, `"Tomb of Annihilation"`, `"Feast of the Moon"` — not a bespoke "X's Favor" string; the community informally calls these "Grand Tour favor", "Tomb of Annihilation favor", etc. The resolution path is:
 
 ```
 slot.reset_currency_id  (from legendary_items[heroId][slotId])
