@@ -21,7 +21,7 @@ The site is intentionally **zero-backend**: no server code, no database, no anal
 
 Two gameplay areas are supported in V1. Each is a self-contained "category" with its own view, its own set of server calls, and its own actions:
 
-1. **Legendary Items (Forge Run Optimizer)** — pick your DPS champion, and the site highlights exactly which legendary upgrades and reforges actually move account power for that DPS, ranked by favor currency. See §3.2.
+1. **Legendary Items** — pick your DPS champion, then use two tabs that share that DPS context: **Forge Run** (V1 priority; deterministic favor-spend to upgrade DPS-affecting legendaries, ranked by favor currency) and **Reforge** (ships after Forge Run; probabilistic Tiamat-spend to reroll supporting-hero slots into DPS-affecting effects, timed against the decaying Tiamat cost floor). See §3.2.
 2. **Specialization Choices** — view and update each champion's specialization picks across the player's saved formations.
 
 Additional categories (Patrons, Events, Chests, Blacksmith, Potions, etc.) are listed in §11 as future enhancements — the architecture is designed so adding a new category is a matter of adding a new view module, not rewriting the shell.
@@ -172,11 +172,14 @@ The module is the **only** place in the codebase that knows the shape of the pla
 | Specialization Choices | `getallformationsaves`, `SaveFormation` (updating the `specializations` field), `getuserdetails` (fallback) |
 
 
-### 3.2 Category: Legendary Items — Forge Run Optimizer
+### 3.2 Category: Legendary Items
 
-The Legendary tab is **not** a generic roster browser; it is an opinionated **forge-run optimizer**. The mental model is: players do "forge runs" to level up legendaries, but an upgrade only moves account power if the legendary actually buffs the player's currently active **DPS champion**. Every other upgrade is wasted favor. The tab makes that math visible and the upgrade path obvious.
+The Legendary tab helps players make two distinct decisions about their legendaries, through a single pick-your-DPS lens. It is rendered as one dashboard card with two tabs that share the DPS selector and scope classification:
 
-The view always renders through a DPS lens. The user picks the DPS (e.g., Cazrin), the site classifies every legendary effect in the game against that DPS's hero record, and the UI shows only what's relevant plus a prioritized favor spend order.
+- **Forge Run** (V1 priority) — a **deterministic favor-spend view**. Answers *"I've earned favor from running campaign X; which legendary upgrades will boost my DPS?"* Every tile is a level-up candidate with a known cost (see §3.2.4).
+- **Reforge** (ships after Forge Run) — a **probabilistic Tiamat-spend view**. Answers *"Which supporting hero's slot is worth rerolling right now, given that the Scales of Tiamat cost decays toward a 1000 floor over 7 days?"* Each candidate tile carries an `X/Y hits` badge quantifying re-roll risk and a "ready" indicator for the cost floor (see §3.2.5).
+
+Pick your DPS once; switch tabs freely. Only heroes and slots relevant to the chosen view appear — neither tab is a generic roster browser. Last-selected tab is remembered in `localStorage.icHelper.legendary.activeTab`, defaulting to Forge Run.
 
 #### 3.2.1 Data sources
 
@@ -232,27 +235,34 @@ The site runs this once per legendary effect in the pool against the selected DP
 
 **Empirical sanity check** (against Cazrin — Human / Female / Chaotic Good / Wizard / Ranged+Magic / INT 18, DEX 13, WIS 13, CHA 13, CON 14, STR 8): the matcher reports 71 of 110 legendary effects affect her — 54 global, plus one gender (Female), one race (Human), two alignments (Chaotic + Good), two damage types (Ranged + Magic), and 11 stat thresholds (all of the DEX/CON/INT/WIS/CHA tiers she clears, including INT ≥ 15). Bruenor (Male Dwarf Fighter, Melee, INT 8) lands at 68 effects with a completely different scoped set, confirming the matcher differentiates correctly.
 
-#### 3.2.3 Core workflow
+#### 3.2.3 Shared workflow and header
+
+The workflow and header chrome are identical across both tabs — the DPS selector, the classification chips, and the tab switcher all live above the per-tab content.
+
+**Workflow:**
 
 1. User opens the Legendary tab.
-2. Site restores the last-selected DPS from `localStorage.icHelper.forgeRun.dpsHeroId`. If unset, shows the empty state: a DPS dropdown with the prompt *"Pick your DPS champion to start."* (no roster renders until a DPS is picked).
-3. User selects a DPS from the dropdown. The dropdown lists **all owned champions** (heroes with `user_details.heroes[id].has === true`), sorted alphabetically, with a small chip showing each hero's race/class for disambiguation.
-4. On selection, the site:
+2. Site restores the last-selected DPS from `localStorage.icHelper.legendary.dpsHeroId` and the last-selected tab from `localStorage.icHelper.legendary.activeTab` (defaulting to Forge Run).
+3. If no DPS is remembered, the page shows a shared empty state: a DPS dropdown with the prompt *"Pick your DPS champion to start."* No tab content renders until a DPS is picked.
+4. User selects a DPS from the dropdown. The dropdown lists **all owned champions** (heroes with `user_details.heroes[id].has === true`), sorted alphabetically, with a small chip showing each hero's race/class for disambiguation.
+5. On selection, the site:
    a. Stores `dpsHeroId` in `localStorage`.
-   b. Computes `affects = effectAffectsHero(scope, dps)` for every effect in the pool.
-   c. For each legendary slot in `getlegendarydetails`, classifies the slot as one of: **affecting**, **not affecting**, **reforge candidate**, or **empty**.
-   d. Renders the DPS header, favor priority panel, and upgrade candidate list (§3.2.4).
+   b. Computes `affects = effectAffectsHero(scope, dps)` for every effect in the pool (memoized in session).
+   c. Classifies every legendary slot once; both tabs then filter this shared classification to their view.
+   d. Renders the active tab.
 
-#### 3.2.4 Layout
+**Header (always visible above both tabs):** centered DPS portrait + name; below it, a single-line chip row showing the five classification axes used by scope matching: `Human · Female · Good · Magic · STR 10 · DEX 14 · INT 16` etc. This makes the classification model legible to the user — they can see *why* a given legendary does or doesn't affect their pick. Scales of Tiamat balance is a badge to the right, matching ic-specs header pill style (§7.3). A tab switcher ("Forge Run" | "Reforge") sits between the header and the tab content.
 
-**Header.** Centered DPS portrait + name; below it, a single-line chip row showing the five classification axes used by scope matching: `Human · Female · Good · Magic · STR 10 · DEX 14 · INT 16` etc. This makes the classification model legible to the user — they can see *why* a given legendary does or doesn't affect their pick. Scales of Tiamat balance is a badge to the right, matching ic-specs header pill style (§7.3).
+#### 3.2.4 Forge Run view (V1 priority)
 
-**Favor priority panel.** A ranked list of favor currencies, one row per currency the DPS would benefit from. Each row shows:
+Deterministic view for turning accumulated campaign favor into DPS upgrades. Every tile has a known effect and a known cost. The goal is to let the user scan "what campaign should I run next to unlock the most useful upgrades?" at a glance.
+
+**Favor priority panel (hero element):** a ranked list of favor currencies, one row per currency the DPS would benefit from. Each row shows:
 
 | Column                        | Meaning                                                                                                   |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------- |
 | Rank + favor name             | 1…N, most DPS-affecting upgradeable legendaries first.                                                    |
-| Affecting count               | Total legendaries across all champions that affect the DPS and are tied to this favor currency.            |
+| Affecting count               | Total legendaries across all champions that affect the DPS and are tied to this favor currency.           |
 | Upgradeable now               | Subset of the above that can be upgraded right now (scales + favor balances both sufficient).             |
 | Current balance               | Player's current balance of this favor.                                                                   |
 
@@ -260,81 +270,132 @@ The site runs this once per legendary effect in the pool against the selected DP
 
 Clicking a favor row filters the upgrade candidate list to only that favor.
 
-**Upgrade candidate list.** One card per champion that has at least one affecting or reforge-candidate slot. Each card shows:
+**Upgrade candidate list:** one card per champion that has at least one DPS-affecting equipped slot, with the DPS champion rendered first (their own slots are always beneficial by game-design invariant — see `tech-design-legendary.md` Appendix B, item 5a). Each card shows:
 
 - Hero portrait + name + class/race.
 - Six slot tiles laid out 1–6, each colored per the state table below.
-- Per-card summary: *"3 affecting · 2 upgradeable now · 1 reforge candidate"*.
-- Bulk action: **Upgrade all upgradeable** (fires `upgradelegendaryitem` once per affecting, upgradeable slot on this champion, with a single confirmation listing total favor + scales cost).
+- Per-card summary: *"3 affecting · 2 upgradeable now"*.
+- Bulk action: **Upgrade all upgradeable** (fires `upgradelegendaryitem` once per upgradeable slot on this champion, with a single confirmation listing total favor + scales cost).
 
-Champions with zero affecting or reforge-candidate slots are hidden by default. A collapsed *"N champions have no contribution"* disclosure at the bottom lets the user expand them if desired.
+Champions with zero DPS-affecting equipped slots are hidden from the Forge Run tab — those whose slots are only reforge candidates surface in the Reforge tab instead. A collapsed *"N champions contribute nothing to this DPS"* disclosure at the bottom is informational only (no action from this tab).
 
-**Cell color semantics:**
+**Cell color semantics (Forge Run view):**
 
-| Slot state                          | Visual                                       | Condition                                                                                                     | Available action          |
-| ----------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| **Affecting, upgradeable**          | `--accent-gold` filled border + level badge  | Current `effect_id` affects DPS AND scales + favor both sufficient for next upgrade.                          | **Upgrade**               |
-| **Affecting, blocked**              | Gold border + muted fill                     | Current `effect_id` affects DPS AND upgrade blocked (insufficient scales or favor).                           | Tooltip shows what's missing. |
-| **Not affecting**                   | `--text-muted` dim                           | Current `effect_id` does not affect DPS AND no effect in `effects_unlocked` for that slot would.              | None (no upside).         |
-| **Reforge candidate**               | Gold dashed border + `🔄`                    | Current `effect_id` does not affect DPS BUT `effects_unlocked` for that slot contains ≥ 1 effect that would. | **Reforge** (see §3.2.5). |
-| **Empty craftable**                 | Dotted outline + `+`                         | Slot has an epic but no legendary.                                                                            | Not in V1 forge-run scope; surfaced with tooltip link "Craft first" (opens confirm with scales cost). |
+| Slot state                 | Visual                                      | Condition                                                                            | Available action              |
+| -------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------- |
+| **Affecting, upgradeable** | `--accent-gold` filled border + level badge | Current `effect_id` affects DPS AND scales + favor both sufficient for next upgrade. | **Upgrade**                   |
+| **Affecting, blocked**     | Gold border + muted fill                    | Current `effect_id` affects DPS AND upgrade blocked (insufficient scales or favor).  | Tooltip shows what's missing. |
+| **Affecting, maxed**       | Gold border + "MAX" badge                   | Current `effect_id` affects DPS AND `level === 20`.                                  | None (at cap).                |
 
-Tile hover/tap reveals a small effect card: effect name (resolved from `legendary_effect_defines`), level, resolved description with `$(amount)` substituted, the scope kind + value, and the inline action button.
+Slots in a *reforge candidate* or *not affecting* state do **not** appear in this view — reforge candidates live in §3.2.5; non-affecting slots with no reforge potential are hidden from both views. Empty craftable slots surface only as a tooltip hint "Craft first →"; crafting is out of V1 forge-run scope.
 
-#### 3.2.5 Reforge candidate detection
+Tile hover/tap reveals a small effect card: effect name (resolved from `legendary_effect_defines`), level, resolved description with `$(amount)` substituted, the scope kind + value, and the inline Upgrade button.
 
-A slot is a **reforge candidate** iff both of the following hold:
+**Actions:**
+
+| Action       | API call                                  | Confirmation required                                              | After success                                                                                |
+| ------------ | ----------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| Upgrade      | `upgradelegendaryitem`                    | Single confirmation with full cost                                 | Re-fetch `getlegendarydetails` + `getuserdetails`; re-render; toast.                         |
+| Bulk upgrade | N sequential `upgradelegendaryitem` calls | Single confirmation listing total scales + total favor by currency | Re-fetch `getlegendarydetails` + `getuserdetails` once after all complete; toast summarizes. |
+
+Mutation UX is pessimistic (button disabled + spinner until response); see `tech-design-legendary.md` Appendix B, item 7.
+
+**Empty states specific to the Forge Run tab:**
+
+- **No upgradeable slots** → *"You've maxed out every DPS-affecting legendary for this hero. Try picking another DPS, or check the Reforge tab for slots worth rerolling."*
+- **All upgrade paths blocked by missing favor** → the favor priority panel still ranks; tiles show the blocked state with tooltips explaining what's missing. No separate empty state.
+
+#### 3.2.5 Reforge view (ships after Forge Run)
+
+Probabilistic view for turning Scales of Tiamat into new legendary effects on **supporting** heroes. Reforge cost is dynamic — every reforge ramps the cost up; it then decays to the 1000-Tiamat floor over 7 days — so this tab is time-sensitive. The view surfaces which slots are *ready* (cost at floor) vs. *still cooling down*, and quantifies re-roll risk via an `X/Y hits` badge.
+
+The selected DPS champion is **not** shown in this view — their own legendaries are always beneficial by game-design invariant (see `tech-design-legendary.md` Appendix B, item 5a) and never need rerolling.
+
+**Layout:** one card per supporting hero that has at least one slot worth rerolling. A hero is shown iff:
+
+- The hero has ≥ 1 equipped slot whose current `effect_id` does **not** affect DPS, AND
+- The hero's 6-effect pool contains ≥ 1 effect that would affect DPS.
+
+Each card shows:
+
+- Hero portrait + name + class/race.
+- Six slot tiles, with only reforge candidates highlighted (see state table below).
+- Per-card summary: *"2 ready · 1 cooling down"*.
+
+Sort order is ready-first (cost at the 1000 floor), then by `X/Y` hit rate descending, then by hero name.
+
+**Reforge candidate detection:** a slot is a reforge candidate iff both of the following hold:
 
 1. The slot's current `effect_id`'s scope does **not** match the DPS.
-2. The slot's `effects_unlocked` pool contains **at least one** effect whose scope **does** match the DPS.
+2. The hero's pool `hero.legendary_effect_id` contains **at least one** effect whose scope **does** match the DPS.
 
-If the unlocked pool has nothing for the DPS, reforging is pure gambling against a wasted roll and we do not flag it. Reforge candidate tiles show a tooltip listing the *specific* unlocked effects that would pay off, so the user can make an informed call before accepting the randomness of a reforge.
+If the hero's pool has nothing for the DPS, the hero doesn't appear in the Reforge tab at all.
 
-**Secondary metric — "Potential hits: X/Y":** Each reforge candidate tile shows a small badge `X/Y hits` where Y = the number of distinct effects the next reforge on that slot could roll into, and X = how many of those Y possible outcomes would affect the selected DPS. The denominator is dynamic because Idle Champions has two reforge phases:
+**Potential hits — "X/Y" metric:** each reforge candidate tile shows a small badge `X/Y hits` where Y = the number of distinct effects the next reforge on that slot could roll into, and X = how many of those Y possible outcomes would affect the selected DPS. The denominator is dynamic because Idle Champions has two reforge phases:
 
-- **Phase 1 — discovery.** While fewer than 6 effects are unlocked for the hero, a reforge is guaranteed to unlock a **new** effect. The roll draws from `hero.legendary_effect_id \ effects_unlocked`, so `Y = |hero.pool \ unlocked|` (a number between 1 and 5), and `X` is the count of those remaining effects that would affect DPS.
-- **Phase 2 — steady state.** Once all 6 are unlocked, rerolls draw uniformly from the full pool. `Y = 6` and `X = |hero.pool ∩ effectsAffectingDps|`.
+- **Phase 1 — discovery.** While fewer than 6 effects are unlocked for the hero, a reforge is guaranteed to unlock a **new** effect. The roll draws from `hero.legendary_effect_id \ effects_unlocked`, so `Y = |pool \ unlocked|` (a number between 1 and 5), and X is the count of those remaining effects that would affect DPS.
+- **Phase 2 — steady state.** Once all 6 are unlocked, rerolls draw uniformly from the full pool. `Y = 6` and `X = |pool ∩ effectsAffectingDps|`.
 
 Interpretive guidance for the user:
 
 - `X == Y` — every possible reforge outcome helps DPS; near-risk-free.
 - `X / Y ≥ 0.5` — majority of outcomes land on a beneficial effect; high-value reforge.
 - `X / Y < 0.5` — gamble; user should weigh cost against expected payoff. In Phase 1 a "miss" still has consolation value because it advances the hero toward all-6-unlocked.
-- `X == 0` — tile would not be classified as a reforge candidate in the first place and is not shown.
+- `X == 0` — the tile would not be classified as a reforge candidate in the first place and is not shown.
 
-The tooltip continues to list the *specific* pool members that would pay off; the badge is the quick scannable summary of the same information.
+The tile tooltip lists the *specific* pool members that would pay off; the badge is the quick scannable summary of the same information.
 
-> **Note — precise `effects_unlocked` semantics pending.** Whether `effects_unlocked` is strictly per-slot (slots progress independently) or hero-wide (union across all slots) needs to be verified empirically before the `X/Y` formula is locked in. See `tech-design-legendary.md` Appendix B, item 5b.
+> **Note — precise `effects_unlocked` semantics pending empirical verification.** Whether `effects_unlocked` is strictly per-slot (slots progress independently) or hero-wide (union across all slots) must be verified before the `X/Y` formula is locked in. See `tech-design-legendary.md` Appendix B, item 5b.
 
-Reforge action flow:
+**Cost tracking:** reforge cost is read directly from the API response — we never compute or predict it. The exact field lives in `getlegendarydetails` (precise shape to confirm empirically during tech-design §2; see Appendix B, item 5c, for whether cost is tracked per-slot or per-hero).
 
-1. User clicks the 🔄 on a reforge candidate tile.
-2. Modal confirms: reforge cost, list of effects in the unlocked pool that would hit for the DPS, and a clear warning that the new effect is random.
-3. On confirmation, fire `changelegendaryitem`.
-4. On success, re-fetch `getlegendarydetails` and re-classify the slot. Toast summarizes the new roll and whether it hit.
+Per-tile visual treatment:
 
-#### 3.2.6 Action behavior
+- **Ready** — cost at or near 1000 → green "ready" chip on the tile.
+- **Cooling down** — cost above floor → yellow chip with the current Tiamat cost; if a time-to-floor estimate can be derived, show it ("ready in ~2h"); otherwise show only the cost.
+- **Blocked** — player's Tiamat balance < current cost → muted chip with shortfall tooltip, no action.
 
-| Action       | API call               | Confirmation required              | After success                                                                |
-| ------------ | ---------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
-| Upgrade      | `upgradelegendaryitem` | Single confirmation with full cost | Re-fetch `getlegendarydetails`; bump local state; toast.                     |
-| Bulk upgrade | N parallel `upgradelegendaryitem` calls | Single confirmation listing total scales + total favor by currency | Re-fetch `getlegendarydetails` once after all complete; toast summarizes.    |
-| Reforge      | `changelegendaryitem`  | Explicit confirmation with random-roll warning | Re-fetch `getlegendarydetails`; re-classify slot; toast.                     |
-| Craft        | `craftlegendaryitem`   | Confirmation with scales cost      | Re-fetch `getlegendarydetails`; re-classify slot; toast. **Out of scope for V1 forge-run flow** — surfaced only as a tooltip hint on empty slots. |
+**Cell color semantics (Reforge view):**
 
-#### 3.2.7 Empty state and error handling
+| Slot state                     | Visual                                                               | Condition                                                                                   | Available action                             |
+| ------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| **Reforge candidate, ready**   | Gold dashed border + `🔄` + green "ready" chip + `X/Y hits` badge    | Pool has ≥ 1 DPS-affecting effect AND current cost at 1000 floor AND user balance ≥ 1000.   | **Reforge**                                  |
+| **Reforge candidate, cooling** | Gold dashed border + `🔄` + yellow "cost: N" chip + `X/Y hits` badge | Pool has ≥ 1 DPS-affecting effect AND current cost > floor AND user balance ≥ current cost. | **Reforge anyway** (tooltip nudges to wait). |
+| **Reforge candidate, blocked** | Muted dashed border + insufficient-funds badge                       | Pool has ≥ 1 DPS-affecting effect BUT user's Tiamat balance < current cost.                 | None (tooltip shows shortfall).              |
 
-- **No DPS selected** → empty state with dropdown and one-sentence hint.
-- **No legendaries on any champion** → friendly "You don't have any legendaries crafted yet. A simple craft view is planned post-V1; for now, craft your first few from the in-game client." No blocking CTA.
-- **DPS classification returns `unknown` for one or more effects** → surface a small banner: "N effects couldn't be classified; please file an issue with the effect ID." Don't block the view.
-- **Session-level refresh button** in the header re-fetches `getlegendarydetails` + `getuserdetails`.
+Slots that are not reforge candidates do **not** appear in this view.
 
-#### 3.2.8 Mobile layout
+Tile hover/tap reveals the currently-equipped effect name + resolved description (the effect that would be replaced), the specific pool members that would affect DPS (the `X` in `X/Y`), and the inline Reforge button.
+
+**Actions:**
+
+| Action  | API call              | Confirmation required                                                                                           | After success                                                                                                          |
+| ------- | --------------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Reforge | `changelegendaryitem` | Explicit confirmation with random-roll warning listing the `X` beneficial outcomes and the `Y - X` neutral ones | Re-fetch `getlegendarydetails` + `getuserdetails`; re-classify slot; toast summarizes the new roll and whether it hit. |
+
+No bulk reforge in V1 — reforges are too expensive and too probabilistic to batch.
+
+Mutation UX is pessimistic (button disabled + spinner until response); see `tech-design-legendary.md` Appendix B, item 7.
+
+**Empty states specific to the Reforge tab:**
+
+- **No supporting heroes with DPS-affecting pool members** → *"For this DPS, no supporting hero has a legendary worth rerolling. All beneficial effects in their pools are already equipped, or their pools don't overlap this DPS."*
+- **All reforge candidates cooling down** → tiles render with their yellow chips + cost; the list is informational. No separate empty state (the "ready when" is the information).
+
+#### 3.2.6 Shared empty states and error handling
+
+- **No DPS selected** → shared empty state with dropdown and one-sentence hint. Neither tab renders content.
+- **No legendaries on any champion** → friendly shared banner: *"You don't have any legendaries crafted yet. A simple craft view is planned post-V1; for now, craft your first few from the in-game client."* No blocking CTA; both tabs display the banner in place of their content.
+- **DPS classification returns `unknown` for one or more effects** → small banner above the tab switcher: *"N effects couldn't be classified; please file an issue with the effect ID."* Doesn't block either view.
+- **Session-level refresh button** in the global header re-fetches `getlegendarydetails` + `getuserdetails` and updates `ic.last_refresh_at`.
+
+#### 3.2.7 Mobile layout
 
 - Header chip row wraps to two lines if needed.
-- Favor priority panel becomes a horizontal scroll strip of currency cards above the upgrade list.
-- Champion cards stack vertically; slot tiles are a 6-tile grid (3×2 on very narrow screens) with touch-friendly 44×44 pt targets.
-- Sticky DPS + scales bar at the top; selecting a new DPS scrolls the list back to the top.
+- Tab switcher becomes a sticky row below the header.
+- **Forge Run tab:** favor priority panel becomes a horizontal scroll strip of currency cards above the upgrade list. Champion cards stack vertically; slot tiles are a 6-tile grid (3×2 on very narrow screens) with touch-friendly 44×44 pt targets.
+- **Reforge tab:** hero cards stack; `X/Y` badges and ready-chips scale down but remain legible. Cost chips wrap to a second line under the tile if needed.
+- Sticky DPS + scales bar at the top across both tabs; selecting a new DPS scrolls the active tab back to the top.
 
 ### 3.3 Category: Specialization Choices
 
@@ -366,7 +427,7 @@ Landing view when valid credentials exist. Shows:
 
 - Account name, current Scales of Tiamat balance, last-sync timestamp.
 - Cards linking to each category:
-  - **Legendary Items** — if a DPS is remembered, one-line summary like *"DPS: Cazrin · 14 upgrades ready · 3 reforge candidates."* If no DPS has been picked yet, prompt *"Pick your DPS to start a forge run →"*.
+  - **Legendary Items** — if a DPS is remembered, one-line summary like *"DPS: Cazrin · Forge Run: 14 upgrades ready · Reforge: 3 ready, 2 cooling down."* Clicking the card opens the last-selected tab (Forge Run by default on first visit). If no DPS has been picked yet, prompt *"Pick your DPS to start →"*.
   - **Specialization Choices** — one-line summary like *"4 formations · 2 with pending recommendations."*
 - Settings icon top-right.
 - Manual "Refresh" button that forces a fresh `getuserdetails`.
@@ -396,7 +457,7 @@ Landing view when valid credentials exist. Shows:
 
 | File                                      | Contents                                                                                                                                                                                                                                                              | Approx size |
 | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `data/definitions.heroes.json`                  | Trimmed + enriched `hero_defines` — one entry per hero with `id`, `name`, `seat_id`, `class`, `race`, `tags` (lowercased string array — pre-tokenized race / gender / alignment / class / role / campaign / etc.), `damage_types` (lowercased string array, subset of `["melee", "ranged", "magic"]` derived at refresh time by joining `attack_defines[base_attack_id]`), `ability_scores` (`{str,dex,con,int,wis,cha}`), `legendary_effect_id`. The five classification axes used by the forge-run scope matcher (tags for race/gender/alignment, plus damage_types and ability_scores) are the exact fields consumed by §3.2.2. All other hero fields (graphic IDs, level curves, feats, etc.) dropped. | ~105 KB     |
+| `data/definitions.heroes.json`                  | Trimmed + enriched `hero_defines` — one entry per hero with `id`, `name`, `seat_id`, `class`, `race`, `tags` (lowercased string array — pre-tokenized race / gender / alignment / class / role / campaign / etc.), `damage_types` (lowercased string array, subset of `["melee", "ranged", "magic"]` derived at refresh time by joining `attack_defines[base_attack_id]`), `ability_scores` (`{str,dex,con,int,wis,cha}`), `legendary_effect_id`. The five classification axes used by the legendary scope matcher (tags for race/gender/alignment, plus damage_types and ability_scores) are the exact fields consumed by §3.2.2. All other hero fields (graphic IDs, level curves, feats, etc.) dropped. | ~105 KB     |
 | `data/definitions.legendary-effects.json`       | Trimmed `legendary_effect_defines` — one entry per effect with `id`, `effect_string`, `targets`, `description`. The `description` template uses `$amount` / `$(amount)` placeholders as documented in `[server-calls.md](./server-calls.md#resolving-legendary-effect-ids)`. | ~25 KB      |
 | `data/definitions.legendary-effect-scopes.json` | **Derived**, not fetched. Produced by `scripts/refresh-defs.js` by parsing each effect's description. One entry per effect: `{id, kind, value?, stat?, min?}` where `kind ∈ {global, race, gender, alignment, damage_type, stat_threshold, unknown}`. Enables the O(1) runtime matcher in §3.2.2 with no runtime regex. | ~6 KB       |
 | `data/definitions.checksum.json`                | Metadata: `server_checksum` (null for filtered responses — server doesn't include a checksum when a `filter` is supplied), `fetched_at`, `hero_count`, `legendary_effect_count`, `scope_count`, `unknown_scope_ids` (effect IDs the scope parser couldn't classify — flag for investigation on next refresh), `source`. | < 1 KB      |
@@ -471,7 +532,7 @@ The script:
 │   ├── views/
 │   │   ├── home.js                 # Dashboard
 │   │   ├── settings.js             # Settings drawer
-│   │   ├── legendary.js            # §3.2
+│   │   ├── legendary.js            # §3.2 — host for both Forge Run (§3.2.4) and Reforge (§3.2.5) tabs
 │   │   └── specializations.js      # §3.3
 │   └── lib/
 │       ├── dom.js                  # Tiny DOM helpers (no framework dependency)
@@ -666,10 +727,11 @@ The site uses the same public play-server endpoints the official game client use
 | 10  | **Branding & styling**            | Shared with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). `img/` favicons and `site.webmanifest` are the same assets across both (see §2.4). CSS tokens, font stack, header/footer/card patterns are identical (see §7). The two sites read as one visual family; PRD §7 is the self-contained authoritative spec. |
 | 11  | **Definitions strategy**          | Ship trimmed baseline in `data/*.json` (committed), refresh via `scripts/refresh-defs.js` after major game updates, optionally fetch live deltas in the background and merge into `localStorage`. Runtime read order: localStorage → bundled `data/` → `(unknown …)` placeholder (see §4.2 & §4.3).                                                     |
 | 12  | **Credential handling (tooling)** | `scripts/refresh-defs.js` reads credentials **only** from `.credentials.json` at the repo root. That file is gitignored. `.credentials.example.json` is the committed template. No CLI-arg or env-var fallback is provided, keeping the credential surface small and auditable.                                                                         |
-| 13  | **Legendary tab framing**         | The Legendary tab is a **DPS-first forge-run optimizer**, not a generic roster browser. Every view is rendered through a selected DPS champion; the roster is filtered to what affects that DPS. A generic browse / craft-everywhere view is explicitly out of scope for V1 (see §3.2).                                                                 |
+| 13  | **Legendary tab framing**         | The Legendary tab is **DPS-first**, not a generic roster browser. It is rendered as one card with **two tabs sharing the DPS context**: **Forge Run** (deterministic favor-spend for upgrading DPS-affecting legendaries) and **Reforge** (probabilistic Tiamat-spend for rerolling supporting-hero slots into DPS-affecting effects). Forge Run ships first in V1; Reforge is the immediate follow-up. A generic browse / craft-everywhere view is explicitly out of V1 scope (see §3.2).                                         |
 | 14  | **Legendary effect scope classification** | Derived at bundle-refresh time by parsing `legendary_effect_defines` descriptions into a `{kind, value\|stat+min}` tag per effect (see §3.2.2). Five scope kinds cover 100% of current effects: `race`, `gender`, `alignment`, `damage_type`, `stat_threshold`, plus `global`. Any unrecognized effect is tagged `unknown` and logged so new game content is caught explicitly. |
 | 15  | **Forge-run favor ranking**       | V1 ranks favor currencies by *count of upgradeable-now DPS-affecting legendaries* (descending, ties broken by total affecting count). Weighted "DPS-gain per favor unit" rankings are V2 material and explicitly deferred.                                                                                                                              |
-| 16  | **DPS selection persistence**     | Last-selected DPS hero ID stored at `localStorage.icHelper.forgeRun.dpsHeroId`. On first visit (nothing stored), the tab renders an empty state with a dropdown prompt; no auto-picking.                                                                                                                                                                |
+| 16  | **DPS selection persistence**     | Last-selected DPS hero ID stored at `localStorage.icHelper.legendary.dpsHeroId`; last-selected tab stored at `localStorage.icHelper.legendary.activeTab` (defaults to `forge-run`). On first visit (nothing stored), the tab renders an empty state with a dropdown prompt; no auto-picking.                                                            |
+| 17  | **Legendary view as two tabs**    | The Legendary category is one card with two tabs — **Forge Run** (§3.2.4) and **Reforge** (§3.2.5) — sharing the DPS selector, classification chips, and shared refresh/error chrome (§3.2.3, §3.2.6). **Forge Run ships first**: it's deterministic (all costs known, no probabilistic outcomes), answers the higher-frequency question ("where should I spend the favor I just earned?"), and depends on fewer TBD empirical questions than Reforge (the `effects_unlocked` mechanic and reforge-cost field shape — Appendix B items 5b and 5c — can be nailed before §3.2.5 is built). |
 
 
 ---
@@ -704,7 +766,7 @@ The site uses the same public play-server endpoints the official game client use
 
 - A player can go from "zero credentials" to "seeing their ranked DPS-targeted forge-run upgrade list" in under 60 seconds on both desktop and mobile.
 - Every craft / upgrade / reforge action in the Legendary view succeeds against the live play server and the UI reflects the updated state within one refresh cycle.
-- The forge-run scope matcher classifies 100% of current legendary effects without any `unknown` tags on a freshly refreshed bundle (`unknown_scope_ids` in `data/definitions.checksum.json` is an empty list). If a refresh ever lands with a non-empty `unknown_scope_ids`, that's a build-level signal to extend the parser before merging.
+- The legendary scope matcher classifies 100% of current legendary effects without any `unknown` tags on a freshly refreshed bundle (`unknown_scope_ids` in `data/definitions.checksum.json` is an empty list). If a refresh ever lands with a non-empty `unknown_scope_ids`, that's a build-level signal to extend the parser before merging.
 - Selecting a DPS champion resolves the full slot classification (affecting / not affecting / reforge candidate / empty) for all 173 heroes in under 100 ms on a mid-range mobile device, using bundled `data/` only — no network.
 - Every specialization change saved in the Specializations view is persisted via `SaveFormation` and re-reading `getallformationsaves` reflects the change.
 - The site shell (HTML + CSS + JS, excluding API payloads) loads in < 300 KB.
