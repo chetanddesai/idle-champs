@@ -183,9 +183,16 @@ Pick your DPS once; switch tabs freely. Only heroes and slots relevant to the ch
 
 #### 3.2.1 Data sources
 
-- **`getlegendarydetails`** → legendary state per hero/slot (level, `effect_id`, `effects_unlocked`, `upgrade_cost`, `upgrade_favor_cost`, `upgrade_favor_required`, `reset_currency_id`) and `costs_by_hero` for crafts.
-- **`getuserdetails`** → hero roster (ownership), equipment slots, epic/legendary gear levels, current Scales of Tiamat balance, and per-favor currency balances in `details.loot` keyed by `reset_currency_id`.
-- **`getdefinitions`** (filtered) → `hero_defines`, `legendary_effect_defines`, `reset_currency_defines`, `loot_defines`. Provided from the bundled baseline in `data/`; see §4.2.
+- **`getuserdetails`** is the single read-path for V1. `details.legendary_details` mirrors the full `getlegendarydetails` payload byte-for-byte (verified empirically — see `tech-design-legendary.md` Appendix B item 8), so one call hydrates the whole Legendary view. Inside the response:
+  - `details.legendary_details.legendary_items[heroId][slotId]` — per-slot legendary state (`level`, `effect_id`, `effects_unlocked`, `upgrade_cost`, `upgrade_favor_cost`, `upgrade_favor_required`, `reset_currency_id`).
+  - `details.legendary_details.costs_by_hero` — next craft cost in Scales of Tiamat, keyed by `hero_id`.
+  - `details.legendary_details.cost` / `next_cost` / `reforge_reduction_time` — account-wide reforge cost state (scalar; see Appendix B item 5c).
+  - `details.heroes[]` — roster + ownership (`owned`), equipment slots, epic/legendary gear levels.
+  - **`details.stats.multiplayer_points` — Scales of Tiamat balance.** Verified against the player's in-game balance. *Not* stored in `details.loot` despite loot being the inventory bag; it lives under `stats`.
+  - **`details.reset_currencies[]` — per-favor balances.** An array of `{id, current_amount, total_earned, …}` entries, not a map — the client builds an `id → entry` lookup at ingest. Joined against `slot.reset_currency_id` to compute favor eligibility.
+  - Note: `details.loot` carries the player's loot inventory (for epic-gear gating on future Craft flows). It does **not** hold either currency balance — Scales are in `stats`, favor is in `reset_currencies`.
+- **`getlegendarydetails`** remains documented for completeness but is **not called in V1** — it's strictly a proper subset of `getuserdetails.details.legendary_details`. If a future mutation ever fails to reflect in `getuserdetails` without delay, the V1 design falls back to calling `getlegendarydetails` on post-mutation refresh only.
+- **`getdefinitions`** (filtered) → `hero_defines` and `legendary_effect_defines` ship from the bundled baseline in `data/` (see §4.2); `campaign_defines` is additionally required — it is the **only** source for favor display names. Each entry carries a `reset_currency_id` and a `short_name` (e.g. "Tiamat's Favor"); the Legendary view joins on `slot.reset_currency_id → campaign_defines[].reset_currency_id → campaign_defines[].short_name`. There is **no** `reset_currency_defines` group on this endpoint — `getdefinitions` does not expose one, and any documentation or code that reads `getuserdetails.defines.reset_currency_defines` is chasing a path that does not exist in the live payload (empirically verified 2026-04-24). `campaign_defines` is added to the bundled baseline as a V1 follow-up before Forge Run ships; see §4.2.
 
 #### 3.2.2 Scope classification — "does this effect affect the DPS?"
 
@@ -331,10 +338,10 @@ Sort order is ready-first (cost at the 1000 floor), then by `X/Y` hit rate desce
 
 If the hero's pool has nothing for the DPS, the hero doesn't appear in the Reforge tab at all.
 
-**Potential hits — "X/Y" metric:** each reforge candidate tile shows a small badge `X/Y hits` where Y = the number of distinct effects the next reforge on that slot could roll into, and X = how many of those Y possible outcomes would affect the selected DPS. The denominator is dynamic because Idle Champions has two reforge phases:
+**Potential hits — "X/Y" metric:** each reforge candidate tile shows a small badge `X/Y hits` where Y = the number of distinct effects the next reforge on that slot could roll into, and X = how many of those Y possible outcomes would affect the selected DPS. The "unlocked set" that drives the denominator is **hero-wide** — specifically the **union of `effects_unlocked` across every crafted slot on that hero** (empirically verified; see `tech-design-legendary.md` Appendix B item 5b). Denote that union `U`, the hero's 6-effect pool `P`, and the DPS-affecting subset of the pool `A = P ∩ effectsAffectingDps`. Idle Champions has two reforge phases:
 
-- **Phase 1 — discovery.** While fewer than 6 effects are unlocked for the hero, a reforge is guaranteed to unlock a **new** effect. The roll draws from `hero.legendary_effect_id \ effects_unlocked`, so `Y = |pool \ unlocked|` (a number between 1 and 5), and X is the count of those remaining effects that would affect DPS.
-- **Phase 2 — steady state.** Once all 6 are unlocked, rerolls draw uniformly from the full pool. `Y = 6` and `X = |pool ∩ effectsAffectingDps|`.
+- **Phase 1 — discovery** (`|U| < 6`). A reforge is guaranteed to unlock a **new** effect, drawn from `P \ U`. So `Y = |P \ U| = 6 − |U|` (a number between 1 and 5), and `X = |(P \ U) ∩ A|`.
+- **Phase 2 — steady state** (`|U| = 6`, so `U = P`). Rerolls draw uniformly from the full pool. `Y = 6` and `X = |A|`.
 
 Interpretive guidance for the user:
 
@@ -345,23 +352,21 @@ Interpretive guidance for the user:
 
 The tile tooltip lists the *specific* pool members that would pay off; the badge is the quick scannable summary of the same information.
 
-> **Note — precise `effects_unlocked` semantics pending empirical verification.** Whether `effects_unlocked` is strictly per-slot (slots progress independently) or hero-wide (union across all slots) must be verified before the `X/Y` formula is locked in. See `tech-design-legendary.md` Appendix B, item 5b.
+**Cost tracking:** reforge cost is **account-wide**, not per-slot or per-hero (empirically verified; see `tech-design-legendary.md` Appendix B item 5c). The current cost, its next-multiplier, and its decay timer all live as top-level scalars on `getuserdetails.details.legendary_details` — `cost` (integer Scales at the 1000 floor, rises per reforge, decays back over time), `next_cost` (multiplier for the next reforge), `reforge_reduction_time` (seconds remaining on the decay window). The Reforge tab surfaces these values **once** as an account-level banner at the top of the view, not on every tile. All tiles are simultaneously *ready* (banner cost = 1000), *cooling* (banner cost > 1000 and player has enough Scales), or *blocked* (player's Scales < banner cost).
 
-**Cost tracking:** reforge cost is read directly from the API response — we never compute or predict it. The exact field lives in `getlegendarydetails` (precise shape to confirm empirically during tech-design §2; see Appendix B, item 5c, for whether cost is tracked per-slot or per-hero).
+Per-tile visual treatment (driven by the account-level cost banner):
 
-Per-tile visual treatment:
-
-- **Ready** — cost at or near 1000 → green "ready" chip on the tile.
-- **Cooling down** — cost above floor → yellow chip with the current Tiamat cost; if a time-to-floor estimate can be derived, show it ("ready in ~2h"); otherwise show only the cost.
-- **Blocked** — player's Tiamat balance < current cost → muted chip with shortfall tooltip, no action.
+- **Ready** — banner cost at 1000 → green "ready" chip on every candidate tile.
+- **Cooling down** — banner cost > 1000 and player has enough Scales → yellow chip on every candidate tile; if `reforge_reduction_time` yields a time-to-floor estimate, show it once in the banner ("ready in ~2h").
+- **Blocked** — player's Scales balance (from `details.stats.multiplayer_points`) < banner cost → muted chip on every tile, no reforge action.
 
 **Cell color semantics (Reforge view):**
 
 | Slot state                     | Visual                                                               | Condition                                                                                   | Available action                             |
 | ------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| **Reforge candidate, ready**   | Gold dashed border + `🔄` + green "ready" chip + `X/Y hits` badge    | Pool has ≥ 1 DPS-affecting effect AND current cost at 1000 floor AND user balance ≥ 1000.   | **Reforge**                                  |
-| **Reforge candidate, cooling** | Gold dashed border + `🔄` + yellow "cost: N" chip + `X/Y hits` badge | Pool has ≥ 1 DPS-affecting effect AND current cost > floor AND user balance ≥ current cost. | **Reforge anyway** (tooltip nudges to wait). |
-| **Reforge candidate, blocked** | Muted dashed border + insufficient-funds badge                       | Pool has ≥ 1 DPS-affecting effect BUT user's Tiamat balance < current cost.                 | None (tooltip shows shortfall).              |
+| **Reforge candidate, ready**   | Gold dashed border + `🔄` + green "ready" chip + `X/Y hits` badge   | Pool has ≥ 1 DPS-affecting effect AND banner `cost` at the 1000 floor AND player Scales balance ≥ 1000.        | **Reforge**                                  |
+| **Reforge candidate, cooling** | Gold dashed border + `🔄` + yellow "cooling" chip + `X/Y hits` badge | Pool has ≥ 1 DPS-affecting effect AND banner `cost` > floor AND player Scales balance ≥ banner `cost`.          | **Reforge anyway** (tooltip nudges to wait — actual cost is in the banner, not repeated per tile). |
+| **Reforge candidate, blocked** | Muted dashed border + insufficient-funds badge                       | Pool has ≥ 1 DPS-affecting effect BUT player Scales balance < banner `cost`.                                    | None (tooltip shows shortfall against the banner).      |
 
 Slots that are not reforge candidates do **not** appear in this view.
 

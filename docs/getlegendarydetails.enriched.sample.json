@@ -1,4 +1,5 @@
 {
+  "_note": "Scrubbed illustrative sample of the enrichment join (getlegendarydetails + getuserdetails + getdefinitions). CAVEAT: the 'favor_currency.name' and 'favor_currency.short_name' fields here are HAND-DERIVED community/deity-style labels ('Torm's Favor', 'Auril's Favor', etc.) and are NOT what the live API returns. There is no reset_currency_defines group on either endpoint. In production code, resolve favor display labels via getdefinitions.campaign_defines[].short_name joined on reset_currency_id (see docs/server-calls.md → 'Favor display-name resolution'). The 'campaign' field here is API-sourced; 'name' and 'short_name' should be treated as illustrative only. Also note: legendary_details.cost is the account-wide reforge cost (not the player's Scales balance — that lives at getuserdetails.details.stats.multiplayer_points).",
   "legendary_details": {
     "cost": 1180.98,
     "next_cost": 1.0628819999999999,

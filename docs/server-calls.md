@@ -71,8 +71,8 @@ Think of `getdefinitions` as the **schema / dictionary** and the state calls as 
 
 | State call             | Needs (from `getdefinitions`)                                                                             | Plus (other sources)                                                                                                |
 | ---------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `getuserdetails`       | `hero_defines` (names, class, seat_id), `stat_defines`, `hero_feat_defines`                               | `defines.reset_currency_defines` is returned **inline** on this call — no separate lookup needed.                   |
-| `getlegendarydetails`  | `hero_defines`, `legendary_effect_defines`                                                                | `getuserdetails.defines.reset_currency_defines` (for favor names), `getuserdetails.details.loot` (for epic gating). |
+| `getuserdetails`       | `hero_defines` (names, class, seat_id), `stat_defines`, `hero_feat_defines`, `campaign_defines` (for favor names — see below)        | Scales of Tiamat balance is inline at `details.stats.multiplayer_points`; per-favor balances are inline at `details.reset_currencies[]` (array of `{id, current_amount, total_earned}` entries). |
+| `getlegendarydetails`  | `hero_defines`, `legendary_effect_defines`, `campaign_defines`                                            | `getuserdetails.details.loot` (for epic gating on future Craft flows). **Favor display names** come from `campaign_defines[].short_name` joined on `reset_currency_id` — see *Favor display-name resolution* below. |
 | `getallformationsaves` | `hero_defines` (spec names live in `properties.specializations`), `adventure_defines`, `campaign_defines` | `getuserdetails.details.heroes` for ownership + current spec picks.                                                 |
 | `getpatrondetails`     | `patron_defines`, `patron_perk_defines`, `patron_perk_tier_defines`, `patron_shop_item_defines`           | —                                                                                                                   |
 | `geteventsdetails`     | `event_v2_defines` (in `getuserdetails.defines`), `buff_defines`, `loot_defines`                          | —                                                                                                                   |
@@ -89,12 +89,28 @@ Think of `getdefinitions` as the **schema / dictionary** and the state calls as 
 #### Convention for the helper site
 
 1. **Session start:** `getPlayServerForDefinitions` → cache URL.
-2. **First authenticated load:** `getuserdetails` → extract `instance_id`, keep `details.heroes`, `details.loot`, `details.legendary_details`, and `defines.reset_currency_defines` in memory.
+2. **First authenticated load:** `getuserdetails` → extract `instance_id`; keep `details.heroes`, `details.loot`, `details.legendary_details` (mirrors `getlegendarydetails` in full — no separate call needed for reads), `details.stats.multiplayer_points` (Scales of Tiamat balance), and `details.reset_currencies[]` (per-favor balances) in memory. Favor **display names** are *not* on this response — they come from `campaign_defines` in `getdefinitions` (see below).
 3. **Definitions load:** `getdefinitions?filter={only-the-groups-this-view-needs}` → build per-group ID→entry lookup maps. Pass the stored `checksum` from the last successful call on subsequent loads.
 4. **Category views:** join state (steps 2–3) against the definition maps to produce rendered rows. Don't re-fetch definitions when switching views — they're effectively static within a session.
-5. **Mutations** (craft/upgrade/reforge, SaveFormation, etc.): on success, re-fetch **only** the relevant state call (e.g. `getlegendarydetails` after a craft) — never `getdefinitions`.
+5. **Mutations** (craft/upgrade/reforge, SaveFormation, etc.): on success, re-fetch **only** the relevant state call (e.g. `getuserdetails` after a craft — see *Favor display-name resolution* and the Legendary section on why `getlegendarydetails` is not called independently in V1) — never `getdefinitions`.
 
 This keeps every category view to at most one "live" state fetch, with one cached schema fetch shared across the entire session.
+
+### Favor display-name resolution
+
+There is **no `reset_currency_defines` group** in `getdefinitions` and **no `defines.reset_currency_defines` object** embedded in `getuserdetails`. Both were documented as existing in earlier drafts of this file; empirical probing of the live API on 2026-04-24 confirmed neither is present — the group name simply does not exist in the play server's current define surface.
+
+The canonical source for favor display names is **`campaign_defines`**. Each campaign entry that has an associated favor currency carries a `reset_currency_id` and a `short_name` (e.g. `"Tiamat's Favor"`, `"Torm's Favor"`). The resolution path is:
+
+```
+slot.reset_currency_id  (from legendary_items[heroId][slotId])
+    ↓  join on equality
+campaign_defines[].reset_currency_id
+    ↓  read
+campaign_defines[].short_name         → UI label
+```
+
+Clients that need favor names should either (a) include `campaign_defines` in their `getdefinitions` filter list at session start and build a `reset_currency_id → short_name` map once, or (b) ship `campaign_defines` in their bundled definitions baseline (recommended for the companion-site use case — tiny and rarely changes). Never hand-derive names like "Tiamat's Favor" in client code; those are community colloquial labels, but the API field is the single source of truth and guarantees correctness as new campaigns ship.
 
 ---
 
@@ -203,10 +219,10 @@ The same `legendary_details` object is also embedded at `getuserdetails.details.
 
 | Field                    | Type   | Example           | Meaning                                                                                                                                                                                                                |
 | ------------------------ | ------ | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cost`                   | float  | `1180.98`         | **Hypothesized current Scales of Tiamat balance.** This is the only plausible location for it in the payload. Confirm empirically by watching it decrease after a `craftlegendaryitem` or `upgradelegendaryitem` call. |
-| `next_cost`              | float  | `1.0628819…`      | **Meaning not yet confirmed.** Likely a cost-scaling multiplier or next-vessel cost.                                                                                                                                   |
-| `reduction_time`         | int    | `-1`              | Seconds remaining on a crafting-time reduction buff. `-1` = inactive.                                                                                                                                                  |
-| `reforge_reduction_time` | int    | `46320`           | Seconds remaining on a reforge-time reduction (`46320 ≈ 12h 52m`).                                                                                                                                                     |
+| `cost`                   | int    | `1000`            | **Account-wide reforge cost in Scales of Tiamat** (empirically verified 2026-04-24). Integer — floors at `1000`, rises after each reforge (multiplied by `next_cost`), decays back to the floor over time. This is **not** the Scales-of-Tiamat balance — that lives at `getuserdetails.details.stats.multiplayer_points`. |
+| `next_cost`              | float  | `1` / `1.0628819…`| Cost multiplier applied on the next reforge. Observed `1` when `cost` is at the 1000 floor.                                                                                                                           |
+| `reduction_time`         | int    | `-1`              | Seconds until the next cost decay tick (`-1` = no active decay, i.e. `cost` already at floor or unspent since last reforge).                                                                                           |
+| `reforge_reduction_time` | int    | `46320` / `67200` | Seconds remaining in the full decay window. Observed `~67200` even when `cost == 1000`, suggesting a residual tracker independent of whether decay is currently ticking. Precise decay schedule (step size, offline behaviour) is a nice-to-have, not blocking. |
 | `costs_by_hero`          | object | `{ "1": 500, … }` | **Keyed by `hero_id` (string).** Next Scales-of-Tiamat cost to craft one more legendary on that hero. Contains an entry for every hero the account owns (owned and unowned).                                           |
 | `legendary_items`        | object | `{ "34": { … } }` | **Keyed by `hero_id` (string).** Only heroes with at least one legendary appear. Each value is a nested object keyed by `slot_id` (`"1"`–`"6"`). See table below.                                                      |
 
@@ -243,7 +259,7 @@ Slot keys observed are strings `"1"`–`"6"`. Each item is an object:
 | `level`                  | int   | `1`–`20`                        | Current legendary level. The account-wide cap (`getuserdetails.details.legendary_level_cap`) is `20`.                                                                                                                                                     |
 | `effect_id`              | int   | `12`                            | The **currently active** effect on this legendary. Resolve the name/description via `getdefinitions.legendary_effect_defines` (a dedicated define group — **not** `buff_defines`; the two share no ID space). See *Resolving legendary effect IDs* below. |
 | `effects_unlocked`       | int[] | `[12]`, `[23, 1]`, `[45,10,52]` | All effects ever unlocked for this slot (via reforging). Typical length 1; can grow to 2 or 3 as the player reforges and adds new effects to the pool.                                                                                                    |
-| `reset_currency_id`      | int   | `15`                            | Which campaign favor (reset currency) the upgrade consumes. Resolve via `getuserdetails.defines.reset_currency_defines` (`id=22` → *Tiamat's Favor*, etc.).                                                                                               |
+| `reset_currency_id`      | int   | `15`                            | Which campaign favor (reset currency) the upgrade consumes. Resolve to a display label via `campaign_defines` (the `campaign_defines[].short_name` of the entry with matching `reset_currency_id`). See *Favor display-name resolution* above — `reset_currency_defines` does **not** exist on either endpoint. |
 | `upgrade_cost`           | int   | `499`, `958`, `1111`            | Scales of Tiamat cost to upgrade this legendary by one level.                                                                                                                                                                                             |
 | `upgrade_favor_cost`     | float | `2.3e+58`                       | Favor cost (in the currency named by `reset_currency_id`) to upgrade.                                                                                                                                                                                     |
 | `upgrade_favor_required` | float | `1e+30`                         | Minimum favor balance the player must possess to be allowed to upgrade. Separate from `upgrade_favor_cost`.                                                                                                                                               |
@@ -262,8 +278,8 @@ Slot keys observed are strings `"1"`–`"6"`. Each item is an object:
 | Epic rarity + iLvl per slot (required before a Craft is legal) | `getuserdetails.details.loot[]` — one entry per `{hero_id, slot_id}` with `rarity` (4 = epic) and `enchant` (iLvl).               |
 | Effect name/description for `effect_id` / `effects_unlocked`   | `getdefinitions.legendary_effect_defines` (dedicated group — **not** `buff_defines`). See *Resolving legendary effect IDs* below. |
 | "Signature" effect per hero (the hero's canonical legendary)   | `getdefinitions.hero_defines[…].properties.legendary_effect_id` — the on-theme effect the hero is designed around.                |
-| Currency name + icon for `reset_currency_id`                   | `getuserdetails.defines.reset_currency_defines` (already included in every `getuserdetails` response).                            |
-| Scales of Tiamat balance                                       | Hypothesis: `legendary_details.cost`. Confirm by observing the value decrement after a craft/upgrade.                             |
+| Currency name for `reset_currency_id`                          | `getdefinitions.campaign_defines[].short_name`, joined on `reset_currency_id`. See *Favor display-name resolution* earlier in this file. `reset_currency_defines` does **not** exist on either endpoint. |
+| Scales of Tiamat balance                                       | `getuserdetails.details.stats.multiplayer_points` (empirically verified — matches the in-game balance exactly). Not in `details.loot` despite loot being the inventory bag, and **not** `legendary_details.cost` (that field is the *reforge* cost — see §3.2.5). |
 
 
 #### Resolving legendary effect IDs
