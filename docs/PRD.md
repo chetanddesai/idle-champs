@@ -290,6 +290,22 @@ A slot is a **reforge candidate** iff both of the following hold:
 
 If the unlocked pool has nothing for the DPS, reforging is pure gambling against a wasted roll and we do not flag it. Reforge candidate tiles show a tooltip listing the *specific* unlocked effects that would pay off, so the user can make an informed call before accepting the randomness of a reforge.
 
+**Secondary metric — "Potential hits: X/Y":** Each reforge candidate tile shows a small badge `X/Y hits` where Y = the number of distinct effects the next reforge on that slot could roll into, and X = how many of those Y possible outcomes would affect the selected DPS. The denominator is dynamic because Idle Champions has two reforge phases:
+
+- **Phase 1 — discovery.** While fewer than 6 effects are unlocked for the hero, a reforge is guaranteed to unlock a **new** effect. The roll draws from `hero.legendary_effect_id \ effects_unlocked`, so `Y = |hero.pool \ unlocked|` (a number between 1 and 5), and `X` is the count of those remaining effects that would affect DPS.
+- **Phase 2 — steady state.** Once all 6 are unlocked, rerolls draw uniformly from the full pool. `Y = 6` and `X = |hero.pool ∩ effectsAffectingDps|`.
+
+Interpretive guidance for the user:
+
+- `X == Y` — every possible reforge outcome helps DPS; near-risk-free.
+- `X / Y ≥ 0.5` — majority of outcomes land on a beneficial effect; high-value reforge.
+- `X / Y < 0.5` — gamble; user should weigh cost against expected payoff. In Phase 1 a "miss" still has consolation value because it advances the hero toward all-6-unlocked.
+- `X == 0` — tile would not be classified as a reforge candidate in the first place and is not shown.
+
+The tooltip continues to list the *specific* pool members that would pay off; the badge is the quick scannable summary of the same information.
+
+> **Note — precise `effects_unlocked` semantics pending.** Whether `effects_unlocked` is strictly per-slot (slots progress independently) or hero-wide (union across all slots) needs to be verified empirically before the `X/Y` formula is locked in. See `tech-design-legendary.md` Appendix B, item 5b.
+
 Reforge action flow:
 
 1. User clicks the 🔄 on a reforge candidate tile.
