@@ -10,7 +10,18 @@
  *   - data/definitions.legendary-effects.json           (trimmed legendary_effect_defines)
  *   - data/definitions.legendary-effect-scopes.json     (derived scope tags per effect)
  *   - data/definitions.favors.json                      (reset_currency_id → short_name lookup)
+ *   - data/definitions.hero-images.json                 (hero_id → Emmote's wiki slug)
  *   - data/definitions.checksum.json                    (metadata, counts, unknown scopes)
+ *
+ * Hero image slugs (see tech-design-legendary.md Appendix B, Decision 9):
+ *   Portraits are served directly from Emmote's ic_wiki GitHub Pages site
+ *   (https://emmotes.github.io/ic_wiki/, MIT licensed). We fetch the public
+ *   directory listing at refresh time, match each bundled hero to a slug via
+ *   name-normalization heuristics (ligature expansion, diacritic stripping,
+ *   word permutations), and emit a lean { hero_id: slug } map. Heroes that
+ *   can't be auto-resolved fall through to HERO_SLUG_OVERRIDES for manual
+ *   mapping; anything still unresolved is listed in the checksum file so new
+ *   heroes don't silently disappear from the UI.
  *
  * Hero enrichment (see PRD §4.2):
  *   - tags            — pre-tokenized race/gender/alignment/role tags from the API
@@ -64,6 +75,21 @@ const BOILERPLATE = {
 const DAMAGE_TYPE_TOKENS = new Set(['melee', 'ranged', 'magic']);
 const GENDER_TOKENS = new Set(['Male', 'Female', 'Nonbinary']);
 const ALIGNMENT_TOKENS = new Set(['Good', 'Evil', 'Lawful', 'Chaotic', 'Neutral']);
+
+// Emmote's IC Wiki configuration (https://github.com/Emmotes/ic_wiki, MIT).
+const WIKI_IMAGES_API =
+  'https://api.github.com/repos/Emmotes/ic_wiki/contents/docs/images?ref=main';
+const WIKI_IMAGES_BASE_URL = 'https://emmotes.github.io/ic_wiki/images';
+const WIKI_PORTRAIT_PATH = 'portraits/portrait.png';
+const WIKI_ATTRIBUTION =
+  "Hero portraits © Emmote (@Emmotes), MIT licensed. Source: https://github.com/Emmotes/ic_wiki";
+
+// Manual slug overrides for heroes whose wiki slug can't be inferred from
+// the name via the heuristics in `heroSlugCandidates`. Keep this list tight:
+// every entry is a maintenance debt if the wiki reorganizes.
+const HERO_SLUG_OVERRIDES = {
+  146: 'darkurge', // "The Dark Urge" — wiki strips leading article.
+};
 
 // Known-typo normalization: the effect description says "Halfing Champions"
 // but hero tags spell it correctly as "halfling". Map at derivation time so
@@ -188,6 +214,74 @@ function deriveScope(effect) {
   return { kind: 'unknown' };
 }
 
+/**
+ * Generate candidate wiki-directory slugs for a hero, in order of preference.
+ * The resolver tries each candidate against the live wiki listing and picks
+ * the first hit. Handles the three real-world wrinkles: ligatures (`æ`→`ae`,
+ * `ß`→`ss`), diacritics (`ô`→`o`), and multi-word names (first word, full
+ * concatenation, last word). Returns [] if the name is empty.
+ */
+function heroSlugCandidates(hero) {
+  const name = hero.name || hero.english_name || '';
+  const expanded = name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[æÆ]/g, 'ae')
+    .replace(/[œŒ]/g, 'oe')
+    .replace(/[ßẞ]/g, 'ss')
+    .toLowerCase();
+  const alphaNum = expanded.replace(/[^a-z0-9 ]/g, '').trim();
+  const words = alphaNum.split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+  const set = new Set();
+  set.add(words[0]);
+  set.add(words.join(''));
+  if (words.length >= 2) set.add(words.slice(0, 2).join(''));
+  set.add(words[words.length - 1]);
+  return [...set];
+}
+
+/**
+ * Resolve hero→slug mapping against Emmote's wiki directory listing.
+ * Returns { heroes: { [id]: slug }, unresolved: [ids], wikiSlugCount }.
+ * Heroes with a HERO_SLUG_OVERRIDES entry bypass the heuristic. Heroes with
+ * no matching slug (e.g., placeholder "Y4E15" entries) are recorded in
+ * `unresolved` and omitted from the map — the view layer falls back to the
+ * monogram treatment for any id that isn't present.
+ */
+async function buildHeroImageMap(heroes) {
+  let wikiSlugs;
+  try {
+    const res = await fetch(WIKI_IMAGES_API);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const entries = await res.json();
+    if (!Array.isArray(entries)) throw new Error('Unexpected response shape');
+    wikiSlugs = new Set(
+      entries.filter((e) => e.type === 'dir').map((e) => e.name)
+    );
+  } catch (e) {
+    die(
+      `Failed to fetch wiki image listing (${WIKI_IMAGES_API}): ${e.message}\n` +
+      `  Without the listing we can't verify slug→image mapping. Retry or set\n` +
+      `  SKIP_HERO_IMAGES=1 to bypass this step and reuse the previous map.`
+    );
+  }
+
+  const mapped = {};
+  const unresolved = [];
+  for (const h of heroes) {
+    const override = HERO_SLUG_OVERRIDES[h.id];
+    if (override && wikiSlugs.has(override)) {
+      mapped[h.id] = override;
+      continue;
+    }
+    const hit = heroSlugCandidates(h).find((c) => wikiSlugs.has(c));
+    if (hit) mapped[h.id] = hit;
+    else unresolved.push(h.id);
+  }
+  return { heroes: mapped, unresolved, wikiSlugCount: wikiSlugs.size };
+}
+
 async function main() {
   const creds = loadCredentials();
   console.log(`[refresh-defs] Using credentials from ${CRED_PATH}`);
@@ -300,17 +394,48 @@ async function main() {
     .filter((f) => !f.short_name)
     .map((f) => f.reset_currency_id);
 
+  let heroImages;
+  if (process.env.SKIP_HERO_IMAGES === '1') {
+    console.log(`[refresh-defs] SKIP_HERO_IMAGES=1 set; reusing existing hero-images.json if present.`);
+    heroImages = null;
+  } else {
+    console.log(`[refresh-defs] Resolving hero image slugs against Emmote's wiki…`);
+    heroImages = await buildHeroImageMap(heroes);
+    console.log(
+      `[refresh-defs]   wiki dirs=${heroImages.wikiSlugCount}, ` +
+      `mapped=${Object.keys(heroImages.heroes).length}, ` +
+      `unresolved=${heroImages.unresolved.length}`
+    );
+  }
+
   fs.mkdirSync(DATA_DIR, { recursive: true });
   const heroesPath = path.join(DATA_DIR, 'definitions.heroes.json');
   const effectsPath = path.join(DATA_DIR, 'definitions.legendary-effects.json');
   const scopesPath = path.join(DATA_DIR, 'definitions.legendary-effect-scopes.json');
   const favorsPath = path.join(DATA_DIR, 'definitions.favors.json');
+  const heroImagesPath = path.join(DATA_DIR, 'definitions.hero-images.json');
   const metaPath = path.join(DATA_DIR, 'definitions.checksum.json');
 
   fs.writeFileSync(heroesPath, JSON.stringify(heroes, null, 2) + '\n');
   fs.writeFileSync(effectsPath, JSON.stringify(effects, null, 2) + '\n');
   fs.writeFileSync(scopesPath, JSON.stringify(scopes, null, 2) + '\n');
   fs.writeFileSync(favorsPath, JSON.stringify(favors, null, 2) + '\n');
+  if (heroImages) {
+    fs.writeFileSync(
+      heroImagesPath,
+      JSON.stringify(
+        {
+          source: 'https://github.com/Emmotes/ic_wiki',
+          attribution: WIKI_ATTRIBUTION,
+          base_url: WIKI_IMAGES_BASE_URL,
+          portrait_path: WIKI_PORTRAIT_PATH,
+          heroes: heroImages.heroes,
+        },
+        null,
+        2
+      ) + '\n'
+    );
+  }
   fs.writeFileSync(
     metaPath,
     JSON.stringify(
@@ -324,6 +449,9 @@ async function main() {
         favor_count: favors.length,
         unknown_scope_ids: unknownScopeIds,
         favors_missing_short_name: favorsMissingShortName,
+        hero_image_source: 'https://github.com/Emmotes/ic_wiki',
+        hero_image_mapped_count: heroImages ? Object.keys(heroImages.heroes).length : null,
+        hero_image_unresolved_ids: heroImages ? heroImages.unresolved : null,
       },
       null,
       2
@@ -336,6 +464,12 @@ async function main() {
   console.log(`  ${effectsPath}  (${size(effectsPath)} bytes, ${effects.length} effects)`);
   console.log(`  ${scopesPath}  (${size(scopesPath)} bytes, ${scopes.length} scopes)`);
   console.log(`  ${favorsPath}  (${size(favorsPath)} bytes, ${favors.length} favors)`);
+  if (heroImages) {
+    console.log(
+      `  ${heroImagesPath}  (${size(heroImagesPath)} bytes, ` +
+      `${Object.keys(heroImages.heroes).length} mapped)`
+    );
+  }
   console.log(`  ${metaPath}   (checksum=${body.checksum ?? 'n/a'})`);
 
   if (unknownScopeIds.length > 0) {
@@ -353,6 +487,26 @@ async function main() {
       `  reset_currency_ids: ${favorsMissingShortName.join(', ')}\n` +
       `  Display will fall back to "Favor #<id>" until fixed upstream.`
     );
+  }
+  if (heroImages && heroImages.unresolved.length > 0) {
+    // Filter out known placeholder heroes (name="Y4E15") since those intentionally
+    // have no art on the wiki; surface only the genuinely surprising misses.
+    const placeholderIds = new Set(
+      heroes.filter((h) => h.name === 'Y4E15').map((h) => h.id)
+    );
+    const surprising = heroImages.unresolved.filter((id) => !placeholderIds.has(id));
+    if (surprising.length > 0) {
+      const byId = new Map(heroes.map((h) => [h.id, h.name]));
+      console.warn(
+        `[refresh-defs] WARNING: ${surprising.length} hero(es) could not be mapped to a wiki slug.\n` +
+        surprising.map((id) => `    #${id} ${byId.get(id)}`).join('\n') + '\n' +
+        `  Add an entry to HERO_SLUG_OVERRIDES in scripts/refresh-defs.js, then re-run.`
+      );
+    } else {
+      console.log(
+        `[refresh-defs] ${heroImages.unresolved.length} placeholder hero(es) intentionally unmapped.`
+      );
+    }
   }
   console.log(`[refresh-defs] Done.`);
 }

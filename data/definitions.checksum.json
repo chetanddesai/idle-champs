@@ -1,11 +1,27 @@
 {
   "server_checksum": null,
-  "fetched_at": "2026-04-24T22:43:58.288Z",
+  "fetched_at": "2026-04-24T23:33:21.103Z",
   "source": "https://ps28.idlechampions.com/~idledragons/post.php?call=getdefinitions&filter=hero_defines,attack_defines,legendary_effect_defines,campaign_defines",
   "hero_count": 173,
   "legendary_effect_count": 110,
   "scope_count": 110,
   "favor_count": 28,
   "unknown_scope_ids": [],
-  "favors_missing_short_name": []
+  "favors_missing_short_name": [],
+  "hero_image_source": "https://github.com/Emmotes/ic_wiki",
+  "hero_image_mapped_count": 161,
+  "hero_image_unresolved_ids": [
+    108,
+    109,
+    110,
+    111,
+    112,
+    130,
+    131,
+    132,
+    133,
+    134,
+    175,
+    176
+  ]
 }

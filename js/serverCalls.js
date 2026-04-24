@@ -12,10 +12,16 @@
  *       · failure normalization into a typed `ApiError { kind, status?,
  *         message, raw }`
  *
- *   - Named public functions map 1:1 to the endpoints the V1 app calls.
+ *   - Named public functions map 1:1 to the endpoints used by V1 reads.
  *     `getLegendaryDetails` is deliberately absent — the V1 read path
  *     pulls `legendary_details` from `getuserdetails.details` (see PRD
  *     §3.2.1 and Appendix B #8).
+ *   - V1 is READ-ONLY: no UI surface in V1 calls the mutation helpers
+ *     (`upgradeLegendaryItem`, `craftLegendaryItem`, `changeLegendaryItem`).
+ *     They ship as library-level exports so V2 can restore the Forge Run
+ *     / Reforge action flows without reimplementing the API contract.
+ *     See tech-design-legendary.md Appendix B #7 and #12 for the scope
+ *     decision.
  *
  *   - No `localStorage` access, no `state.js` coupling. Every function
  *     takes an explicit `{ playServer, userId, hash, instanceId, … }`
@@ -223,11 +229,17 @@ export async function getUserDetails(ctx) {
 }
 
 // ---------------------------------------------------------------------------
-// Mutations (FR-11, FR-12 — Legendary view)
+// Mutations — V2-DEFERRED
 //
 // All three take the same context shape because they hit the same play server
 // with the same auth triple + (hero_id, slot_id). They return the raw body so
-// the caller (mutations.js) can inspect `actions` for optional diagnostic UI.
+// the caller can inspect `actions` for optional diagnostic UI.
+//
+// V1 IS READ-ONLY: no view module in V1 imports these helpers. The user
+// upgrades / reforges / crafts in-game, then taps Refresh to re-hydrate the
+// planner. These exports exist so that V2 (in-site mutations) can reuse the
+// contract and tests without rebuilding it. See tech-design Appendix B #7
+// and #12 for the scope decision.
 // ---------------------------------------------------------------------------
 
 function requireMutationCtx(fnName, ctx) {
@@ -249,6 +261,8 @@ function requireMutationCtx(fnName, ctx) {
 /**
  * Upgrade an equipped legendary by one level.
  * Consumes Scales of Tiamat + the slot's favor currency.
+ *
+ * V2-deferred. Not called by any V1 view; see module header.
  */
 export async function upgradeLegendaryItem(ctx) {
   const params = requireMutationCtx('upgradeLegendaryItem', ctx);
@@ -261,6 +275,8 @@ export async function upgradeLegendaryItem(ctx) {
 /**
  * Craft a new legendary into an empty slot. Consumes epic inventory (see
  * `details.loot`) for the hero's crafting requirement. No favor.
+ *
+ * V2-deferred. Not called by any V1 view; see module header.
  */
 export async function craftLegendaryItem(ctx) {
   const params = requireMutationCtx('craftLegendaryItem', ctx);
@@ -274,6 +290,8 @@ export async function craftLegendaryItem(ctx) {
  * Reforge a crafted legendary — rerolls `effect_id` from the hero's 6-effect
  * pool per Phase 1/2 rules (Appendix B #5b). Consumes the account-level
  * Scales-of-Tiamat reforge cost from `legendary_details.cost`.
+ *
+ * V2-deferred. Not called by any V1 view; see module header.
  */
 export async function changeLegendaryItem(ctx) {
   const params = requireMutationCtx('changeLegendaryItem', ctx);
