@@ -113,7 +113,7 @@ The site header includes a **settings icon** (gear) that opens a settings panel 
 
 | Mode                    | Input                               | Behavior                                                                                                                                                                                                               |
 | ----------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Manual**              | `user_id` field + `hash` field      | User types or pastes each value. On save, both are written to `localStorage` under `icHelper.userId` and `icHelper.hash`.                                                                                              |
+| **Manual**              | `user_id` field + `hash` field      | User types or pastes each value. On save, both are written to `localStorage` under the single key `ic.credentials` as `{ userId, hash }`.                                                                              |
 | **Support URL parsing** | Single "Paste support URL" textarea | The site parses the URL, extracts the `user_id` and `device_hash` query parameters, and populates the manual fields. `device_hash` is stored as `hash` (the play-server API calls it `hash`). User confirms and saves. |
 
 
@@ -134,13 +134,17 @@ All category views require valid credentials to load. Until credentials are save
 #### Persistence
 
 
-| Key                   | Value                                                  | Lifetime                        |
-| --------------------- | ------------------------------------------------------ | ------------------------------- |
-| `icHelper.userId`     | Account `user_id`                                      | Until user clears or replaces   |
-| `icHelper.hash`       | Account `hash` (from `device_hash` on support URL)     | Until user clears or replaces   |
-| `icHelper.playServer` | Discovered play-server base URL                        | 24h TTL, refreshes on expiry    |
-| `icHelper.instanceId` | Current `instance_id` from latest `getuserdetails`     | Refreshed on each session start |
-| `icHelper.lastSync`   | ISO timestamp of last successful `getuserdetails` call | Updated on every sync           |
+All application state lives under the `ic.*` namespace in `localStorage`; `state.js` is the single module that reads and writes these keys (see tech-design Appendix B #2). Values are JSON-serialized.
+
+| Key                     | Value                                                  | Lifetime                        |
+| ----------------------- | ------------------------------------------------------ | ------------------------------- |
+| `ic.credentials`        | `{ userId: string, hash: string }` (normalized from support URL or manual entry) | Until user clears or replaces   |
+| `ic.play_server`        | Discovered play-server base URL                        | Rewritten on `switch_play_server`; cleared by `ic.*` reset |
+| `ic.instance_id`        | Current `instance_id` from latest `getuserdetails`     | Refreshed on every `refreshAccount()` |
+| `ic.userdetails`        | Full `details` object from `getuserdetails`            | Overwritten on every `refreshAccount()` |
+| `ic.last_refresh_at`    | Epoch-ms timestamp of last successful `refreshAccount()` call | Overwritten on every successful refresh |
+| `ic.selected_dps_id`    | Last-selected DPS hero id (Legendary view)             | Until user clears or picks another |
+| `ic.legendary.activeTab`| `'forge-run'` \| `'reforge'` — last-used Legendary tab | Until user switches tabs        |
 
 
 ### 3.1 Server Calls Module (`serverCalls.js`)
@@ -179,7 +183,7 @@ The Legendary tab helps players make two distinct decisions about their legendar
 - **Forge Run** (V1 priority) — a **deterministic, favor-gated upgrade view**. Every upgrade costs both Scales of Tiamat and a campaign-specific favor currency; the view is *ranked* by favor because favor is the per-campaign gating resource — scales accumulate passively, favor is what you actively farm. Answers *"I've earned favor from running campaign X; which legendary upgrades will boost my DPS?"* Every tile is a level-up candidate with a known Tiamat + favor cost (see §3.2.4).
 - **Reforge** (ships after Forge Run) — a **probabilistic Tiamat-spend view**. Answers *"Which supporting hero's slot is worth rerolling right now, given that the Scales of Tiamat cost decays toward a 1000 floor over 7 days?"* Each candidate tile carries an `X/Y hits` badge quantifying re-roll risk and a "ready" indicator for the cost floor (see §3.2.5).
 
-Pick your DPS once; switch tabs freely. Only heroes and slots relevant to the chosen view appear — neither tab is a generic roster browser. Last-selected tab is remembered in `localStorage.icHelper.legendary.activeTab`, defaulting to Forge Run.
+Pick your DPS once; switch tabs freely. Only heroes and slots relevant to the chosen view appear — neither tab is a generic roster browser. Last-selected tab is remembered in `localStorage.ic.legendary.activeTab`, defaulting to Forge Run.
 
 #### 3.2.1 Data sources
 
@@ -254,7 +258,7 @@ The workflow and header chrome are identical across both tabs — the DPS select
 **Workflow:**
 
 1. User opens the Legendary tab.
-2. Site restores the last-selected DPS from `localStorage.icHelper.legendary.dpsHeroId` and the last-selected tab from `localStorage.icHelper.legendary.activeTab` (defaulting to Forge Run).
+2. Site restores the last-selected DPS from `localStorage.ic.selected_dps_id` and the last-selected tab from `localStorage.ic.legendary.activeTab` (defaulting to Forge Run).
 3. If no DPS is remembered, the page shows a shared empty state: a DPS dropdown with the prompt *"Pick your DPS champion to start."* No tab content renders until a DPS is picked.
 4. User selects a DPS from the dropdown. The dropdown lists **all owned champions** (heroes with `user_details.heroes[id].has === true`), sorted alphabetically, with a small chip showing each hero's race/class for disambiguation.
 5. On selection, the site:
@@ -496,13 +500,13 @@ Total bundle weight: **~140 KB uncompressed / ~14 KB gzipped** (what GitHub Page
 
 For every label that needs resolving at runtime, the site looks up IDs in this order:
 
-1. `localStorage.icHelper.defs.{group}` — the merged live-delta copy (if present).
+1. `localStorage.ic.defs.{group}` — the merged live-delta copy (if present).
 2. `data/definitions.{group}.json` — the bundled baseline (always present).
 3. Fallback placeholder (e.g. `"(unknown hero 999)"`) — only if an ID is in live state but not in either definitions source. The UI must render gracefully in this case.
 
 #### Opportunistic background refresh
 
-On each page load, after the bundled data is rendered, the site optionally fires `getdefinitions?filter=hero_defines,legendary_effect_defines,campaign_defines` in the background. Any entries it returns are merged into `localStorage` under `icHelper.defs.hero_defines`, `icHelper.defs.legendary_effect_defines`, and `icHelper.defs.campaign_defines`, and views refresh their labels from those if present. If the bundled baseline already covers everything the current state references, the user never sees a label flicker.
+On each page load, after the bundled data is rendered, the site optionally fires `getdefinitions?filter=hero_defines,legendary_effect_defines,campaign_defines` in the background. Any entries it returns are merged into `localStorage` under `ic.defs.hero_defines`, `ic.defs.legendary_effect_defines`, and `ic.defs.campaign_defines`, and views refresh their labels from those if present. If the bundled baseline already covers everything the current state references, the user never sees a label flicker.
 
 > **Empirical note for V1 implementers:** filtered `getdefinitions` responses do **not** include a top-level `checksum` field (only unfiltered responses do). The V1 refresh strategy therefore always re-fetches the filtered groups wholesale rather than trying to use `checksum` for delta-only responses. This keeps the refresh simple; if V2 ever needs checksum-based deltas it will need an unfiltered call.
 
@@ -757,7 +761,7 @@ The site uses the same public play-server endpoints the official game client use
 | 13  | **Legendary tab framing**                 | The Legendary tab is **DPS-first**, not a generic roster browser. It is rendered as one card with **two tabs sharing the DPS context**: **Forge Run** (deterministic upgrade of DPS-affecting legendaries — each upgrade costs Scales of Tiamat *and* a campaign-specific favor; favor is the gating resource so the view is ranked by favor) and **Reforge** (probabilistic Scales-of-Tiamat reroll of supporting-hero slots into DPS-affecting effects). Forge Run ships first in V1; Reforge is the immediate follow-up. A generic browse / craft-everywhere view is explicitly out of V1 scope (see §3.2). |
 | 14  | **Legendary effect scope classification** | Derived at bundle-refresh time by parsing `legendary_effect_defines` descriptions into a `{kind, value|stat+min}` tag per effect (see §3.2.2). Five scope kinds cover 100% of current effects: `race`, `gender`, `alignment`, `damage_type`, `stat_threshold`, plus `global`. Any unrecognized effect is tagged `unknown` and logged so new game content is caught explicitly.                                                                                                                                                                                                                                 |
 | 15  | **Forge-run favor ranking**               | V1 ranks favor currencies by *count of upgradeable-now DPS-affecting legendaries* (descending, ties broken by total affecting count). Weighted "DPS-gain per favor unit" rankings are V2 material and explicitly deferred.                                                                                                                                                                                                                                                                                                                                                                                     |
-| 16  | **DPS selection persistence**             | Last-selected DPS hero ID stored at `localStorage.icHelper.legendary.dpsHeroId`; last-selected tab stored at `localStorage.icHelper.legendary.activeTab` (defaults to `forge-run`). On first visit (nothing stored), the tab renders an empty state with a dropdown prompt; no auto-picking.                                                                                                                                                                                                                                                                                                                   |
+| 16  | **DPS selection persistence**             | Last-selected DPS hero ID stored at `localStorage.ic.selected_dps_id`; last-selected tab stored at `localStorage.ic.legendary.activeTab` (defaults to `forge-run`). On first visit (nothing stored), the tab renders an empty state with a dropdown prompt; no auto-picking.                                                                                                                                                                                                                                                                                                                                  |
 | 17  | **Legendary view as two tabs**            | The Legendary category is one card with two tabs — **Forge Run** (§3.2.4) and **Reforge** (§3.2.5) — sharing the DPS selector, classification chips, and shared refresh/error chrome (§3.2.3, §3.2.6). **Forge Run ships first**: it's deterministic (all costs known, no probabilistic outcomes), answers the higher-frequency question ("where should I spend the favor I just earned?"), and depends on fewer TBD empirical questions than Reforge (the `effects_unlocked` mechanic and reforge-cost field shape — Appendix B items 5b and 5c — can be nailed before §3.2.5 is built).                      |
 
 

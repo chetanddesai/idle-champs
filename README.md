@@ -14,16 +14,44 @@ Not affiliated with or endorsed by Codename Entertainment / Wizards of the Coast
 
 Plain HTML/CSS/JS served from GitHub Pages — no build step, no backend. Credentials are kept in the player's browser `localStorage`; the site calls `*.idlechampions.com` directly, exactly as the game client does.
 
+## Running locally
+
+Because the site loads its bundled `data/*.json` and ES modules via `fetch` + dynamic import, it must be served over HTTP — opening `index.html` directly with `file://` will fail the module loads and the CORS checks. The simplest dev server that matches how GitHub Pages will serve the site:
+
+```bash
+npx http-server . -p 8080 -c-1
+```
+
+Then open <http://127.0.0.1:8080/> in a browser. The `-c-1` flag disables caching so edits to HTML / CSS / JS / JSON show up on the next reload without needing a hard refresh. No `npm install` needed — `npx` fetches `http-server` on demand.
+
+Any other static file server works equally well (`python3 -m http.server 8080`, `php -S 127.0.0.1:8080`, VS Code's Live Server extension, …) — the requirement is just "serve over HTTP from the repo root."
+
+## Tests
+
+Pure modules (`js/lib/*`, `js/serverCalls.js`, `js/credentials.js`, `js/state.js`) are covered by Node's built-in test runner against frozen fixtures — no framework, no jsdom. Requires Node 18+.
+
+```bash
+npm test
+```
+
 ## Repo layout
 
 
 | Path                        | Purpose                                                                                     |
 | --------------------------- | ------------------------------------------------------------------------------------------- |
-| `index.html`, `css/`, `js/` | Site shell, routing, category views, and `serverCalls.js` API client. (Coming in V1 build.) |
+| `index.html`                | App shell — header, main, footer, CSP meta, module entry point.                             |
+| `css/`                      | `base.css` (tokens + reset), `layout.css`, `components.css`. See PRD §7 for the spec.       |
+| `js/serverCalls.js`         | Single HTTP boundary to the play server; centralized retry + typed `ApiError`.              |
+| `js/state.js`               | `localStorage`-backed pub/sub store under the `ic.*` namespace + `refreshAccount()`.        |
+| `js/credentials.js`         | Support-URL parser, validator, and canonical-shape normalizer.                              |
+| `js/main.js`                | Bootstrap, hash router, credential gate, Refresh button + toast surface.                    |
+| `js/lib/`                   | Pure helpers: `scopeMatcher`, `legendaryModel`, `format`, `dom`. All `node:test`-covered.   |
+| `js/views/`                 | DOM-rendering view modules (Settings today; Legendary + Specializations in later milestones). |
+| `test/`                     | `node:test` suite + frozen fixtures for each pure module.                                   |
 | `img/`, `site.webmanifest`  | Favicons & manifest — shared with my sibling site `[ic-specs](https://github.com/chetanddesai/ic-specs)` so the two read as one family. |
 | `data/`                     | Bundled trimmed game definitions used as a zero-network baseline for labels (see below).    |
 | `scripts/refresh-defs.js`   | Regenerates `data/*.json` from a live `getdefinitions` call.                                |
-| `docs/`                     | PRD, API reference, and scrubbed sample responses.                                          |
+| `docs/`                     | PRD, tech design, API reference, and scrubbed sample responses.                             |
 
 
 ## Refreshing bundled definitions
