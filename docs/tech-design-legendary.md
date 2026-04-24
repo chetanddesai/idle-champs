@@ -9,11 +9,11 @@
 
 ## Status
 
-Sections 1-7 are pending; they will be drafted collaboratively section by
-section. This working document currently captures only the pre-draft
-resolved decisions (Appendix B below) so alignment reached during design
-discussions is durable between sessions. When §1-7 are written they
-will cite these decisions rather than re-litigating them.
+**§§1–2 drafted; §§3–7 are titled stubs aligned to a standard tech-design template.** This document is deliberately scope-bound to the **Legendary view runtime + the shared app-foundation contracts it exercises** — Specializations (PRD §3.3), Settings/credential-entry UX details, and all future categories are explicitly out of scope. Each section below applies that narrowing: §§5-7 diagram only the flows that exist in the Legendary slice (bootstrap + upgrade + reforge + `switch_play_server` retry), not a generic flow catalog.
+
+Drafting sequence: §3 next (fast — most NFRs transcribe from PRD §2), then §4 (Assumptions & Considerations — already half-written in Appendix B), then §5 (Physical Component Diagram — two mermaid diagrams), then §6 (Sequence Diagrams — three flows), then §7 (Data Flow Diagram — one overall flow; §7.2 Cache Decision is trivial for this system).
+
+Appendix B below (the template's "Open Questions" slot) captures the pre-draft resolved decisions (8 items, all Resolved as of 2026-04-24) that §§1–7 cite rather than re-litigating.
 
 Related documents:
 - [PRD](PRD.md) — product requirements, Legendary Items UX (§3.2 — Forge Run §3.2.4 ships first, Reforge §3.2.5 follows)
@@ -23,11 +23,139 @@ Related documents:
 
 ---
 
+## 1. Problem Statement
+
+### Problem
+
+Idle Champions players tune their account's DPS by upgrading legendary items on champions that either *are* the DPS or *buff* the DPS (via race/gender/alignment/damage-type/stat-threshold scoped effects). The in-game UI surfaces legendaries one champion at a time, buries cost/eligibility behind multiple taps, and never tells you *"which legendary upgrade gives the most DPS per favor spent right now?"* Answering that requires joining state from multiple API endpoints, a scope-matching step that parses human-readable effect descriptions into machine-readable targeting rules, and a prioritization pass — none of which the game client does for the player.
+
+The scope-matching step specifically has no API-native solution. Legendary effect descriptions like *"Increases the damage of all Female Champions by $(amount)%"* or *"Increases the damage of all Champions with an INT score of 11 or higher"* must be parsed and matched against a hero's static attributes (race/gender/alignment/damage-type/ability-scores). Without a helper, the player has to do that matching in their head across every legendary on every owned champion — which caps useful decision-making well below the player's roster size.
+
+A second implicit problem: the same API surface (`getuserdetails`) carries everything the client needs for Legendary, Specializations, and every future category view, but an ad-hoc "one-off fetch per view" pattern fragments retry logic, credential handling, and the `switch_play_server` dance across the codebase. Settling those contracts once — as part of the first category view to use them — is cheaper than retrofitting them after three views already speak to the API differently.
+
+### Value
+
+- **For the player:** a DPS-first ranked view of upgrade candidates that answers *"where should I spend the favor I just earned?"* in one glance, on mobile, without opening the game client. Reforge tab does the same for the time-gated Scales-of-Tiamat reroll decision. Classifications are deterministic and transparent — a chip row shows exactly which hero attributes are driving the "affects DPS" verdict.
+- **For the site's future categories (Specializations and beyond):** a settled foundation — `serverCalls.js` with unified retry + typed errors, `state.js` pub/sub store over localStorage, bootstrap + credential gate, pessimistic mutation wrapper — so the second category view is an incremental add, not a second round of architecture debate.
+- **For the author maintaining this repo:** a pure-functional core (`scopeMatcher.js`, `legendaryModel.js`) that's testable under `node:test` with hardcoded fixtures; UI code stays thin and the high-value logic has regression coverage.
+
+### Scope
+
+This design specifies the **Legendary View** of the [Idle Champions GitHub Pages companion site](PRD.md) — a zero-backend static web app with two tabs sharing a single DPS selector:
+
+- **Forge Run (V1 priority)** — deterministic upgrade view ranked by per-campaign favor, showing every DPS-affecting legendary currently upgradeable with both its Scales-of-Tiamat and favor cost (PRD §3.2.4).
+- **Reforge (ships after Forge Run)** — probabilistic reroll view for supporting heroes whose pools contain DPS-affecting effects, gated by the account-wide Scales-of-Tiamat reforge cost (PRD §3.2.5).
+
+It also specifies the **app foundation** both tabs exercise (server-call plumbing, state store, credential gate, mutation UX). Specializations (PRD §3.3), settings-panel UX beyond the credential gate, and all future categories listed in PRD §11 are explicitly out of scope — they will reuse the foundation specified here without amendment.
+
+The full UX spec lives in PRD §3.2; all design decisions behind the contracts below are resolved in [Appendix B](#appendix-b-resolved-decisions--open-questions) and cited inline rather than re-litigated.
+
+---
+
+## 2. Functional Requirements
+
+Each FR is a one-sentence statement of what the system must do, paired with the concrete module/function that delivers it and a pointer to the Appendix B row that fixed the design decision. Modules marked *(new)* do not yet exist in the repo; everything else is either partially in place or scaffolded.
+
+### 2.1 App-foundation FRs (shared across all category views)
+
+| FR  | Requirement | Delivered by | Decision ref |
+|-----|-------------|--------------|--------------|
+| **FR-1** | All play-server HTTP traffic goes through a single module that centralizes boilerplate injection, credential injection, `switch_play_server` retry (exactly once, even on `success:true`), and failure normalization into a typed `ApiError { kind, status?, message, raw }`. No `.success` checks or retry logic leak into views. | `js/serverCalls.js` — private `request(method, params)` helper + named public functions: `getUserDetails`, `upgradeLegendaryItem`, `craftLegendaryItem`, `changeLegendaryItem`, `getPlayServerForDefinitions`. *(`getLegendaryDetails` is deliberately absent — see FR-4.)* | [Appendix B #1](#appendix-b-resolved-decisions--open-questions) |
+| **FR-2** | Application state is persisted in `localStorage` as the single source of truth and exposed to views via a tiny pub/sub store with `get(key)`, `set(key, val)`, `subscribe(key, callback)`. Keys namespaced `ic.*`. No TTL, no auto-expiry, no background polling — staleness is user-driven. | `js/state.js` *(new)* | [Appendix B #2](#appendix-b-resolved-decisions--open-questions) |
+| **FR-3** | On startup, the app loads bundled `data/*.json` synchronously, checks `ic.credentials`, routes to `#/settings` (blocking all other routes) if absent, and once credentials exist runs `refreshAccount()` before rendering the routed view. A global header always shows "Last refreshed: Xm ago" with a refresh icon-button. | `js/main.js` *(new)* bootstrap + route guard | [Appendix B #3](#appendix-b-resolved-decisions--open-questions) |
+| **FR-4** | A single `refreshAccount()` function is the only entry point for hydrating account state. It calls `getuserdetails` exactly once and writes the entire legendary view's input data (`details.heroes`, `details.loot`, `details.legendary_details`, `details.stats.multiplayer_points`, `details.reset_currencies`, `details.instance_id`) through to the state store. Both the Refresh button and post-mutation flows call this same function. | `js/state.js` `refreshAccount()` + `js/serverCalls.js` `getUserDetails()` | [Appendix B #2, #8](#appendix-b-resolved-decisions--open-questions) |
+| **FR-5** | All mutations use a pessimistic UX: button disables + spinner → awaited API call → on 2xx/`success:true` re-run `refreshAccount()` and re-render; on any failure surface the server's `failure_reason` (or HTTP/network message) via a toast and re-enable the button without mutating state. Same toast component is reused for Refresh-button failures. | `js/lib/mutations.js` *(new)* — shared `runMutation(fn, { confirmText, successToast })` wrapper around any `serverCalls` call; `js/lib/toast.js` *(new)*. | [Appendix B #7](#appendix-b-resolved-decisions--open-questions) |
+| **FR-6** | Rate limiting: V1 does not apply explicit client-side throttling beyond the existing 4-retry cap in `serverCalls.js`. Mutation UX is sequential-by-construction (one button, disabled while in flight), which naturally prevents accidental bursts. If PRD §10 Q4 ever surfaces a documented per-account limit, add a token bucket inside `request()`. | `js/serverCalls.js` `request()` — existing retry cap; no added throttle in V1 | PRD §10 Q4 (V1 punt) |
+
+### 2.2 Legendary-view FRs
+
+| FR   | Requirement | Delivered by | Decision ref |
+|------|-------------|--------------|--------------|
+| **FR-7** | The Legendary view renders as a single card with two tabs (Forge Run, Reforge) sharing a DPS dropdown, a five-axis classification chip row (Race · Gender · Alignment · Damage-type · top ability scores), and a sticky Scales-of-Tiamat balance badge. The last-selected DPS (`ic.selected_dps_id`) and tab (`ic.legendary.activeTab`, default `forge-run`) are restored on mount. No tab content renders until a DPS is picked. | `js/views/legendary/index.js` *(new)* — shell + tab switcher; `js/views/legendary/header.js` *(new)* — DPS selector + chip row + balance badge | PRD §3.2.3, §9 #16–#17 |
+| **FR-8** | For the selected DPS, the system computes — once per DPS change, memoized in session — a classification of every equipped legendary slot against the DPS: `{heroId, slotIndex, currentEffectId, affectsDps, heroRole, poolAffectingDps[], equippedLevel, requiredFavor}`. Classification uses `scopeMatcher.effectAffectsHero()` against the bundled scope table. | `js/lib/legendaryModel.js` *(new)* `classifySlots(inputs)` — pure; consumes bundled `definitions.heroes.json` + `definitions.legendary-effects.json` + `definitions.legendary-effect-scopes.json` + `details.legendary_details.legendary_items` + selected DPS id. | [Appendix B #4, #5a](#appendix-b-resolved-decisions--open-questions); PRD §3.2.2 |
+| **FR-9** | The Forge Run tab renders the classification as: (a) a privileged DPS-hero row (all 6 slots always affecting), (b) a list of supporting hero cards where `affectsDps === true` for ≥1 slot, (c) a favor-priority panel ranked by count-of-upgradeable-now-DPS-affecting-slots per favor currency. A slot is "upgradeable now" iff `level < 20 && scales ≥ upgrade_cost && favor ≥ upgrade_favor_cost` — where `scales = stats.multiplayer_points` and `favor = reset_currencies[].current_amount` looked up by `reset_currency_id`. Both cost components must be displayed on every upgrade-related surface. `upgrade_favor_required` is never consulted. | `js/lib/legendaryModel.js` `buildForgeRun(classification, userBalances) → ForgeRunState`; `js/views/legendary/forgeRun.js` *(new)* | [Appendix B #4, #6](#appendix-b-resolved-decisions--open-questions); PRD §3.2.4 |
+| **FR-10** | The Reforge tab renders: (a) an account-level banner with the current `cost` / `next_cost` / `reforge_reduction_time` scalar values from `legendary_details`, (b) a list of supporting heroes where at least one equipped slot does not affect DPS *and* the hero's 6-effect pool contains ≥1 DPS-affecting effect. Each reforge candidate tile carries an `X/Y hits` badge computed per the Phase-1/Phase-2 formulas: `U = ⋃ effects_unlockedᵢ`, `A = P ∩ effectsAffectingDps`; Phase 1 (`|U| < 6`) → `X = |(P\U) ∩ A|`, `Y = 6 − |U|`; Phase 2 → `X = |A|`, `Y = 6`. | `js/lib/legendaryModel.js` `buildReforge(classification, reforgeCost) → ReforgeState`; `js/views/legendary/reforge.js` *(new)* | [Appendix B #4, #5a, #5b, #5c](#appendix-b-resolved-decisions--open-questions); PRD §3.2.5 |
+| **FR-11** | Upgrade action: tapping a Forge Run tile (or the per-card "Upgrade all upgradeable" bulk action) fires `upgradelegendaryitem(hero_id, slot_id)` through the `runMutation` wrapper. Bulk upgrade is N sequential pessimistic calls with a single pre-flight confirmation showing total Scales + total favor by currency. | `js/views/legendary/forgeRun.js` — per-tile and per-card action handlers; `js/serverCalls.js` `upgradeLegendaryItem()` | [Appendix B #7](#appendix-b-resolved-decisions--open-questions); PRD §3.2.4 |
+| **FR-12** | Reforge action: tapping a Reforge candidate tile fires `changelegendaryitem(hero_id, slot_id)` through `runMutation`, preceded by an explicit confirmation dialog listing the `X` beneficial outcomes and the `Y − X` non-beneficial ones (the probabilistic warning). No bulk reforge in V1. | `js/views/legendary/reforge.js` — per-tile action handler; `js/serverCalls.js` `changeLegendaryItem()` | [Appendix B #7](#appendix-b-resolved-decisions--open-questions); PRD §3.2.5 |
+| **FR-13** | Craft action is **not** implemented in V1 — the Forge Run and Reforge tabs only surface Craft as a tooltip hint on empty slots. Crafting remains in the game client for V1. | *(intentionally unimplemented)* | PRD §3.2.4, §11 |
+
+### 2.3 Observability & resilience FRs
+
+| FR   | Requirement | Delivered by | Decision ref |
+|------|-------------|--------------|--------------|
+| **FR-14** | Classification failures (legendary effect with `scope.kind === 'unknown'`) render a banner above the Legendary card ("N effects couldn't be classified; please file an issue with the effect ID") but never block either tab. `data/definitions.checksum.json → unknown_scope_ids` is the build-time tripwire for the same condition. | `js/lib/legendaryModel.js` (surfaces unknowns in its output); `js/views/legendary/index.js` (renders banner); `scripts/refresh-defs.js` (bundle-time warning) | PRD §3.2.2, §12 success criteria |
+| **FR-15** | Mutation-reflection assumption (Appendix B #8) is verified on first integration: the first upgrade or reforge in the development branch must result in a `getuserdetails` call whose `details.legendary_details` reflects the mutation with no delay. If it lags, FR-4 is amended to a dual-call path on post-mutation refresh only. | Manual integration check + transcript note during wire-up of FR-11 / FR-12 | [Appendix B #8](#appendix-b-resolved-decisions--open-questions) |
+
+---
+
+## 3. Non-Functional Requirements
+
+*[STUB — template column shape `| ID | Requirement | Implementation |`. Intended rows, narrowed to Legendary: NFR-1 **Hosting/Deployment** (GitHub Pages static, no backend — transcribed from PRD §2.1). NFR-2 **Performance** (Lighthouse ≥ 90/95/90/80 per PRD §2.3; < 100 ms DPS-switch classification for 173 heroes on mid-range mobile per PRD §12). NFR-3 **Accessibility** (WCAG AA, ARIA landmarks, keyboard-navigable per PRD §2.3). NFR-4 **Responsive Design** (375px-1440px+ mobile-first per PRD §2.3 — Legendary layouts collapse per PRD §3.2.7). NFR-5 **Security** (credentials localStorage-only, transmitted only to `*.idlechampions.com`, zero telemetry — PRD §2.2). NFR-6 **Data Freshness / Caching** (user-driven refresh, no TTL, no auto-expiry — from Appendix B #2; bundled defs refreshed manually via `scripts/refresh-defs.js`). NFR-7 **Graceful Degradation** (unknown-scope banner, `(unknown hero N)` placeholder — PRD §3.2.2, FR-14). NFR-8 **Dependencies** (zero runtime deps; `node:test` for unit tests; Google Fonts for typography — rationale: PRD §2.1 no-build-step constraint).]*
+
+---
+
+## 4. Assumptions & Considerations
+
+*[STUB — template column shape `| # | Constraint | Impact on Design |`. Intended rows: (1) **Hosting / platform constraint** — static GitHub Pages, no server-side code → all API calls, retry loops, state management, credential storage client-side; bundled defs ship as committed `data/*.json`. (2) **Third-party API constraint** — Idle Champions play-server API has `switch_play_server` behavior, 40s timeout, rate limits unknown (PRD §10 Q4) → centralized `request()` helper with one-retry retry semantics (Appendix B #1); sequential mutation UX is naturally rate-safe. (3) **Data storage constraint** — localStorage ~5MB per origin → trivial for this workload (~13KB gzipped bundle + user state); no size pressure. (4) **Browser / runtime constraint** — evergreen desktop + mobile Safari/Chrome (PRD §2.1) → native `fetch`, ES modules, `?.` / `??`, `Map`/`Set` all safe; no polyfills. (5) **Team / process constraint** — single-developer, no build step → vanilla ES modules + CSS, zero runtime deps, `node:test` for unit tests (Appendix B #4, FR-8). (6) **Credential-sensitivity constraint** — `hash` is a full-account credential (PRD §2.2) → `.credentials.json` gitignored for tooling, `localStorage` only for runtime, never transmitted to any host other than `*.idlechampions.com`.]*
+
+---
+
+## 5. Physical Component Diagram
+
+*[STUB — one mermaid `flowchart TB` using template node-shape conventions (`[ ]` process / `[[ ]]` data store / `[/ \]` external service / `[( )]` data file / `(( ))` entry point). Subgraphs: **Hosting Layer** (GitHub Pages static host serving `index.html` + `css/` + `js/` + `data/`), **Client** (browser UI + `localStorage` as `[[ ]]` data store), **External Services** (`[/master.idlechampions.com\]` and `[/ps{N}.idlechampions.com\]`), **Bundled Data** (`[(data/definitions.heroes.json)]`, `[(data/definitions.legendary-effects.json)]`, `[(data/definitions.legendary-effect-scopes.json)]`). Edges: GitHub Pages → UI (static asset serve); UI ⇄ localStorage (read/write); UI → master (discovery); UI → play server (authenticated calls); bundled data → UI (synchronous load at boot).]*
+
+### Module Breakdown
+
+*[STUB — one mermaid `flowchart LR` of the in-app module graph, subgrouped by layer: **Entry** (`main.js` as `(( ))`). **Data Layer** (`serverCalls.js`, `state.js`). **Presentation Layer** (`views/home.js`, `views/settings.js`, `views/legendary/index.js`, `views/legendary/forgeRun.js`, `views/legendary/reforge.js`). **Shared / Pure** (`lib/scopeMatcher.js`, `lib/legendaryModel.js`, `lib/format.js`, `lib/dom.js`, `lib/mutations.js`, `lib/toast.js`). Edges: `main.js → views/*`, `views/* → state.js`, `views/* → legendaryModel.js`, `legendaryModel.js → scopeMatcher.js`, `state.js → serverCalls.js`, `serverCalls.js → (play server — already captured in §5 top-level diagram)`. Highlight the pure-function boundary: `lib/scopeMatcher.js` and `lib/legendaryModel.js` have no I/O and no DOM, testable under `node:test`. Everything above that line is impure.]*
+
+---
+
+## 6. Sequence Diagrams
+
+Three mermaid `sequenceDiagram` stubs — one per canonical flow in the Legendary slice. Additional flows (Refresh button click, Settings entry) collapse to subsets of Flow 1 and are not diagrammed separately.
+
+### 6.1 Bootstrap + credential gate + first refresh (FR-3, FR-4)
+
+*[STUB — participants: `Browser`, `main.js`, `state.js`, `serverCalls.js`, `Master Server`, `Play Server`. Steps: page load → `main.js` loads bundled `data/*.json` → `main.js` reads `ic.credentials` from `state.js` → (branch A, no creds) route to `#/settings` and halt → (branch B, creds present) `state.js.refreshAccount()` → `serverCalls.getPlayServerForDefinitions()` → Master Server → returns play-server URL → `serverCalls.getUserDetails()` → Play Server → returns `details.*` → `state.js.set()` hydrates `ic.userdetails`, `ic.instance_id`, `ic.last_refresh_at` → `main.js` renders routed view → view subscribes to relevant `ic.*` keys and renders from state. Include the `switch_play_server` retry as an alt-block inside the `getUserDetails` call.]*
+
+### 6.2 Forge Run upgrade mutation (FR-11)
+
+*[STUB — participants: `User`, `forgeRun.js`, `mutations.js`, `serverCalls.js`, `Play Server`, `state.js`, `toast.js`. Steps: User taps upgrade tile → `forgeRun.js` calls `runMutation(() => serverCalls.upgradeLegendaryItem(...))` → `mutations.js` disables button + starts spinner → `serverCalls.upgradeLegendaryItem()` → Play Server → (alt: 2xx + `success:true`) → `state.refreshAccount()` → `getUserDetails()` → Play Server → fresh `details` → `state.set('ic.userdetails', ...)` fires subscribers → `forgeRun.js` re-renders with updated balances + slot levels → button re-enables → (alt: failure) → `toast.show(apiError.message)` → button re-enables, no state mutation. Include Appendix B #8 verification note: the post-mutation `getuserdetails` call must reflect the new level in `details.legendary_details.legendary_items` with no delay.]*
+
+### 6.3 Reforge mutation with confirmation (FR-12)
+
+*[STUB — participants: `User`, `reforge.js`, `mutations.js`, `serverCalls.js`, `Play Server`, `state.js`, `toast.js`. Steps: User taps reforge tile → `reforge.js` opens confirmation dialog showing `X` beneficial / `Y − X` non-beneficial outcomes + current account-wide Scales cost (from Appendix B #5c) → (alt: cancel) halt → (alt: confirm) `runMutation(() => serverCalls.changeLegendaryItem(...))` → identical post-mutation path as Flow 6.2, except also visually updates the account-level cost banner from the new `legendary_details.cost` in the refreshed state. Emphasize that the effect id is **not** chosen by the client — the server rolls it based on the Phase-1/Phase-2 `effects_unlocked` logic documented in Appendix B #5b; the client only observes the new `effect_id` after `refreshAccount()`.]*
+
+---
+
+## 7. Data Flow Diagram
+
+### 7.1 Classification + render data flow (DPS selection → rendered view)
+
+*[STUB — one mermaid `flowchart LR` showing how raw API data + bundled defs become rendered view state. Nodes: `Play Server API` → `state.ic.userdetails` (writes `details.heroes`, `details.legendary_details`, `details.stats.multiplayer_points`, `details.reset_currencies`); `data/*.json` (bundled defs: heroes / effects / scopes) → `legendaryModel.classifySlots()`; `state.ic.selected_dps_id` → `classifySlots()`; `classifySlots()` → `SlotClassification[]` → (branch A) `buildForgeRun(classification, userBalances)` → `ForgeRunState` → `forgeRun.js` DOM; (branch B) `buildReforge(classification, reforgeCost)` → `ReforgeState` → `reforge.js` DOM. Highlight the pure-function boundary and the session-memoization key (`selected_dps_id + userdetails version`). Cite FR-8, FR-9, FR-10.]*
+
+### 7.2 Cache Decision
+
+Not applicable in the conventional sense. This system has no server-side caching layer; "cache" here is localStorage and bundled `data/*.json`. Both decisions are already fixed by higher-priority constraints:
+
+- **`localStorage` as source of truth** — dictated by Appendix B #2 (user-driven freshness, no TTL, no auto-expiry). Evicted only on explicit Refresh or post-mutation `refreshAccount()` call.
+- **Bundled `data/*.json`** — refreshed manually via `scripts/refresh-defs.js` (PRD §3.2.1, §4.2). Legendary-effect scopes derived at bundle time, not runtime (PRD §3.2.2). Runtime opportunistic refresh via `getdefinitions` checksum is deferred to V2 (PRD §9 decision 8).
+
+Consequently, this section is documented rather than diagrammed.
+
+---
+
+## Appendix A. Glossary
+
+*[STUB — alphabetical list of domain terms and their one-line definitions. Intended entries: **Champion / hero** (game term for player characters — used interchangeably in API (`heroes`) and community (`champions`)). **DPS hero** (the currently-selected primary damage-dealer whose output the UI optimizes around). **Effect pool** (`hero.legendary_effect_id[]` — the 6 effect ids a legendary on that hero can ever roll into). **Favor / reset currency** (per-campaign currency spent on legendary upgrades — `reset_currencies[]` in API). **Forge Run** (community term for running a campaign to spend its favor on legendary upgrades — see PRD §3.2.4). **Legendary effect** (a game-defined modifier applied to a legendary item — described by `legendary_effect_defines[]`). **Reforge** (probabilistic reroll of a crafted legendary slot, costing Scales of Tiamat — see PRD §3.2.5). **Scales of Tiamat** (account-wide premium currency used for crafting, upgrading, and reforging — `stats.multiplayer_points` in API). **Scope** (the machine-readable targeting rule derived from an effect description, e.g. `{ kind: 'race', value: 'human' }`). **`switch_play_server`** (a response field requiring the client to retry the call against a different shard — Appendix B #1). **Tiamat's Favor** (one specific favor currency among many — see glossary entry for "favor" above).]*
+
+---
+
 ## Appendix B. Resolved Decisions & Open Questions
 
-Each row below was resolved collaboratively before the main sections of
-this document were drafted. They exist here both to fix context for
-future design sessions and to give §§1-7 a canonical list to cite.
+The tech-design template reserves this appendix slot for "Open Questions"; this project repurposes it for **Resolved Decisions** since the pre-draft collaboration closed most of the open questions. Entries still open are called out explicitly at the end.
+
+Each row below was resolved collaboratively before the main sections of this document were drafted. They exist here both to fix context for future design sessions and to give §§1-7 a canonical list to cite.
 
 Columns follow the template convention: **Status** is `Resolved`,
 `Open`, or `Needs empirical verification`. **Resolution** captures the
@@ -56,4 +184,14 @@ decision and its rationale.
 
 ---
 
-*Sections 1-7 will be drafted next.*
+## Appendix C. References
+
+- [PRD — product requirements](PRD.md) — UX spec for all Legendary tabs (§3.2) and NFRs (§2)
+- [API reference — `server-calls.md`](server-calls.md) — endpoint contracts, request flow, `switch_play_server` retry semantics, favor display-name resolution path
+- [`getlegendarydetails` raw sample](getlegendarydetails.sample.json) — scrubbed raw API response (for shape reference)
+- [`getlegendarydetails` enriched sample](getlegendarydetails.enriched.sample.json) — scrubbed, joined with definitions (for client-side model reference)
+- [Emmote's `ic_servercalls`](https://github.com/Emmotes/ic_servercalls) — upstream API reference (MIT-licensed) that informed `server-calls.md`
+
+---
+
+*§§1–2 drafted; §§3–7 are titled stubs — see Status block at the top of this document.*
