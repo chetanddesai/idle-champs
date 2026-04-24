@@ -1,19 +1,19 @@
 # Idle Champions — Legendary View & App Foundation: Technical Design
 
 **Project:** Idle Champions GitHub Pages companion — Legendary Items (Forge Run + Reforge tabs, PRD §3.2)
-**Version:** 0.1 (Draft)
-**Last Updated:** 2026-04-22
+**Version:** 0.2 (Draft — all sections drafted)
+**Last Updated:** 2026-04-24
 **Author(s):** Chetan Desai
 
 ---
 
 ## Status
 
-**§§1–2 drafted; §§3–7 are titled stubs aligned to a standard tech-design template.** This document is deliberately scope-bound to the **Legendary view runtime + the shared app-foundation contracts it exercises** — Specializations (PRD §3.3), Settings/credential-entry UX details, and all future categories are explicitly out of scope. Each section below applies that narrowing: §§5-7 diagram only the flows that exist in the Legendary slice (bootstrap + upgrade + reforge + `switch_play_server` retry), not a generic flow catalog.
+**All sections drafted.** §§1-7 plus Appendix A (Glossary), B (Resolved Decisions), and C (References) are complete. This document is deliberately scope-bound to the **Legendary view runtime + the shared app-foundation contracts it exercises** — Specializations (PRD §3.3), Settings/credential-entry UX details, and all future categories are explicitly out of scope. Each section applies that narrowing: §§5-7 diagram only the flows that exist in the Legendary slice (bootstrap + upgrade + reforge + `switch_play_server` retry), not a generic flow catalog.
 
-Drafting sequence: §3 next (fast — most NFRs transcribe from PRD §2), then §4 (Assumptions & Considerations — already half-written in Appendix B), then §5 (Physical Component Diagram — two mermaid diagrams), then §6 (Sequence Diagrams — three flows), then §7 (Data Flow Diagram — one overall flow; §7.2 Cache Decision is trivial for this system).
+Appendix B (the template's "Open Questions" slot) captures the pre-draft resolved decisions (8 items, all Resolved as of 2026-04-24) that §§1-7 cite rather than re-litigating.
 
-Appendix B below (the template's "Open Questions" slot) captures the pre-draft resolved decisions (8 items, all Resolved as of 2026-04-24) that §§1–7 cite rather than re-litigating.
+Implementation has started: `js/lib/scopeMatcher.js` and `js/lib/legendaryModel.js` are landed with full `node:test` coverage. The remaining work is the impure glue (views, state, serverCalls) and the final bundling of `campaign_defines` into `data/` for favor display names.
 
 Related documents:
 - [PRD](PRD.md) — product requirements, Legendary Items UX (§3.2 — Forge Run §3.2.4 ships first, Reforge §3.2.5 follows)
@@ -131,11 +131,110 @@ Each row is a constraint that pre-dates this design and a concrete concession th
 
 ## 5. Physical Component Diagram
 
-*[STUB — one mermaid `flowchart TB` using template node-shape conventions (`[ ]` process / `[[ ]]` data store / `[/ \]` external service / `[( )]` data file / `(( ))` entry point). Subgraphs: **Hosting Layer** (GitHub Pages static host serving `index.html` + `css/` + `js/` + `data/`), **Client** (browser UI + `localStorage` as `[[ ]]` data store), **External Services** (`[/master.idlechampions.com\]` and `[/ps{N}.idlechampions.com\]`), **Bundled Data** (`[(data/definitions.heroes.json)]`, `[(data/definitions.legendary-effects.json)]`, `[(data/definitions.legendary-effect-scopes.json)]`). Edges: GitHub Pages → UI (static asset serve); UI ⇄ localStorage (read/write); UI → master (discovery); UI → play server (authenticated calls); bundled data → UI (synchronous load at boot).]*
+The runtime topology has four pieces: the GitHub Pages static host, the browser client, the two Idle Champions server shards (master for discovery, play-server for authenticated calls), and the bundled definition files served as static assets. There is no backend of our own.
+
+Node shapes follow the template convention: `[ ]` process, `[[ ]]` data store, `[/ \]` external service, `[( )]` data file, `(( ))` entry point.
+
+```mermaid
+flowchart TB
+    subgraph Hosting["Hosting layer (GitHub Pages)"]
+        GHP[["GitHub Pages static host"]]
+    end
+
+    subgraph Client["Client (browser)"]
+        UI["UI runtime<br/>index.html + js/*.js + css/*.css"]
+        LS[["localStorage<br/>ic.credentials, ic.userdetails,<br/>ic.selected_dps_id, ic.last_refresh_at, ..."]]
+    end
+
+    subgraph External["External services"]
+        Master[/master.idlechampions.com\]
+        Play[/ps-N.idlechampions.com\]
+    end
+
+    subgraph Bundled["Bundled data (committed to repo)"]
+        Heroes[("data/definitions.heroes.json")]
+        Effects[("data/definitions.legendary-effects.json")]
+        Scopes[("data/definitions.legendary-effect-scopes.json")]
+        Checksum[("data/definitions.checksum.json")]
+    end
+
+    GHP -- "static asset serve" --> UI
+    GHP -- "static asset serve" --> Bundled
+    UI -- "read / write" --> LS
+    LS -- "change events" --> UI
+    UI -- "discovery (GET)" --> Master
+    Master -- "play_server URL" --> UI
+    UI -- "authenticated POST<br/>(getuserdetails, upgrade,<br/>craft, change)" --> Play
+    Play -- "details.* + success/actions" --> UI
+    Bundled -- "fetch once at bootstrap" --> UI
+```
+
+All outbound network traffic terminates at `*.idlechampions.com` (NFR-7). No third-party CDNs, analytics, or telemetry endpoints appear in this diagram because none exist in the runtime.
 
 ### Module Breakdown
 
-*[STUB — one mermaid `flowchart LR` of the in-app module graph, subgrouped by layer: **Entry** (`main.js` as `(( ))`). **Data Layer** (`serverCalls.js`, `state.js`). **Presentation Layer** (`views/home.js`, `views/settings.js`, `views/legendary/index.js`, `views/legendary/forgeRun.js`, `views/legendary/reforge.js`). **Shared / Pure** (`lib/scopeMatcher.js`, `lib/legendaryModel.js`, `lib/format.js`, `lib/dom.js`, `lib/mutations.js`, `lib/toast.js`). Edges: `main.js → views/*`, `views/* → state.js`, `views/* → legendaryModel.js`, `legendaryModel.js → scopeMatcher.js`, `state.js → serverCalls.js`, `serverCalls.js → (play server — already captured in §5 top-level diagram)`. Highlight the pure-function boundary: `lib/scopeMatcher.js` and `lib/legendaryModel.js` have no I/O and no DOM, testable under `node:test`. Everything above that line is impure.]*
+The in-app module graph is organized by layer. The bright-green nodes below are the pure-function boundary — no I/O, no DOM, testable under `node:test`. Everything above that line is impure by construction.
+
+```mermaid
+flowchart LR
+    subgraph Entry["Entry"]
+        Main(("main.js"))
+    end
+
+    subgraph Data["Data layer (impure)"]
+        SC["serverCalls.js<br/>request, getPlayServerForDefinitions,<br/>getUserDetails, upgrade/craft/change"]
+        State["state.js<br/>get, set, subscribe,<br/>refreshAccount"]
+    end
+
+    subgraph Views["Presentation layer (impure — touches DOM)"]
+        Home["views/home.js"]
+        Settings["views/settings.js"]
+        LegIndex["views/legendary/index.js<br/>(tab container)"]
+        Forge["views/legendary/forgeRun.js"]
+        Reforge["views/legendary/reforge.js"]
+    end
+
+    subgraph Pure["Shared / pure (no I/O, no DOM)"]
+        Scope["lib/scopeMatcher.js"]
+        Model["lib/legendaryModel.js<br/>classifySlots, buildForgeRun,<br/>buildReforge"]
+        Format["lib/format.js"]
+        Dom["lib/dom.js"]
+        Mut["lib/mutations.js<br/>runMutation"]
+        Toast["lib/toast.js"]
+    end
+
+    Main --> Home
+    Main --> Settings
+    Main --> LegIndex
+    LegIndex --> Forge
+    LegIndex --> Reforge
+
+    Home --> State
+    Settings --> State
+    Forge --> State
+    Reforge --> State
+
+    Forge --> Model
+    Reforge --> Model
+    Model --> Scope
+
+    Forge --> Mut
+    Reforge --> Mut
+    Mut --> SC
+    Mut --> Toast
+
+    State --> SC
+
+    Forge --> Format
+    Reforge --> Format
+    Forge --> Dom
+    Reforge --> Dom
+
+    classDef pure fill:#e6f7e6,stroke:#2a7a2a,color:#0a3a0a
+    class Scope,Model,Format pure
+```
+
+`lib/dom.js`, `lib/mutations.js`, and `lib/toast.js` are *almost* pure but touch the DOM or the global store, so they sit outside the green boundary. Only `scopeMatcher.js`, `legendaryModel.js`, and `format.js` qualify for Node-only unit tests.
 
 ---
 
@@ -145,15 +244,146 @@ Three mermaid `sequenceDiagram` stubs — one per canonical flow in the Legendar
 
 ### 6.1 Bootstrap + credential gate + first refresh (FR-3, FR-4)
 
-*[STUB — participants: `Browser`, `main.js`, `state.js`, `serverCalls.js`, `Master Server`, `Play Server`. Steps: page load → `main.js` loads bundled `data/*.json` → `main.js` reads `ic.credentials` from `state.js` → (branch A, no creds) route to `#/settings` and halt → (branch B, creds present) `state.js.refreshAccount()` → `serverCalls.getPlayServerForDefinitions()` → Master Server → returns play-server URL → `serverCalls.getUserDetails()` → Play Server → returns `details.*` → `state.js.set()` hydrates `ic.userdetails`, `ic.instance_id`, `ic.last_refresh_at` → `main.js` renders routed view → view subscribes to relevant `ic.*` keys and renders from state. Include the `switch_play_server` retry as an alt-block inside the `getUserDetails` call.]*
+The happy path from cold page load to rendered Legendary view. Uncredentialed users divert to the Settings view and no other routes render. The `switch_play_server` retry is centralized inside `serverCalls.js` (Appendix B #1) and shown here as an `alt` block.
+
+```mermaid
+sequenceDiagram
+    actor Browser
+    participant Main as main.js
+    participant State as state.js
+    participant SC as serverCalls.js
+    participant Master as Master Server
+    participant Play as Play Server
+
+    Browser->>Main: page load
+    Main->>Main: fetch bundled data/*.json<br/>(heroes, effects, scopes)
+    Main->>State: get('ic.credentials')
+
+    alt No credentials in localStorage
+        State-->>Main: null
+        Main->>Browser: route to #/settings
+        Note over Browser: halt further rendering<br/>until user pastes creds
+    else Credentials present
+        State-->>Main: {user_id, hash}
+        Main->>State: refreshAccount()
+        State->>SC: getPlayServerForDefinitions()
+        SC->>Master: GET /getPlayServerForDefinitions
+        Master-->>SC: {play_server_url}
+        SC-->>State: play_server_url
+        State->>SC: getUserDetails()
+        SC->>Play: POST /getuserdetails<br/>(user_id, hash, instance_id)
+
+        alt switch_play_server in response
+            Play-->>SC: {success:true, switch_play_server}
+            Note right of SC: retry once against<br/>the indicated shard
+            SC->>Play: POST /getuserdetails (retry)
+            Play-->>SC: {success:true, details:{...}}
+        else Normal success
+            Play-->>SC: {success:true, details:{...}}
+        end
+
+        SC-->>State: details
+        State->>State: set ic.userdetails, ic.instance_id,<br/>ic.last_refresh_at
+        State-->>Main: done
+        Main->>Browser: render routed view
+        Note over Browser,State: view subscribes to ic.* keys<br/>and re-renders on change events
+    end
+```
+
+The Refresh button in the global header is a subset of this flow (steps starting from `refreshAccount()`) and is not diagrammed separately.
 
 ### 6.2 Forge Run upgrade mutation (FR-11)
 
-*[STUB — participants: `User`, `forgeRun.js`, `mutations.js`, `serverCalls.js`, `Play Server`, `state.js`, `toast.js`. Steps: User taps upgrade tile → `forgeRun.js` calls `runMutation(() => serverCalls.upgradeLegendaryItem(...))` → `mutations.js` disables button + starts spinner → `serverCalls.upgradeLegendaryItem()` → Play Server → (alt: 2xx + `success:true`) → `state.refreshAccount()` → `getUserDetails()` → Play Server → fresh `details` → `state.set('ic.userdetails', ...)` fires subscribers → `forgeRun.js` re-renders with updated balances + slot levels → button re-enables → (alt: failure) → `toast.show(apiError.message)` → button re-enables, no state mutation. Include Appendix B #8 verification note: the post-mutation `getuserdetails` call must reflect the new level in `details.legendary_details.legendary_items` with no delay.]*
+Pessimistic flow — click, wait for server, refetch truth, re-render (Appendix B #7). The button stays disabled until the post-mutation `refreshAccount()` resolves, so the UI never shows a half-applied state.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Forge as forgeRun.js
+    participant Mut as mutations.js
+    participant SC as serverCalls.js
+    participant Play as Play Server
+    participant State as state.js
+    participant Toast as toast.js
+
+    User->>Forge: tap "Upgrade" on tile (hero, slot)
+    Forge->>Mut: runMutation(upgradeLegendaryItem(...))
+    Mut->>Forge: disable button + show spinner
+    Mut->>SC: upgradeLegendaryItem(hero_id, slot_id)
+    SC->>Play: POST /upgradelegendaryitem
+
+    alt 2xx and success:true
+        Play-->>SC: {success:true, actions:[...]}
+        SC-->>Mut: ok
+        Mut->>State: refreshAccount()
+        State->>SC: getUserDetails()
+        SC->>Play: POST /getuserdetails
+        Play-->>SC: fresh details<br/>(new level, new balances)
+        SC-->>State: details
+        State->>State: set('ic.userdetails', details)
+        State-->>Forge: change event fires
+        Forge->>Forge: re-render view
+        Mut->>Forge: re-enable button
+    else Failure (non-2xx / success:false / network)
+        Play-->>SC: error
+        SC-->>Mut: throw ApiError
+        Mut->>Toast: show(apiError.message)
+        Mut->>Forge: re-enable button<br/>(no state mutation)
+    end
+```
+
+**Appendix B #8 verification.** The post-mutation `getuserdetails` call is expected to reflect the new level in `details.legendary_details.legendary_items` with no synchronization delay. If this assumption ever fails in practice, the fallback is dual-call (`getuserdetails` + standalone `getlegendarydetails`) **only** on the post-mutation refresh path; bootstrap and manual-refresh paths stay single-call.
 
 ### 6.3 Reforge mutation with confirmation (FR-12)
 
-*[STUB — participants: `User`, `reforge.js`, `mutations.js`, `serverCalls.js`, `Play Server`, `state.js`, `toast.js`. Steps: User taps reforge tile → `reforge.js` opens confirmation dialog showing `X` beneficial / `Y − X` non-beneficial outcomes + current account-wide Scales cost (from Appendix B #5c) → (alt: cancel) halt → (alt: confirm) `runMutation(() => serverCalls.changeLegendaryItem(...))` → identical post-mutation path as Flow 6.2, except also visually updates the account-level cost banner from the new `legendary_details.cost` in the refreshed state. Emphasize that the effect id is **not** chosen by the client — the server rolls it based on the Phase-1/Phase-2 `effects_unlocked` logic documented in Appendix B #5b; the client only observes the new `effect_id` after `refreshAccount()`.]*
+Reforge adds a confirmation step up front — the player is about to spend 1000+ Scales of Tiamat on a probabilistic outcome. The post-mutation path is otherwise identical to Flow 6.2 except the account-level cost banner also re-renders from the refreshed `legendary_details.cost`.
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Ref as reforge.js
+    participant Mut as mutations.js
+    participant SC as serverCalls.js
+    participant Play as Play Server
+    participant State as state.js
+    participant Toast as toast.js
+
+    User->>Ref: tap "Reforge" on candidate tile
+    Ref->>User: confirmation dialog<br/>(X/Y hits + current account cost)
+
+    alt User cancels
+        User-->>Ref: cancel
+        Note over Ref: halt (no mutation)
+    else User confirms
+        User-->>Ref: confirm
+        Ref->>Mut: runMutation(changeLegendaryItem(...))
+        Mut->>Ref: disable button + spinner
+        Mut->>SC: changeLegendaryItem(hero_id, slot_id)
+        SC->>Play: POST /changelegendaryitem
+
+        alt 2xx and success:true
+            Play-->>SC: {success:true, actions:[...]}
+            Note right of Play: server rolls new effect_id<br/>per Phase 1/2 rules<br/>(Appendix B #5b)
+            SC-->>Mut: ok
+            Mut->>State: refreshAccount()
+            State->>SC: getUserDetails()
+            SC->>Play: POST /getuserdetails
+            Play-->>SC: fresh details<br/>(new effect_id, new cost)
+            SC-->>State: details
+            State->>State: set('ic.userdetails', details)
+            State-->>Ref: change event fires
+            Ref->>Ref: re-render tile +<br/>update account-level<br/>cost banner
+            Mut->>Ref: re-enable button
+        else Failure
+            Play-->>SC: error
+            SC-->>Mut: throw ApiError
+            Mut->>Toast: show(apiError.message)
+            Mut->>Ref: re-enable button
+        end
+    end
+```
+
+The client never chooses which effect id will roll — the server rolls it server-side based on the hero's Phase 1 / Phase 2 `effects_unlocked` state (Appendix B #5b). The client simply observes the new `effect_id` when `refreshAccount()` returns.
 
 ---
 
@@ -161,7 +391,54 @@ Three mermaid `sequenceDiagram` stubs — one per canonical flow in the Legendar
 
 ### 7.1 Classification + render data flow (DPS selection → rendered view)
 
-*[STUB — one mermaid `flowchart LR` showing how raw API data + bundled defs become rendered view state. Nodes: `Play Server API` → `state.ic.userdetails` (writes `details.heroes`, `details.legendary_details`, `details.stats.multiplayer_points`, `details.reset_currencies`); `data/*.json` (bundled defs: heroes / effects / scopes) → `legendaryModel.classifySlots()`; `state.ic.selected_dps_id` → `classifySlots()`; `classifySlots()` → `SlotClassification[]` → (branch A) `buildForgeRun(classification, userBalances)` → `ForgeRunState` → `forgeRun.js` DOM; (branch B) `buildReforge(classification, reforgeCost)` → `ReforgeState` → `reforge.js` DOM. Highlight the pure-function boundary and the session-memoization key (`selected_dps_id + userdetails version`). Cite FR-8, FR-9, FR-10.]*
+How raw API data and bundled defs become rendered view state. The pure-function zone is highlighted; everything inside that zone is covered by `node:test`.
+
+```mermaid
+flowchart LR
+    subgraph Runtime["Runtime (impure)"]
+        API[/Play Server API\]
+        Userdetails[["state.ic.userdetails<br/>details.heroes<br/>details.legendary_details<br/>details.stats.multiplayer_points<br/>details.reset_currencies"]]
+        SelectedDps[["state.ic.selected_dps_id"]]
+        ForgeDom["views/legendary/forgeRun.js<br/>DOM render"]
+        ReforgeDom["views/legendary/reforge.js<br/>DOM render"]
+    end
+
+    subgraph Bundled["Bundled (static)"]
+        Heroes[("data/definitions.heroes.json")]
+        Effects[("data/definitions.legendary-effects.json")]
+        Scopes[("data/definitions.legendary-effect-scopes.json")]
+    end
+
+    subgraph Pure["Pure functions (FR-8, FR-9, FR-10)"]
+        Classify["classifySlots()"]
+        BuildF["buildForgeRun()"]
+        BuildR["buildReforge()"]
+    end
+
+    API -- "getuserdetails response" --> Userdetails
+
+    Userdetails -- "details.heroes,<br/>legendary_items" --> Classify
+    Heroes -- "hero_defines<br/>(pool, tags, scores)" --> Classify
+    Effects -- "legendary_effect_defines" --> Classify
+    Scopes -- "effect-to-scope records" --> Classify
+    SelectedDps -- "dps_hero_id" --> Classify
+
+    Classify -- "ClassificationOutput" --> BuildF
+    Classify -- "ClassificationOutput" --> BuildR
+
+    Userdetails -- "stats.multiplayer_points +<br/>reset_currencies[]<br/>(userBalances)" --> BuildF
+    Userdetails -- "legendary_details.cost +<br/>next_cost (reforgeCost) +<br/>multiplayer_points" --> BuildR
+
+    BuildF -- "ForgeRunState" --> ForgeDom
+    BuildR -- "ReforgeState" --> ReforgeDom
+
+    classDef pure fill:#e6f7e6,stroke:#2a7a2a,color:#0a3a0a
+    class Classify,BuildF,BuildR pure
+```
+
+**Memoization.** `classifySlots` is the most expensive step in the pipeline and the one with the loosest natural cache key. The session-level memo key is `(selected_dps_id, ic.userdetails identity)` — any refresh of `ic.userdetails` (post-mutation or manual) invalidates the memo, and any DPS change produces a fresh entry. Because `classifySlots` is pure, the memo lives in view code (not inside the pure module) and is a plain `Map` whose entries are dropped whenever the `ic.userdetails` subscription fires.
+
+**Pure boundary.** Everything in the green zone is reachable from Node (`node:test`). Everything outside it — including the construction of `userBalances` from the raw `reset_currencies[]` array (Appendix B #6) — is view-adjacent glue code that gets manual coverage.
 
 ### 7.2 Cache Decision
 
@@ -176,7 +453,23 @@ Consequently, this section is documented rather than diagrammed.
 
 ## Appendix A. Glossary
 
-*[STUB — alphabetical list of domain terms and their one-line definitions. Intended entries: **Champion / hero** (game term for player characters — used interchangeably in API (`heroes`) and community (`champions`)). **DPS hero** (the currently-selected primary damage-dealer whose output the UI optimizes around). **Effect pool** (`hero.legendary_effect_id[]` — the 6 effect ids a legendary on that hero can ever roll into). **Favor / reset currency** (per-campaign currency spent on legendary upgrades — `reset_currencies[]` in API). **Forge Run** (community term for running a campaign to spend its favor on legendary upgrades — see PRD §3.2.4). **Legendary effect** (a game-defined modifier applied to a legendary item — described by `legendary_effect_defines[]`). **Reforge** (probabilistic reroll of a crafted legendary slot, costing Scales of Tiamat — see PRD §3.2.5). **Scales of Tiamat** (account-wide premium currency used for crafting, upgrading, and reforging — `stats.multiplayer_points` in API). **Scope** (the machine-readable targeting rule derived from an effect description, e.g. `{ kind: 'race', value: 'human' }`). **`switch_play_server`** (a response field requiring the client to retry the call against a different shard — Appendix B #1). **Tiamat's Favor** (one specific favor currency among many — see glossary entry for "favor" above).]*
+Domain and API terms used throughout this document, in alphabetical order. Cross-references point at the PRD or the resolved-decisions table (Appendix B) where a more complete definition lives.
+
+| Term | Definition |
+|---|---|
+| **Champion / hero** | Game term for a player character. The API uses `heroes`; the community uses "champions"; this document uses them interchangeably. |
+| **DPS hero** | The currently-selected primary damage-dealer whose output the Legendary view optimizes around. Persisted in `ic.selected_dps_id`. |
+| **Effect pool** | `hero.legendary_effect_id[]` — the 6 effect ids that a legendary item on that hero can ever roll into. Curated by game design such that every effect in the pool affects the hero itself (Appendix B #5a). |
+| **Favor / reset currency** | Per-campaign currency earned by completing campaign objectives and spent on legendary upgrades. Exposed by the API as `details.reset_currencies[]`, an array of `{id, current_amount, total_earned, ...}` entries. Display name joined from `campaign_defines[]` (see `server-calls.md → Favor display-name resolution`). |
+| **Forge Run** | Community term for running a campaign to spend its favor on legendary upgrades. Upgrades also consume Scales of Tiamat (PRD §1.3, §3.2.4). |
+| **Legendary effect** | A game-defined modifier applied to a legendary item — described by `legendary_effect_defines[]`. Effect descriptions are parsed at bundle time into machine-readable scopes (see PRD §3.2.2). |
+| **Phase 1 / Phase 2** | The two reroll regimes of `effects_unlocked`. Phase 1 (union size `< 6`): rerolls are guaranteed to land on an effect not yet unlocked for the hero. Phase 2 (union size `= 6`): rerolls draw uniformly from the full pool of 6. Drives the `X/Y` "Potential hits" badge (Appendix B #5b). |
+| **Pool-affecting-DPS** | The intersection of a hero's effect pool and the set of effects that affect the DPS hero (`hero.legendary_effect_id ∩ effectsAffectingDps`). A hero with zero pool-affecting-DPS effects cannot be reforged beneficially for the current DPS and is excluded from the Reforge view. |
+| **Reforge** | Probabilistic reroll of a crafted legendary slot's `effect_id`. Costs Scales of Tiamat at the account-wide `legendary_details.cost` rate (Appendix B #5c). The server rolls the new effect — the client cannot choose (PRD §3.2.5). |
+| **Scales of Tiamat** | Account-wide premium currency used for crafting, upgrading, and reforging legendaries. Exposed by the API as `details.stats.multiplayer_points` (not `details.hard_currency` — that field is unrelated). |
+| **Scope** | The machine-readable targeting rule derived from an effect description, e.g. `{kind: 'race', value: 'human'}` or `{kind: 'stat_threshold', stat: 'int', min: 15}`. Derived at bundle time by `scripts/refresh-defs.js`; consumed at runtime by `lib/scopeMatcher.js`. |
+| **`switch_play_server`** | A response field that, when present on an otherwise successful response, requires the client to retry the call against a different shard. Centralized retry lives in `serverCalls.js` (Appendix B #1). |
+| **Tiamat's Favor** | One specific favor currency among ~30 campaign-gated favors. Frequently mentioned in community contexts but has no special runtime status in this project — just another row in `reset_currencies[]`. |
 
 ---
 
