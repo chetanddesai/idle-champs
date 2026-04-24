@@ -20,15 +20,13 @@
 
 import * as state from './state.js';
 import { KEYS } from './state.js';
-import {
-  getPlayServerForDefinitions,
-  getUserDetails,
-  ApiError,
-} from './serverCalls.js';
+import { getPlayServerForDefinitions, getUserDetails } from './serverCalls.js';
 import { isValidCredentials } from './credentials.js';
 import { formatTimeAgo } from './lib/format.js';
 import { el, mount } from './lib/dom.js';
+import { showToast, showError } from './lib/toast.js';
 import * as settingsView from './views/settings.js';
+import * as homeView from './views/home.js';
 
 // ---------------------------------------------------------------------------
 // Router — Phase 1 routes. Legendary + Specializations are placeholders
@@ -80,41 +78,7 @@ function renderCurrentRoute() {
 }
 
 function renderHome(host) {
-  const creds = state.get(KEYS.CREDENTIALS);
-  const details = state.get(KEYS.USER_DETAILS);
-  const lastRefresh = state.get(KEYS.LAST_REFRESH_AT);
-
-  mount(host, [
-    el('section', { class: 'card' }, [
-      el('h2', { class: 'card__title', text: 'Welcome back' }),
-      el('p', {
-        class: 'card__meta',
-        text: creds
-          ? 'Pick a category below to start planning. The Legendary view ships in the next milestone.'
-          : 'Open Settings to save your credentials before continuing.',
-      }),
-      details &&
-        el('div', { class: 'banner banner--success' }, [
-          el('strong', { text: 'Account loaded.' }),
-          ` ${details.heroes?.length ?? 0} heroes in roster, last refreshed ${formatTimeAgo(lastRefresh)}.`,
-        ]),
-    ]),
-    el('section', { class: 'card' }, [
-      el('h3', { class: 'card__title', text: 'Legendary Items' }),
-      el('p', {
-        class: 'card__meta',
-        text:
-          'DPS-first Forge Run and Reforge planning. Ships in the next milestone — see docs/PRD.md §3.2 and docs/tech-design-legendary.md for the spec.',
-      }),
-      el('div', { class: 'btn-row' }, [
-        el('a', {
-          class: 'btn',
-          attrs: { href: '#/legendary', role: 'button' },
-          text: 'Preview',
-        }),
-      ]),
-    ]),
-  ]);
+  homeView.render(host);
 }
 
 function renderSettings(host) {
@@ -189,41 +153,11 @@ async function doRefresh() {
     await state.refreshAccount({ getPlayServerForDefinitions, getUserDetails });
     showToast('Account refreshed.', 'success');
   } catch (err) {
-    showToast(describeError(err), 'error');
+    showError(err);
   } finally {
     refreshing = false;
     updateRefreshBadge();
   }
-}
-
-function describeError(err) {
-  if (err instanceof ApiError) {
-    switch (err.kind) {
-      case 'network':
-        return `Network error: ${err.message}`;
-      case 'http':
-        return `Server error (HTTP ${err.status ?? 'unknown'})`;
-      case 'api':
-      default:
-        return err.message || 'API error';
-    }
-  }
-  return err?.message || 'Unexpected error';
-}
-
-// ---------------------------------------------------------------------------
-// Toasts — minimal surface for now, auto-dismiss after 5s
-// ---------------------------------------------------------------------------
-
-function showToast(message, kind = 'info') {
-  const host = document.getElementById('toast-region');
-  if (!host) return;
-  const className = kind === 'error' ? 'toast toast--error' : kind === 'success' ? 'toast toast--success' : 'toast';
-  const node = el('div', { class: className, text: message });
-  host.appendChild(node);
-  setTimeout(() => {
-    if (node.isConnected) node.remove();
-  }, 5000);
 }
 
 // ---------------------------------------------------------------------------
