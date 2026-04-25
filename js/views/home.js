@@ -26,24 +26,7 @@ import * as state from '../state.js';
 import { KEYS } from '../state.js';
 import { el, mount } from '../lib/dom.js';
 import { formatInteger, formatTimeAgo } from '../lib/format.js';
-
-const HEROES_DEFS_PATH = './data/definitions.heroes.json';
-let heroesDefsPromise = null;
-
-/**
- * Lazy-load + cache the bundled heroes definition list.
- * Resolves to an array of hero records (see data/definitions.heroes.json).
- * Returns `[]` on any fetch / parse failure so callers don't crash.
- *
- * @returns {Promise<Array<{id:number, name:string}>>}
- */
-function loadHeroesDefs() {
-  if (heroesDefsPromise) return heroesDefsPromise;
-  heroesDefsPromise = fetch(HEROES_DEFS_PATH)
-    .then((r) => (r.ok ? r.json() : []))
-    .catch(() => []);
-  return heroesDefsPromise;
-}
+import { loadHeroes } from '../lib/definitions.js';
 
 /**
  * Compute quick account-summary numbers from `details`. Missing fields
@@ -143,7 +126,7 @@ export function render(host) {
  * @returns {Promise<string | null>}
  */
 async function resolveDpsName(dpsId) {
-  const heroes = await loadHeroesDefs();
+  const heroes = await loadHeroes();
   if (!Array.isArray(heroes)) return null;
   const id = Number(dpsId);
   const match = heroes.find((h) => Number(h?.id) === id);

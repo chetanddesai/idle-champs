@@ -27,6 +27,7 @@ import { el, mount } from './lib/dom.js';
 import { showToast, showError } from './lib/toast.js';
 import * as settingsView from './views/settings.js';
 import * as homeView from './views/home.js';
+import * as legendaryView from './views/legendary/index.js';
 
 // ---------------------------------------------------------------------------
 // Router — Phase 1 routes. Legendary + Specializations are placeholders
@@ -38,7 +39,7 @@ const ROUTES = {
   '#/': renderHome,
   '#/home': renderHome,
   '#/settings': renderSettings,
-  '#/legendary': renderLegendaryPlaceholder,
+  '#/legendary': renderLegendary,
   '#/specializations': renderSpecsPlaceholder,
 };
 
@@ -85,17 +86,8 @@ function renderSettings(host) {
   settingsView.render(host);
 }
 
-function renderLegendaryPlaceholder(host) {
-  mount(host, [
-    el('section', { class: 'card placeholder' }, [
-      el('h2', { class: 'placeholder__title', text: 'Legendary view — coming soon' }),
-      el('p', {
-        class: 'placeholder__body',
-        text:
-          'This is where Forge Run (favor-gated upgrade ranker) and Reforge (probabilistic reroll planner) will live. The pure data-model modules (scopeMatcher + legendaryModel) and the bundled hero / effect / scope / favor definitions are already in place; the views themselves land next.',
-      }),
-    ]),
-  ]);
+function renderLegendary(host) {
+  legendaryView.render(host);
 }
 
 function renderSpecsPlaceholder(host) {
