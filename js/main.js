@@ -146,18 +146,21 @@ function updateRefreshBadge() {
 }
 
 async function doRefresh() {
-  if (refreshing) return;
+  if (refreshing) return false;
   refreshing = true;
   updateRefreshBadge();
+  let success = false;
   try {
     await state.refreshAccount({ getPlayServerForDefinitions, getUserDetails });
     showToast('Account refreshed.', 'success');
+    success = true;
   } catch (err) {
     showError(err);
   } finally {
     refreshing = false;
     updateRefreshBadge();
   }
+  return success;
 }
 
 // ---------------------------------------------------------------------------
@@ -185,15 +188,35 @@ function wireStateListeners() {
   state.subscribe(KEYS.LAST_REFRESH_AT, updateRefreshBadge);
   state.subscribe(KEYS.CREDENTIALS, (creds) => {
     updateRefreshBadge();
-    // If credentials just became valid, re-render (route guard may have
-    // parked us on Settings) and kick off a refresh.
-    if (isValidCredentials(creds)) {
+
+    if (!isValidCredentials(creds)) {
+      // Credentials were cleared — credential gate inside
+      // renderCurrentRoute() will bounce off-route views to Settings.
       renderCurrentRoute();
-      // If there's no cached userdetails yet, fetch. If there IS cached
-      // data, skip the auto-refresh — the user can tap Refresh explicitly.
-      if (!state.get(KEYS.USER_DETAILS)) doRefresh();
-    } else {
-      renderCurrentRoute();
+      return;
+    }
+
+    // Credentials just became valid. If the user is sitting on the
+    // Settings view (which is where Save-credentials fires from) we
+    // want to auto-navigate to Home once their account data is ready,
+    // so the save-and-go-home flow doesn't strand them on Settings.
+    const onSettings = currentRoute() === '#/settings';
+    const hasCachedDetails = !!state.get(KEYS.USER_DETAILS);
+
+    renderCurrentRoute();
+
+    if (!hasCachedDetails) {
+      // First-refresh case: kick off the hydration call and, on success,
+      // jump to Home if this save happened from Settings. On failure,
+      // doRefresh already surfaced the error via toast and we stay on
+      // Settings so the user can correct the creds.
+      doRefresh().then((ok) => {
+        if (ok && onSettings) navigate('#/home');
+      });
+    } else if (onSettings) {
+      // Credentials were re-saved but we already have cached account
+      // data — no refresh needed, just land on Home.
+      navigate('#/home');
     }
   });
   state.subscribe(KEYS.USER_DETAILS, () => {
