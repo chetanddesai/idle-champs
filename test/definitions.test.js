@@ -14,6 +14,7 @@ import {
   indexFavorsByCurrencyId,
   buildDpsOptions,
   ownedHeroDefsMap,
+  withBuildId,
 } from '../js/lib/definitions.js';
 
 // ---------------------------------------------------------------------------
@@ -154,4 +155,36 @@ test('ownedHeroDefsMap — defensive against missing inputs', () => {
   assert.equal(Object.keys(ownedHeroDefsMap(null, null)).length, 0);
   assert.equal(Object.keys(ownedHeroDefsMap({ 1: {} }, null)).length, 0);
   assert.equal(Object.keys(ownedHeroDefsMap(null, [{ hero_id: 1, owned: 1 }])).length, 0);
+});
+
+// ---------------------------------------------------------------------------
+// withBuildId — cache-busting helper (pinned so the contract doesn't drift
+// from the comments in index.html)
+// ---------------------------------------------------------------------------
+
+test('withBuildId — appends ?v=<id> when buildId is set', () => {
+  assert.equal(withBuildId('./data/heroes.json', 1), './data/heroes.json?v=1');
+  assert.equal(withBuildId('./data/heroes.json', 42), './data/heroes.json?v=42');
+  assert.equal(withBuildId('./data/heroes.json', '2026.04.25.1'), './data/heroes.json?v=2026.04.25.1');
+});
+
+test('withBuildId — uses & separator when the path already has a query string', () => {
+  assert.equal(withBuildId('./data/heroes.json?fresh=1', 3), './data/heroes.json?fresh=1&v=3');
+});
+
+test('withBuildId — returns path unchanged for nullish / empty / "dev" buildIds', () => {
+  assert.equal(withBuildId('./data/heroes.json', undefined), './data/heroes.json');
+  assert.equal(withBuildId('./data/heroes.json', null), './data/heroes.json');
+  assert.equal(withBuildId('./data/heroes.json', ''), './data/heroes.json');
+  assert.equal(withBuildId('./data/heroes.json', 'dev'), './data/heroes.json');
+});
+
+test('withBuildId — returns path unchanged when path is empty or non-string', () => {
+  assert.equal(withBuildId('', 1), '');
+  assert.equal(withBuildId(null, 1), null);
+  assert.equal(withBuildId(undefined, 1), undefined);
+});
+
+test('withBuildId — URL-encodes buildIds that contain reserved characters', () => {
+  assert.equal(withBuildId('./data/heroes.json', '1 / 2'), './data/heroes.json?v=1%20%2F%202');
 });

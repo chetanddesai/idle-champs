@@ -24,19 +24,85 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="css/base.css" />
-    <link rel="stylesheet" href="css/layout.css" />
-    <link rel="stylesheet" href="css/components.css" />
+    <!--
+      ====================================================================
+      CACHE-BUSTING — single release knob
+      ====================================================================
+      GitHub Pages serves static assets with Cache-Control: max-age=600
+      (10 min). That's short but not zero, and ES-module submodule imports
+      cache independently, so an unversioned release can serve a mixed
+      module graph for up to 10 minutes after a push.
+
+      Everything cache-busted in this app is keyed off one integer:
+      __BUILD_ID__ below. When you change any CSS, JS, or data/*.json
+      file, increment the number and FIND-REPLACE every occurrence of
+      `v=N` in this file with `v=N+1`. One file, one find-replace, done.
+
+      See docs/PRD.md §4.4 for the full rationale and §5.3 for the
+      "adding a new module" checklist.
+      ====================================================================
+    -->
+    <script>window.__BUILD_ID__ = 1;</script>
+
+    <link rel="stylesheet" href="css/base.css?v=1" />
+    <link rel="stylesheet" href="css/layout.css?v=1" />
+    <link rel="stylesheet" href="css/components.css?v=1" />
 
     <!--
       Content Security Policy: fetch() is permitted only against the master
       server + play-server shards (ps0…ps99) and the Google Fonts surface we
       actually use. No analytics, no third-party embeds.
+
+      script-src includes 'unsafe-inline' to allow the two inline <script>
+      blocks in this file: the __BUILD_ID__ assignment above and the
+      <script type="importmap"> below. XSS risk is minimal in this app:
+      there is no server-rendered HTML and no user-controlled string that
+      reaches innerHTML (all dynamic UI uses textContent / DOM helpers).
+      External-file alternatives were considered but rejected: external
+      import maps have uneven browser support, and moving __BUILD_ID__
+      to a separate file would split the single-file release knob into
+      multiple files (defeating the point of the cache-busting design).
     -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://emmotes.github.io; connect-src 'self' https://master.idlechampions.com https://*.idlechampions.com; manifest-src 'self'; base-uri 'self'; form-action 'self';"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://emmotes.github.io; connect-src 'self' https://master.idlechampions.com https://*.idlechampions.com; manifest-src 'self'; base-uri 'self'; form-action 'self';"
     />
+
+    <!--
+      ====================================================================
+      IMPORT MAP — extends the `?v=N` cache-busting pattern to every JS
+      submodule. Without this block, `main.js?v=N` would load fresh but
+      its `import './lib/foo.js'` would still hit the cached URL.
+      The map intercepts the resolved specifier and rewrites it to append
+      `?v=N`, so every file in the module graph invalidates together.
+
+      When adding a new JS module: add one line here AND bump __BUILD_ID__.
+      The HTML comment at the top of <head> is the primary release doc;
+      see docs/PRD.md §5.3 for the full checklist.
+      ====================================================================
+    -->
+    <script type="importmap">
+      {
+        "imports": {
+          "./js/main.js":                          "./js/main.js?v=1",
+          "./js/state.js":                         "./js/state.js?v=1",
+          "./js/credentials.js":                   "./js/credentials.js?v=1",
+          "./js/serverCalls.js":                   "./js/serverCalls.js?v=1",
+          "./js/lib/definitions.js":               "./js/lib/definitions.js?v=1",
+          "./js/lib/dom.js":                       "./js/lib/dom.js?v=1",
+          "./js/lib/format.js":                    "./js/lib/format.js?v=1",
+          "./js/lib/heroImage.js":                 "./js/lib/heroImage.js?v=1",
+          "./js/lib/legendaryModel.js":            "./js/lib/legendaryModel.js?v=1",
+          "./js/lib/scopeMatcher.js":              "./js/lib/scopeMatcher.js?v=1",
+          "./js/lib/toast.js":                     "./js/lib/toast.js?v=1",
+          "./js/views/home.js":                    "./js/views/home.js?v=1",
+          "./js/views/settings.js":                "./js/views/settings.js?v=1",
+          "./js/views/legendary/index.js":         "./js/views/legendary/index.js?v=1",
+          "./js/views/legendary/header.js":        "./js/views/legendary/header.js?v=1",
+          "./js/views/legendary/forgeRun.js":      "./js/views/legendary/forgeRun.js?v=1"
+        }
+      }
+    </script>
   </head>
   <body>
     <header id="app-header" class="app-header">
@@ -129,6 +195,6 @@
 
     <div id="toast-region" class="toast-region" role="status" aria-live="polite"></div>
 
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js?v=1"></script>
   </body>
 </html>

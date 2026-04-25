@@ -449,7 +449,7 @@ Landing view when valid credentials exist. Shows:
 | Cache                          | Scope                        | TTL                                                                       | Invalidation                                                                                                                                       |
 | ------------------------------ | ---------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Play-server URL                | Session + `localStorage`     | 24h                                                                       | Auto on TTL; manual via settings "Re-discover"                                                                                                     |
-| Game definitions (baseline)    | Repo-committed `data/*.json` | Refreshed manually via `scripts/refresh-defs.js` after major game updates | Read at every page load; serves as the zero-network fallback for labels (see §4.3)                                                                 |
+| Game definitions (baseline)    | Repo-committed `data/*.json` | Refreshed manually via `scripts/refresh-defs.js` after major game updates | Read at every page load; serves as the zero-network fallback for labels (see §4.4)                                                                 |
 | Game definitions (live deltas) | `localStorage`               | Until the player clicks "Refresh Data" in settings                        | Optional background refresh: site calls `getdefinitions?filter=…` on load; new entries are merged on top of the bundled baseline in `localStorage` |
 | User details / legendary state | `localStorage` (`ic.userdetails`) + in-memory | User-driven (no TTL, no auto-expiry)                                      | Manual "Refresh" button in the global header (V1); in V2, also refetched after in-site mutations.                                                   |
 | Formation saves                | In-memory only, per session  | User-driven                                                               | Refetched on manual "Refresh"; in V2, also after `SaveFormation`.                                                                                   |
@@ -493,7 +493,29 @@ On each page load, after the bundled data is rendered, the site optionally fires
 
 > **Empirical note for V1 implementers:** filtered `getdefinitions` responses do **not** include a top-level `checksum` field (only unfiltered responses do). The V1 refresh strategy therefore always re-fetches the filtered groups wholesale rather than trying to use `checksum` for delta-only responses. This keeps the refresh simple; if V2 ever needs checksum-based deltas it will need an unfiltered call.
 
-### 4.3 Refreshing the bundled baseline
+### 4.3 Cache-busting for static assets
+
+GitHub Pages serves static assets with `Cache-Control: max-age=600` (10 min). That's short but not zero: between a deploy and the 10-minute mark, returning users can be served a mixed graph of fresh HTML + stale CSS/JS/JSON, and ES-module submodule imports cache independently from the entry module (so even a versioned `main.js?v=N` can pull stale sub-imports). The app defuses this with a single release knob.
+
+**One number, one place.** `index.html` holds `window.__BUILD_ID__` and appends `?v=<id>` to every versionable URL. Bumping the knob busts the entire asset graph in one pass.
+
+| Asset | Busting mechanism | Lives in |
+| ----- | ----------------- | -------- |
+| CSS (`css/*.css`) | `?v=<id>` on the 3 `<link rel="stylesheet">` tags | `index.html` |
+| Entry JS (`js/main.js`) | `?v=<id>` on the `<script type="module" src="…">` tag | `index.html` |
+| JS submodules (every file under `js/**`) | `<script type="importmap">` remaps each resolved specifier to append `?v=<id>` | `index.html` |
+| `data/*.json` | `withBuildId(path, __BUILD_ID__)` in `js/lib/definitions.js` reads the global and appends `?v=<id>` to `fetch()` calls | `js/lib/definitions.js` |
+| `index.html` itself | GH Pages `max-age=600` (not versioned — the 10-min ceiling is acceptable) | GH Pages default |
+
+**Release workflow.** Open `index.html`, find-replace `v=N` → `v=N+1`, also update the `window.__BUILD_ID__ = N` literal, save, commit. That's the whole protocol. The HTML comment at the top of `<head>` documents this inline so contributors don't need to look it up.
+
+**When to bump.** Any change to CSS, JS under `js/**`, or JSON under `data/**`. Doc-only or workflow-only changes don't require a bump.
+
+**Graceful degradation.** Browsers that don't support import maps (pre-2023) silently fall back to the `max-age=600` default for submodules — same behaviour as if this feature weren't wired at all. The JSON busting still works because `fetch()` with a query string is universal.
+
+**Security trade-off.** `script-src` in CSP includes `'unsafe-inline'` to permit the two inline blocks this design requires (`__BUILD_ID__` assignment + the import map). The alternatives (CSP hashes, external BUILD_ID file, external import-map file) were rejected because they either (a) require a hash update on every bump, defeating the single-find-replace protocol, or (b) depend on external-import-map browser support that lags behind inline. XSS surface in this app is minimal: no server-rendered HTML, no user-controlled strings reach `innerHTML` (all dynamic UI uses `textContent` / DOM helpers in `js/lib/dom.js`).
+
+### 4.4 Refreshing the bundled baseline
 
 The bundle needs to be regenerated after major Idle Champions updates (new champion releases, new legendary effects, renamed items). The repo ships a CLI for this:
 
@@ -561,7 +583,7 @@ The script:
 │   ├── definitions.favors.json                   # reset_currency_id → short_name lookup, see §4.2
 │   └── definitions.checksum.json
 ├── scripts/
-│   └── refresh-defs.js             # Regenerates data/*.json from live getdefinitions (see §4.3)
+│   └── refresh-defs.js             # Regenerates data/*.json from live getdefinitions (see §4.4)
 ├── test/                           # Node `node:test` suites — run with `npm test`
 │   ├── scopeMatcher.test.js        # Unit tests for js/lib/scopeMatcher.js
 │   ├── legendaryModel.test.js      # Unit tests for js/lib/legendaryModel.js
@@ -601,7 +623,8 @@ To add a new category in a future release:
 2. Add the category to the route table in `main.js`.
 3. Add the necessary server calls to `serverCalls.js` (named functions, not a passthrough).
 4. Add a card for the category to the Home dashboard.
-5. No changes to `index.html`, CSS tokens, or the settings/credential flow.
+5. **Register every new `js/**/*.js` file in the import map in `index.html`** and bump `__BUILD_ID__`. Without this step, the new module loads at the current `?v=N` only on first deploy; subsequent bumps won't invalidate it until the 10-minute GH Pages ceiling (see §4.3).
+6. No changes to CSS tokens or the settings/credential flow.
 
 ---
 
@@ -739,7 +762,7 @@ The site uses the same public play-server endpoints the official game client use
 | 8   | **Data caching**                          | Definitions: bundled trimmed baseline in `data/*.json` (committed) + optional live-delta merge into `localStorage` (see §4.2). Play-server URL cached 24h. User/legendary state is in-memory per session and invalidated on mutation.                                                                                                                                                                                                                                                                                                                                                                          |
 | 9   | **Disclaimer**                            | Footer + About section clearly state unaffiliated fan-made tool; trademarks belong to Codename Entertainment / Wizards of the Coast.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | 10  | **Branding & styling**                    | Shared with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). `img/` favicons and `site.webmanifest` are the same assets across both (see §2.4). CSS tokens, font stack, header/footer/card patterns are identical (see §7). The two sites read as one visual family; PRD §7 is the self-contained authoritative spec.                                                                                                                                                                                                                                                        |
-| 11  | **Definitions strategy**                  | Ship trimmed baseline in `data/*.json` (committed), refresh via `scripts/refresh-defs.js` after major game updates, optionally fetch live deltas in the background and merge into `localStorage`. Runtime read order: localStorage → bundled `data/` → `(unknown …)` placeholder (see §4.2 & §4.3).                                                                                                                                                                                                                                                                                                            |
+| 11  | **Definitions strategy**                  | Ship trimmed baseline in `data/*.json` (committed), refresh via `scripts/refresh-defs.js` after major game updates, optionally fetch live deltas in the background and merge into `localStorage`. Runtime read order: localStorage → bundled `data/` → `(unknown …)` placeholder (see §4.2 & §4.4).                                                                                                                                                                                                                                                                                                            |
 | 12  | **Credential handling (tooling)**         | `scripts/refresh-defs.js` reads credentials **only** from `.credentials.json` at the repo root. That file is gitignored. `.credentials.example.json` is the committed template. No CLI-arg or env-var fallback is provided, keeping the credential surface small and auditable.                                                                                                                                                                                                                                                                                                                                |
 | 13  | **Legendary tab framing**                 | The Legendary tab is **DPS-first**, not a generic roster browser. It is rendered as one card with **two tabs sharing the DPS context**: **Forge Run** (deterministic planner for DPS-affecting legendaries — each in-game upgrade costs Scales of Tiamat *and* a campaign-specific favor; favor is the gating resource so the view is ranked by favor) and **Reforge** (probabilistic planner for Scales-of-Tiamat reroll of supporting-hero slots into DPS-affecting effects). Forge Run ships first in V1; Reforge is the immediate follow-up. A generic browse / craft-everywhere view is explicitly out of V1 scope (see §3.2). V1 is read-only — see decision 18. |
 | 14  | **Legendary effect scope classification** | Derived at bundle-refresh time by parsing `legendary_effect_defines` descriptions into a `{kind, value|stat+min}` tag per effect (see §3.2.2). Five scope kinds cover 100% of current effects: `race`, `gender`, `alignment`, `damage_type`, `stat_threshold`, plus `global`. Any unrecognized effect is tagged `unknown` and logged so new game content is caught explicitly.                                                                                                                                                                                                                                 |

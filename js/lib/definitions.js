@@ -33,8 +33,35 @@ const HERO_IMAGES_PATH = './data/definitions.hero-images.json';
 const cache = new Map();
 
 /**
+ * Append the global `__BUILD_ID__` as a `?v=` / `&v=` query param so that
+ * `data/*.json` fetches invalidate cleanly whenever index.html's BUILD_ID
+ * bumps — matches the import-map and CSS cache-busting strategy (see the
+ * HTML comment at the top of index.html and PRD §4.4).
+ *
+ * Pure & exported for tests. When `buildId` is nullish, unsafe, or the
+ * default `'dev'`, the path is returned unchanged so local `node:test`
+ * runs and first-time dev loads don't pollute the filename space.
+ *
+ * @param {string} path     — e.g. `./data/definitions.heroes.json`
+ * @param {unknown} buildId — value of `globalThis.__BUILD_ID__`
+ * @returns {string}
+ */
+export function withBuildId(path, buildId) {
+  if (typeof path !== 'string' || path.length === 0) return path;
+  if (buildId == null || buildId === '' || buildId === 'dev') return path;
+  const v = encodeURIComponent(String(buildId));
+  const sep = path.includes('?') ? '&' : '?';
+  return `${path}${sep}v=${v}`;
+}
+
+/**
  * Fetch + cache a single JSON file. Returns `fallback` on failure so the
  * caller can always proceed with *something*.
+ *
+ * The cache is keyed by the *unversioned* path so bumping `__BUILD_ID__`
+ * between loads doesn't matter mid-session — the first fetch within a
+ * session wins. The version is appended only to the URL we actually
+ * hand to `fetch`, which is what the browser / HTTP cache sees.
  *
  * @param {string} path
  * @param {unknown} fallback
@@ -42,7 +69,8 @@ const cache = new Map();
  */
 function loadOnce(path, fallback) {
   if (cache.has(path)) return cache.get(path);
-  const p = fetch(path)
+  const url = withBuildId(path, globalThis.__BUILD_ID__);
+  const p = fetch(url)
     .then((r) => {
       if (!r.ok) throw new Error(`definitions: ${path} → HTTP ${r.status}`);
       return r.json();
