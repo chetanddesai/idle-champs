@@ -36,6 +36,7 @@ import {
   ownedHeroDefsMap,
 } from '../../lib/definitions.js';
 import { classifySlots, buildForgeRun } from '../../lib/legendaryModel.js';
+import { deriveUserBalances } from '../../lib/userBalances.js';
 import * as header from './header.js';
 import * as forgeRun from './forgeRun.js';
 
@@ -350,33 +351,4 @@ function renderUnknownEffectsBannerMaybe() {
       classification.unknownEffectIds.length === 1 ? '' : 's'
     } ${ids}; the Forge Run view is still usable in the meantime.`,
   ]);
-}
-
-// ---------------------------------------------------------------------------
-// Internal — user balances derivation
-// ---------------------------------------------------------------------------
-
-/**
- * Extract the `{scales, favorById}` shape that `buildForgeRun` / `buildReforge`
- * expect, from the raw getuserdetails.details payload. Defensive against
- * missing fields so a partial payload doesn't crash the view.
- */
-function deriveUserBalances(userDetails) {
-  const scalesRaw = userDetails?.stats?.multiplayer_points;
-  const scales = Number.isFinite(Number(scalesRaw)) ? Number(scalesRaw) : 0;
-
-  const favorById = new Map();
-  const rc = userDetails?.reset_currencies;
-  if (Array.isArray(rc)) {
-    for (const entry of rc) {
-      if (!entry) continue;
-      const id = Number(entry.id);
-      const amount = Number(entry.current_amount ?? 0);
-      if (Number.isFinite(id) && Number.isFinite(amount)) {
-        favorById.set(id, amount);
-      }
-    }
-  }
-
-  return { scales, favorById };
 }
