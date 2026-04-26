@@ -2,6 +2,8 @@
 
 Static GitHub Pages companion site for **Idle Champions of the Forgotten Realms**, built as a sibling to [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). V1 covers **Legendary Items** and **Specialization Choices**.
 
+**Live site:** <https://chetanddesai.github.io/idle-champs>
+
 - **PRD:** `[docs/PRD.md](./docs/PRD.md)`
 - **Play-server API reference:** `[docs/server-calls.md](./docs/server-calls.md)`
 - **Sample responses:**
@@ -12,7 +14,7 @@ Not affiliated with or endorsed by Codename Entertainment / Wizards of the Coast
 
 ## Hosting
 
-Plain HTML/CSS/JS served from GitHub Pages — no build step, no backend. Credentials are kept in the player's browser `localStorage`; the site calls `*.idlechampions.com` directly, exactly as the game client does.
+Plain HTML/CSS/JS served from GitHub Pages at <https://chetanddesai.github.io/idle-champs> — no build step, no backend. Credentials are kept in the player's browser `localStorage`; the site calls `*.idlechampions.com` directly, exactly as the game client does.
 
 ## Running locally
 
