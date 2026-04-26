@@ -1013,6 +1013,108 @@
   color: var(--accent-gold);
 }
 
+/* ---------------------------------------------------------------------------
+ * Effect summary row — scope tag + current-amount chip. Layered under the
+ * level readout so each crafted tile reads top-down as:
+ *   L5 · +625%        (level + current amount, one line)
+ *   Human             (scope tag, second line)
+ *   42e42 + 2.3e58 X  (upgrade cost, only on upgradeable/blocked tiles)
+ *
+ * The tag chip uses a subtle border pill; tone variants (.slot-tile__tag--X)
+ * give each scope kind a slightly different accent so the eye can group
+ * "all" vs. "race" vs. "stat" at a glance without the grid turning into a
+ * rainbow. .slot-tile--not-affecting's parent opacity:0.5 already handles
+ * the muted treatment for non-contributing tiles, so tones here don't need
+ * their own disabled variants.
+ * ------------------------------------------------------------------------- */
+
+.slot-tile__level-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+.slot-tile__amount {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.slot-tile--upgradeable .slot-tile__amount,
+.slot-tile--maxed .slot-tile__amount {
+  color: var(--accent-gold);
+}
+
+.slot-tile__tag {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background: rgba(167, 169, 190, 0.06);
+  max-width: 100%;
+  /* Allow wrap to a second line for long combined labels like
+     "ALL PER CHA ≥15" — truncating with ellipsis would hide the most
+     informative part (the per-member qualifier). Leading-trim so wrapped
+     lines sit flush. */
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-height: 1.25;
+  text-align: center;
+  margin-top: 0.15rem;
+}
+
+.slot-tile__tag--global {
+  color: #9bb8e8;
+  border-color: rgba(155, 184, 232, 0.4);
+  background: rgba(155, 184, 232, 0.08);
+}
+
+.slot-tile__tag--race {
+  color: #c9a86b;
+  border-color: rgba(201, 168, 107, 0.4);
+  background: rgba(201, 168, 107, 0.08);
+}
+
+.slot-tile__tag--gender {
+  color: #c893d6;
+  border-color: rgba(200, 147, 214, 0.4);
+  background: rgba(200, 147, 214, 0.08);
+}
+
+.slot-tile__tag--alignment {
+  color: #7fc9a5;
+  border-color: rgba(127, 201, 165, 0.4);
+  background: rgba(127, 201, 165, 0.08);
+}
+
+.slot-tile__tag--damage-type {
+  color: #e59a7a;
+  border-color: rgba(229, 154, 122, 0.4);
+  background: rgba(229, 154, 122, 0.08);
+}
+
+.slot-tile__tag--stat-threshold {
+  color: #d4b870;
+  border-color: rgba(212, 184, 112, 0.4);
+  background: rgba(212, 184, 112, 0.08);
+}
+
+.slot-tile__tag--unknown {
+  color: var(--text-muted);
+  border-style: dashed;
+}
+
 /* Tile states */
 
 .slot-tile--empty {

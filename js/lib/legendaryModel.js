@@ -29,6 +29,12 @@
  *   SlotClassification:
  *     { heroId, slotIndex (1..6),
  *       currentEffectId: number | null,   // null ⇒ slot is empty / not crafted
+ *       scope: Scope | null,              // scope record for currentEffectId,
+ *                                         // or null on empty / unknown-scope slots.
+ *                                         // The view reads `scope.kind`/`scope.value`
+ *                                         // for the tile tag badge; keeping it on the
+ *                                         // slot means the view never re-indexes the
+ *                                         // scopes array.
  *       affectsDps: boolean,              // false for empty slots
  *       equippedLevel: number,            // 0 for empty slots
  *       upgradeCost, upgradeFavorCost, resetCurrencyId,
@@ -148,6 +154,7 @@ export function classifySlots(inputs) {
           heroId,
           slotIndex,
           currentEffectId: null,
+          scope: null,
           affectsDps: false,
           equippedLevel: 0,
           upgradeCost: 0,
@@ -174,6 +181,7 @@ export function classifySlots(inputs) {
         heroId,
         slotIndex,
         currentEffectId,
+        scope: scope && scope.kind !== 'unknown' ? scope : null,
         affectsDps,
         equippedLevel: typeof item.level === 'number' ? item.level : 0,
         upgradeCost: typeof item.upgrade_cost === 'number' ? item.upgrade_cost : 0,

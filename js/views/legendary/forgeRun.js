@@ -34,6 +34,13 @@ import {
   formatFavor,
 } from '../../lib/format.js';
 import { heroPortraitUrl, heroMonogram } from '../../lib/heroImage.js';
+import {
+  scopeTagLabel,
+  scopeTagKind,
+  effectCurrentAmount,
+  effectQualifier,
+  substituteAmount,
+} from '../../lib/effectFormat.js';
 
 const MAX_LEVEL = 20;
 
@@ -352,7 +359,17 @@ function renderSlotTile({ slot, favorFilter, effectsById, favorsByCurrencyId }) 
     tileClasses.push('slot-tile--filtered');
   }
 
-  const tooltip = buildTileTooltip({ slot, tileState, effectsById, favorsByCurrencyId });
+  const effect = slot.currentEffectId != null ? effectsById?.[slot.currentEffectId] : null;
+  const currentAmount = effect ? effectCurrentAmount(effect, slot.equippedLevel) : null;
+  const qualifier = effect ? effectQualifier(effect.description) : null;
+
+  const tooltip = buildTileTooltip({
+    slot,
+    tileState,
+    effect,
+    currentAmount,
+    favorsByCurrencyId,
+  });
 
   return el(
     'div',
@@ -367,7 +384,7 @@ function renderSlotTile({ slot, favorFilter, effectsById, favorsByCurrencyId }) 
     },
     [
       el('span', { class: 'slot-tile__index', text: String(slot.slotIndex) }),
-      renderTileBody({ slot, tileState, favorsByCurrencyId }),
+      renderTileBody({ slot, tileState, currentAmount, qualifier, favorsByCurrencyId }),
     ]
   );
 }
@@ -391,28 +408,57 @@ function classifyTile(slot) {
   return 'blocked';
 }
 
-function renderTileBody({ slot, tileState, favorsByCurrencyId }) {
-  switch (tileState) {
-    case 'empty':
-      return el('div', { class: 'slot-tile__body' }, [
-        el('span', { class: 'slot-tile__label', text: 'Craft' }),
-      ]);
-    case 'maxed':
-      return el('div', { class: 'slot-tile__body' }, [
-        el('span', { class: 'slot-tile__level', text: 'MAX' }),
-      ]);
-    case 'not-affecting':
-      return el('div', { class: 'slot-tile__body' }, [
-        el('span', { class: 'slot-tile__level', text: `L${slot.equippedLevel}` }),
-      ]);
-    case 'upgradeable':
-    case 'blocked':
-    default:
-      return el('div', { class: 'slot-tile__body' }, [
-        el('span', { class: 'slot-tile__level', text: `L${slot.equippedLevel}` }),
-        renderCostRow(slot, favorsByCurrencyId),
-      ]);
+function renderTileBody({ slot, tileState, currentAmount, qualifier, favorsByCurrencyId }) {
+  if (tileState === 'empty') {
+    return el('div', { class: 'slot-tile__body' }, [
+      el('span', { class: 'slot-tile__label', text: 'Craft' }),
+    ]);
   }
+
+  // Every crafted tile shares the same top section: level + current-amount
+  // chip on one line, scope tag on the next. A qualifier line ("per CHA ≥15",
+  // "per Human", …) only renders for effects whose description has a
+  // `for each` clause — otherwise it's omitted to keep the tile compact.
+  // The cost row is only appended for upgradeable/blocked states (maxed and
+  // not-affecting have nothing to upgrade).
+  const levelText = tileState === 'maxed' ? 'MAX' : `L${slot.equippedLevel}`;
+
+  const levelRow = el('div', { class: 'slot-tile__level-row' }, [
+    el('span', { class: 'slot-tile__level', text: levelText }),
+    renderAmountChip(currentAmount),
+  ]);
+
+  const tagChip = renderScopeTag(slot.scope, qualifier);
+
+  const children = [levelRow, tagChip];
+  if (tileState === 'upgradeable' || tileState === 'blocked') {
+    children.push(renderCostRow(slot, favorsByCurrencyId));
+  }
+
+  return el('div', { class: 'slot-tile__body' }, children);
+}
+
+function renderAmountChip(currentAmount) {
+  if (currentAmount == null) return null;
+  return el('span', {
+    class: 'slot-tile__amount',
+    text: `+${formatCompact(currentAmount)}%`,
+    attrs: { title: `Current bonus at this level: +${formatInteger(currentAmount)}%` },
+  });
+}
+
+function renderScopeTag(scope, qualifier) {
+  const kind = scopeTagKind(scope);
+  const label = scopeTagLabel(scope);
+  // Qualifier (e.g. "per CHA ≥15") folds into the same pill so the player
+  // reads "ALL per CHA ≥15" as a single unit rather than a tag plus a
+  // floating caption. The qualifier text already includes the "per " prefix
+  // — we just join with a space.
+  const text = qualifier ? `${label} ${qualifier}` : label;
+  return el('span', {
+    class: `slot-tile__tag slot-tile__tag--${kind}`,
+    text,
+  });
 }
 
 function renderCostRow(slot, favorsByCurrencyId) {
@@ -437,14 +483,22 @@ function renderCostRow(slot, favorsByCurrencyId) {
   ]);
 }
 
-function buildTileTooltip({ slot, tileState, effectsById, favorsByCurrencyId }) {
+function buildTileTooltip({ slot, tileState, effect, currentAmount, favorsByCurrencyId }) {
   if (tileState === 'empty') {
     return 'Empty slot — craft this in-game to unlock upgrades.';
   }
 
-  const effect = effectsById?.[slot.currentEffectId];
-  const effectDescription = effect
-    ? resolveDescription(effect.description)
+  // Substitute the real, level-scaled amount into the description rather
+  // than a placeholder ("X"). The live description templates already include
+  // a literal "%" after the placeholder (e.g. "by $amount%"), so we pass
+  // the bare number and let the template's own "%" supply the symbol —
+  // otherwise we'd render "by 625%%". When we can't compute the amount
+  // (unknown effect, malformed effect_string), substitute "N/A" so the
+  // placeholder never leaks to the UI.
+  const amountText =
+    currentAmount != null ? formatInteger(currentAmount) : 'N/A';
+  const effectDescription = effect?.description
+    ? substituteAmount(effect.description, amountText)
     : `Effect #${slot.currentEffectId}`;
   const favorName = favorsByCurrencyId?.[slot.resetCurrencyId]?.short_name;
 
@@ -463,7 +517,6 @@ function buildTileTooltip({ slot, tileState, effectsById, favorsByCurrencyId }) 
       );
     }
     lines.push(parts.join(' + '));
-    lines.push('Upgrade in-game, then tap Refresh above to sync.');
   } else if (tileState === 'blocked') {
     const parts = [`Next upgrade: ${formatInteger(slot.upgradeCost)} Scales`];
     if (slot.upgradeFavorCost > 0) {
@@ -476,17 +529,6 @@ function buildTileTooltip({ slot, tileState, effectsById, favorsByCurrencyId }) 
   }
 
   return lines.join('\n');
-}
-
-/**
- * Substitute the `$amount` / `$(amount)` placeholder with the word "X%" so
- * the tooltip reads sensibly without us needing to resolve the actual
- * per-level percentage (that lives on the in-game effect data, not on our
- * bundled `description` template).
- */
-function resolveDescription(template) {
-  if (typeof template !== 'string') return '';
-  return template.replace(/\$\(?amount\)?%?/g, 'X%');
 }
 
 // ---------------------------------------------------------------------------
