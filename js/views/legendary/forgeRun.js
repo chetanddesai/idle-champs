@@ -41,6 +41,7 @@ import {
   effectQualifier,
   substituteAmount,
 } from '../../lib/effectFormat.js';
+import { idealAdventureForFavor } from '../../lib/idealAdventures.js';
 
 const MAX_LEVEL = 20;
 
@@ -145,6 +146,18 @@ function renderFavorPanel({ breakdown, favorsByCurrencyId, favorFilter, onFavorF
       const favor = favorsByCurrencyId?.[entry.resetCurrencyId];
       const displayName = favor?.short_name || `Favor #${entry.resetCurrencyId}`;
       const isActive = favorFilter === entry.resetCurrencyId;
+      const idealAdventure = idealAdventureForFavor(entry.resetCurrencyId);
+      const titleChildren = [
+        el('span', { class: 'favor-row__name', text: displayName }),
+      ];
+      if (idealAdventure) {
+        titleChildren.push(
+          el('span', {
+            class: 'favor-row__sub',
+            text: `Ideal adventure: ${idealAdventure}`,
+          })
+        );
+      }
       return el(
         'li',
         {
@@ -164,7 +177,7 @@ function renderFavorPanel({ breakdown, favorsByCurrencyId, favorFilter, onFavorF
             },
           }, [
             el('span', { class: 'favor-row__rank', text: `#${idx + 1}` }),
-            el('span', { class: 'favor-row__name', text: displayName }),
+            el('div', { class: 'favor-row__title' }, titleChildren),
             el('div', { class: 'favor-row__stats' }, [
               renderFavorStat({
                 label: 'Upgradeable',

@@ -733,11 +733,30 @@
   flex-shrink: 0;
 }
 
+/* Title column: stacks the favor name on top of an optional muted subtitle
+ * (the recommended forge-run adventure for this campaign — see
+ * `js/lib/idealAdventures.js`). The flex sizing that used to live on
+ * `__name` lives here so a long subtitle doesn't push stats out of the row. */
+.favor-row__title {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 0.1rem;
+}
+
 .favor-row__name {
   font-weight: 600;
   color: var(--text-primary);
-  flex: 1;
-  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favor-row__sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
