@@ -228,23 +228,44 @@ export function classifySlots(inputs) {
  * balances.
  *
  * Eligibility per slot (all three must hold — Appendix B #6):
- *   - equippedLevel < 20 (MAX_LEVEL)
+ *   - equippedLevel < levelTarget   (default 20 = MAX_LEVEL = "level all the way")
  *   - userBalances.scales >= slot.upgradeCost
  *   - userBalances.favorById.get(slot.resetCurrencyId) >= slot.upgradeFavorCost
  *
  * `upgrade_favor_required` is NEVER consulted. It's telemetry of cumulative
  * favor already spent to reach the current level; it is not a balance check.
  *
+ * The optional `levelTarget` (an integer in [1, 20]) lets the view narrow
+ * planning to a milestone — e.g. "all DPS-affecting slots to L5" or "to
+ * L10". A favor row only appears in `favorBreakdown` if at least one of
+ * its DPS-affecting slots is still BELOW the target; rows whose slots
+ * have all met the target drop out (the panel's "narrow the list"
+ * behaviour). Both `affectingCount` and `upgradeableCount` count below-
+ * target slots only — so when target is L5, "Affecting 3 / Upgradeable 3"
+ * means "you have 3 below-L5 slots tied to this favor and all 3 are
+ * fundable now". With the default target (MAX_LEVEL) the behaviour is
+ * unchanged: every DPS-affecting slot that isn't yet maxed is in scope.
+ *
  * Favor priority panel is ranked by `upgradeableCount` desc, tiebroken by
  * `affectingCount` desc (PRD §9 decision 15).
  *
  * @param {ClassificationOutput} classification
  * @param {UserBalances}         userBalances
+ * @param {{levelTarget?: number}} [options]
  * @returns {ForgeRunState}
  */
-export function buildForgeRun(classification, userBalances) {
+export function buildForgeRun(classification, userBalances, options) {
+  // Coerce target into [1, MAX_LEVEL]. Anything malformed → MAX_LEVEL so the
+  // view degrades to the original "level all the way" behaviour.
+  const rawTarget = Number(options?.levelTarget);
+  const levelTarget =
+    Number.isFinite(rawTarget) && rawTarget >= 1 && rawTarget <= MAX_LEVEL
+      ? Math.floor(rawTarget)
+      : MAX_LEVEL;
+
   const empty = Object.freeze({
     selectedDpsId: classification?.selectedDpsId ?? null,
+    levelTarget,
     dpsHeroRow: null,
     supportingHeroes: [],
     favorBreakdown: [],
@@ -261,16 +282,18 @@ export function buildForgeRun(classification, userBalances) {
 
   const isUpgradeable = (slot) =>
     slot.currentEffectId != null &&
-    slot.equippedLevel < MAX_LEVEL &&
+    slot.equippedLevel < levelTarget &&
     scales >= slot.upgradeCost &&
     (favorById.get(slot.resetCurrencyId) ?? 0) >= slot.upgradeFavorCost;
 
   // Favor aggregation — { [resetCurrencyId]: { affectingCount, upgradeableCount } }
-  // accumulated across every DPS-affecting slot on DPS-hero and supporting-hero
-  // rows alike.
+  // accumulated across every DPS-affecting slot that's below the target on
+  // DPS-hero and supporting-hero rows alike. Slots already at/above target
+  // don't contribute — they're "done" relative to the current milestone.
   const favorAgg = new Map();
   const addToFavor = (slot, { upgradeable }) => {
     if (!slot.affectsDps || slot.resetCurrencyId === 0) return;
+    if (slot.equippedLevel >= levelTarget) return;
     let entry = favorAgg.get(slot.resetCurrencyId);
     if (!entry) {
       entry = { resetCurrencyId: slot.resetCurrencyId, affectingCount: 0, upgradeableCount: 0 };
@@ -324,6 +347,7 @@ export function buildForgeRun(classification, userBalances) {
 
   return {
     selectedDpsId: classification.selectedDpsId,
+    levelTarget,
     dpsHeroRow,
     supportingHeroes,
     favorBreakdown,

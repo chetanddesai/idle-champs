@@ -103,6 +103,7 @@ export function render(host) {
   const dpsOptions = buildDpsOptions(defs.heroes, userDetails.heroes || []);
   const selectedDpsId = coerceSelectedDpsId(dpsOptions);
   const activeTab = coerceActiveTab();
+  const levelTarget = coerceLevelTarget();
 
   // Header is rendered regardless of whether a DPS is picked — the
   // dropdown is how the user picks one.
@@ -127,6 +128,7 @@ export function render(host) {
       classification,
       userDetails,
       selectedDpsId,
+      levelTarget,
     });
   }
 
@@ -159,6 +161,17 @@ function handleFavorFilterChange(currencyId) {
   // null / same-as-current toggles off.
   forgeFavorFilter =
     currencyId == null || currencyId === forgeFavorFilter ? null : currencyId;
+  rerender();
+}
+
+function handleLevelTargetChange(newTarget) {
+  const current = coerceLevelTarget();
+  if (newTarget === current) return;
+  // Switching the milestone re-segments the favor priority list, so any
+  // active per-favor filter is no longer guaranteed to point at a row
+  // that still exists. Clear it for clarity.
+  forgeFavorFilter = null;
+  state.set(KEYS.LEGENDARY_LEVEL_TARGET, newTarget);
   rerender();
 }
 
@@ -252,6 +265,21 @@ function coerceActiveTab() {
   return 'forge-run';
 }
 
+/**
+ * Resolve the persisted level target into one of the supported milestone
+ * values. Anything unrecognised collapses to the default (20 = "max"),
+ * which is also the legacy "no filter" behaviour from before this knob
+ * existed — so users on first load don't see a narrowed list.
+ *
+ * Kept in sync with `LEVEL_TARGET_OPTIONS` in `forgeRun.js`; the view
+ * renders pills for each option.
+ */
+function coerceLevelTarget() {
+  const stored = Number(state.get(KEYS.LEGENDARY_LEVEL_TARGET));
+  if (stored === 5 || stored === 10 || stored === 20) return stored;
+  return 20;
+}
+
 // ---------------------------------------------------------------------------
 // Internal — rendering
 // ---------------------------------------------------------------------------
@@ -299,13 +327,13 @@ function renderEmptyDpsState() {
   ]);
 }
 
-function renderActiveTab({ activeTab, classification, userDetails, selectedDpsId }) {
+function renderActiveTab({ activeTab, classification, userDetails, selectedDpsId, levelTarget }) {
   if (activeTab === 'reforge') {
     return renderReforgePlaceholder();
   }
 
   const userBalances = deriveUserBalances(userDetails);
-  const forgeState = buildForgeRun(classification, userBalances);
+  const forgeState = buildForgeRun(classification, userBalances, { levelTarget });
 
   return forgeRun.render({
     forgeState,
@@ -317,6 +345,8 @@ function renderActiveTab({ activeTab, classification, userDetails, selectedDpsId
     favorsByCurrencyId,
     favorFilter: forgeFavorFilter,
     onFavorFilterChange: handleFavorFilterChange,
+    levelTarget,
+    onLevelTargetChange: handleLevelTargetChange,
     selectedDpsId,
   });
 }

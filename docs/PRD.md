@@ -288,6 +288,8 @@ Deterministic **read-only planner** for spending **Scales of Tiamat + campaign f
 
 **V1 ranking** is by *upgradeable-now count* (descending), tiebroken by *affecting count*. This is deliberately the simplest useful metric; a DPS-gain-per-favor-unit weighted ranking is V2 material (§9, decision 13).
 
+**Level-target milestone filter (`L5 / L10 / L20`):** the panel header carries a small pill switcher that lets the player narrow the breakdown to a milestone — players typically work their DPS legendaries to L5 first, then L10, then L20. When a target below 20 is active, *Affecting* and *Upgradeable* counts only consider slots whose `equippedLevel < target`; favors whose every DPS-affecting slot is already past the milestone drop out of the list entirely (the "narrow the list" behaviour). Tile classification follows the same target — slots already at or above the target render as a muted-gold "past target" state (`L<N> ✓`) instead of competing for the bright "upgradeable" gold; players still see them in the grid, but the visual hierarchy directs attention to slots that still need work for the current milestone. The persisted choice lives at `legendary.levelTarget` (default 20 = "max", which is the legacy behaviour from before this knob landed). See `js/views/legendary/forgeRun.js` (`LEVEL_TARGET_OPTIONS`) and `js/lib/legendaryModel.js` (`buildForgeRun(classification, balances, { levelTarget })`) for the wiring.
+
 Clicking a favor row filters the upgrade candidate list to only that favor.
 
 **Upgrade candidate list:** one card per champion that has at least one DPS-affecting equipped slot, with the DPS champion rendered first (their own slots are always beneficial by game-design invariant — see `tech-design-legendary.md` Appendix B, item 5a). Each card shows:
@@ -302,11 +304,12 @@ Champions with zero DPS-affecting equipped slots are hidden from the Forge Run t
 **Cell color semantics (Forge Run view):**
 
 
-| Slot state                 | Visual                                      | Condition                                                                            | V1 treatment                                                                                   |
-| -------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| **Affecting, upgradeable** | `--accent-gold` filled border + level badge | Current `effect_id` affects DPS AND scales + favor both sufficient for next upgrade. | Tile highlights the slot as a recommended in-game upgrade; cost badge shows Tiamat + favor.   |
-| **Affecting, blocked**     | Gold border + muted fill                    | Current `effect_id` affects DPS AND upgrade blocked (insufficient scales or favor).  | Tooltip shows what's missing (e.g., *"Need 18 more Grand Tour favor"*).                       |
-| **Affecting, maxed**       | Gold border + "MAX" badge                   | Current `effect_id` affects DPS AND `level === 20`.                                  | Informational only.                                                                           |
+| Slot state                  | Visual                                      | Condition                                                                                                  | V1 treatment                                                                                   |
+| --------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Affecting, upgradeable**  | `--accent-gold` filled border + level badge | Current `effect_id` affects DPS AND `level < levelTarget` AND scales + favor both sufficient for next upgrade. | Tile highlights the slot as a recommended in-game upgrade; cost badge shows Tiamat + favor.   |
+| **Affecting, blocked**      | Gold border + muted fill                    | Current `effect_id` affects DPS AND `level < levelTarget` AND upgrade blocked (insufficient scales or favor). | Tooltip shows what's missing (e.g., *"Need 18 more Grand Tour favor"*).                       |
+| **Affecting, past target**  | Dim-gold border + green check on the level  | Current `effect_id` affects DPS AND `levelTarget < 20` AND `level >= levelTarget` (but `< 20`).             | Informational; "done for this milestone, bump the target to keep planning."                   |
+| **Affecting, maxed**        | Gold border + "MAX" badge                   | Current `effect_id` affects DPS AND `level === 20`.                                                        | Informational only.                                                                           |
 
 
 Slots in a *reforge candidate* or *not affecting* state do **not** appear in this view — reforge candidates live in §3.2.5; non-affecting slots with no reforge potential are hidden from both views. Empty craftable slots surface only as a tooltip hint "Craft first →"; crafting is out of V1 forge-run scope.

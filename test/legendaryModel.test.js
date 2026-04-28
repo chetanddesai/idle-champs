@@ -358,6 +358,139 @@ describe('buildForgeRun — defensive', () => {
 });
 
 // ---------------------------------------------------------------------------
+// buildForgeRun — level-target milestone filter
+// ---------------------------------------------------------------------------
+
+describe('buildForgeRun — levelTarget=5 narrows the favor breakdown', () => {
+  const classification = classifySlots({
+    dpsHeroId: CAZRIN.id,
+    heroes: HEROES,
+    scopes: ALL_SCOPES,
+    legendaryItems: LEGS_BASELINE,
+  });
+  const forgeRun = buildForgeRun(classification, BAL_PLENTY, { levelTarget: 5 });
+
+  // Affecting slots BELOW L5 in LEGS_BASELINE: Cazrin slot 4 (L3, cur 12,
+  // scales-blocked) and Cazrin slot 5 (L3, cur 13, favor-blocked). Every
+  // other affecting slot (Cazrin1=L5, Cazrin2=L19, Bruenor1=L5, Minsc1/2/3/6=L5)
+  // sits at or above the L5 milestone and so drops out of the breakdown.
+
+  test('levelTarget echoed back on the state', () => {
+    assert.equal(forgeRun.levelTarget, 5);
+  });
+
+  test('Cazrin slot 1 (L5) is NOT upgradeable when target is L5', () => {
+    // Was true with the legacy default (L5 < 20 = MAX) but is false at target=5
+    // because L5 is no longer "below the milestone".
+    assert.equal(forgeRun.dpsHeroRow.slots[0].upgradeable, false);
+  });
+
+  test('Cazrin slot 4 (L3, scales-blocked) still tracked as affecting/below-target', () => {
+    const cur12 = forgeRun.favorBreakdown.find((f) => f.resetCurrencyId === 12);
+    assert.ok(cur12, 'currency 12 should appear (Cazrin slot 4 is below L5)');
+    assert.equal(cur12.affectingCount, 1);
+    assert.equal(cur12.upgradeableCount, 0); // scales-blocked
+  });
+
+  test('Cazrin slot 5 (L3, favor-blocked) still tracked as affecting/below-target', () => {
+    const cur13 = forgeRun.favorBreakdown.find((f) => f.resetCurrencyId === 13);
+    assert.ok(cur13);
+    assert.equal(cur13.affectingCount, 1);
+    assert.equal(cur13.upgradeableCount, 0); // favor-blocked
+  });
+
+  test('currencies whose only DPS-affecting slots are at/above L5 drop out', () => {
+    // currency 10 has 5 affecting slots (Cazrin1, Bruenor1, Minsc1/2/6) — all at L5.
+    // currency 11 has 1 affecting slot (Minsc3) — at L5.
+    assert.equal(
+      forgeRun.favorBreakdown.find((f) => f.resetCurrencyId === 10),
+      undefined
+    );
+    assert.equal(
+      forgeRun.favorBreakdown.find((f) => f.resetCurrencyId === 11),
+      undefined
+    );
+  });
+
+  test('upgradeableSlotKeys is empty (every below-L5 slot is budget-blocked)', () => {
+    assert.deepEqual(forgeRun.upgradeableSlotKeys, []);
+  });
+});
+
+describe('buildForgeRun — levelTarget=10 widens the breakdown', () => {
+  const classification = classifySlots({
+    dpsHeroId: CAZRIN.id,
+    heroes: HEROES,
+    scopes: ALL_SCOPES,
+    legendaryItems: LEGS_BASELINE,
+  });
+  const forgeRun = buildForgeRun(classification, BAL_PLENTY, { levelTarget: 10 });
+
+  // Below-L10 affecting slots: Cazrin1 (L5, cur 10), Cazrin4 (L3, cur 12),
+  // Cazrin5 (L3, cur 13), Bruenor1 (L5, cur 10), Minsc1/2/6 (L5, cur 10),
+  // Minsc3 (L5, cur 11). Cazrin2 (L19) is above target → out.
+
+  test('currency 10 reflects 5 below-L10 affecting slots, all upgradeable', () => {
+    const cur10 = forgeRun.favorBreakdown.find((f) => f.resetCurrencyId === 10);
+    assert.ok(cur10);
+    assert.equal(cur10.affectingCount, 5);
+    assert.equal(cur10.upgradeableCount, 5); // upgrade_cost 500 ≤ scales 5000
+  });
+
+  test('currency 11 reflects 1 below-L10 affecting slot (Minsc3)', () => {
+    const cur11 = forgeRun.favorBreakdown.find((f) => f.resetCurrencyId === 11);
+    assert.ok(cur11);
+    assert.equal(cur11.affectingCount, 1);
+    assert.equal(cur11.upgradeableCount, 1);
+  });
+
+  test('Cazrin slot 2 (L19) drops out of the breakdown at target=10', () => {
+    // Currency 10 still appears (other slots are below 10) but slot 2 itself
+    // shouldn't have contributed to its counts.
+    const cur10 = forgeRun.favorBreakdown.find((f) => f.resetCurrencyId === 10);
+    // 5, not 6 — would be 6 if slot 2 were still counted.
+    assert.equal(cur10.affectingCount, 5);
+  });
+});
+
+describe('buildForgeRun — levelTarget defaults to MAX_LEVEL when omitted/invalid', () => {
+  const classification = classifySlots({
+    dpsHeroId: CAZRIN.id,
+    heroes: HEROES,
+    scopes: ALL_SCOPES,
+    legendaryItems: LEGS_BASELINE,
+  });
+
+  test('omitted options → levelTarget = 20', () => {
+    const forgeRun = buildForgeRun(classification, BAL_PLENTY);
+    assert.equal(forgeRun.levelTarget, 20);
+  });
+
+  test('out-of-range target collapses to 20', () => {
+    assert.equal(buildForgeRun(classification, BAL_PLENTY, { levelTarget: 0 }).levelTarget, 20);
+    assert.equal(buildForgeRun(classification, BAL_PLENTY, { levelTarget: 21 }).levelTarget, 20);
+    assert.equal(buildForgeRun(classification, BAL_PLENTY, { levelTarget: -5 }).levelTarget, 20);
+  });
+
+  test('non-numeric target collapses to 20', () => {
+    assert.equal(buildForgeRun(classification, BAL_PLENTY, { levelTarget: 'L5' }).levelTarget, 20);
+    assert.equal(buildForgeRun(classification, BAL_PLENTY, { levelTarget: null }).levelTarget, 20);
+    assert.equal(buildForgeRun(classification, BAL_PLENTY, { levelTarget: NaN }).levelTarget, 20);
+  });
+
+  test('default behaviour matches legacy single-arg call', () => {
+    const legacy = buildForgeRun(classification, BAL_PLENTY);
+    const explicit = buildForgeRun(classification, BAL_PLENTY, { levelTarget: 20 });
+    // Same favor breakdown ranking and same upgradeable-key set.
+    assert.deepEqual(
+      legacy.favorBreakdown.map((f) => f.resetCurrencyId),
+      explicit.favorBreakdown.map((f) => f.resetCurrencyId)
+    );
+    assert.deepEqual(legacy.upgradeableSlotKeys, explicit.upgradeableSlotKeys);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // buildReforge
 // ---------------------------------------------------------------------------
 

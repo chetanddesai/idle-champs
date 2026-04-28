@@ -649,17 +649,73 @@
   margin-bottom: 0.75rem;
 }
 
+/* Header row holds the title on the left and the level-target switcher on
+ * the right. Wraps to two lines on narrow viewports (target switcher drops
+ * below the title rather than crashing into it). */
+.favor-panel__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
 .favor-panel__title {
   font-family: 'Cinzel', serif;
   font-size: 1rem;
   color: var(--accent-gold);
-  margin: 0 0 0.2rem;
+  margin: 0;
 }
 
 .favor-panel__hint {
   color: var(--text-muted);
   font-size: 0.8rem;
   margin: 0;
+}
+
+/* Level-target pill switcher (L5 / L10 / L20). Drives the favor priority
+ * panel ranking + tile classification. The active pill takes the gold
+ * accent the rest of the upgradeable surfaces use, so the eye links the
+ * milestone choice to the rows that change with it. */
+.level-target {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.level-target__label {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.level-target__pill {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.level-target__pill:hover,
+.level-target__pill:focus-visible {
+  border-color: var(--accent-gold-dim);
+  color: var(--text-primary);
+}
+
+.level-target__pill--active {
+  border-color: var(--accent-gold);
+  background: rgba(232, 169, 72, 0.16);
+  color: var(--accent-gold);
 }
 
 .favor-panel__list {
@@ -1159,6 +1215,20 @@
 .slot-tile--maxed .slot-tile__level {
   color: var(--accent-gold);
   font-size: 0.95rem;
+}
+
+/* "Past target" tile state — only renders when a level-target filter
+ * (L5/L10) is active and this slot is already at or above the milestone
+ * but not yet at L20. Visually similar to maxed (gold-tinted, no cost row)
+ * but a touch dimmer + uses a green check mark on the level so the player
+ * can tell "done for this milestone" apart from "fully maxed". */
+.slot-tile--beyond-target {
+  border-color: var(--accent-gold-dim);
+  background: rgba(184, 134, 46, 0.06);
+}
+
+.slot-tile--beyond-target .slot-tile__level {
+  color: var(--accent-green);
 }
 
 .slot-tile--blocked {

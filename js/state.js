@@ -43,6 +43,7 @@ export const KEYS = Object.freeze({
   LAST_REFRESH_AT: 'last_refresh_at',
   SELECTED_DPS_ID: 'selected_dps_id',
   LEGENDARY_ACTIVE_TAB: 'legendary.activeTab',
+  LEGENDARY_LEVEL_TARGET: 'legendary.levelTarget',
 });
 
 let storage = null;

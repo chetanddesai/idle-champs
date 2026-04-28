@@ -46,6 +46,19 @@ import { idealAdventureForFavor } from '../../lib/idealAdventures.js';
 const MAX_LEVEL = 20;
 
 /**
+ * Level-target milestones the player can pick from. Kept here (not in the
+ * model) because they're a UI choice — the model just consumes whichever
+ * integer we pass as `levelTarget`. `coerceLevelTarget()` in
+ * legendary/index.js validates against this set, so any change here must
+ * be mirrored there.
+ *
+ * Players typically grind milestones in this order: L5 → L10 → L20. The
+ * default is 20 ("level all the way") so first-time users see the same
+ * panel they did before this knob landed.
+ */
+const LEVEL_TARGET_OPTIONS = [5, 10, 20];
+
+/**
  * Render the Forge Run tab body.
  *
  * @param {object} params
@@ -58,6 +71,8 @@ const MAX_LEVEL = 20;
  * @param {object} params.favorsByCurrencyId
  * @param {number|null} params.favorFilter     active favor filter
  * @param {(id:number|null) => void} params.onFavorFilterChange
+ * @param {number} params.levelTarget          milestone the player is planning toward (5/10/20)
+ * @param {(target:number) => void} params.onLevelTargetChange
  * @param {number} params.selectedDpsId
  * @returns {HTMLElement}
  */
@@ -71,6 +86,8 @@ export function render({
   favorsByCurrencyId,
   favorFilter,
   onFavorFilterChange,
+  levelTarget,
+  onLevelTargetChange,
   selectedDpsId,
 }) {
   const container = el('div', {
@@ -88,6 +105,8 @@ export function render({
       favorsByCurrencyId,
       favorFilter,
       onFavorFilterChange,
+      levelTarget,
+      onLevelTargetChange,
     })
   );
 
@@ -99,6 +118,7 @@ export function render({
       effectsById,
       favorsByCurrencyId,
       heroImages: defs.heroImages,
+      levelTarget,
     })
   );
 
@@ -117,27 +137,32 @@ export function render({
 // Favor priority panel
 // ---------------------------------------------------------------------------
 
-function renderFavorPanel({ breakdown, favorsByCurrencyId, favorFilter, onFavorFilterChange }) {
+function renderFavorPanel({
+  breakdown,
+  favorsByCurrencyId,
+  favorFilter,
+  onFavorFilterChange,
+  levelTarget,
+  onLevelTargetChange,
+}) {
+  // Header (incl. target switcher) renders even on empty breakdowns so the
+  // user can re-pick the target without losing the panel chrome.
+  const header = renderFavorPanelHeader({ levelTarget, onLevelTargetChange });
+
   if (!Array.isArray(breakdown) || breakdown.length === 0) {
-    return el('div', { class: 'favor-panel favor-panel--empty' }, [
+    return el('section', { class: 'favor-panel favor-panel--empty' }, [
+      header,
       el('p', {
         class: 'favor-panel__empty',
         text:
-          'No favor-gated upgrades available. Either every DPS-affecting legendary is already maxed, or none use a campaign favor currency.',
+          levelTarget < MAX_LEVEL
+            ? `Every DPS-affecting legendary is already at L${levelTarget}+ — bump the target to keep planning.`
+            : 'No favor-gated upgrades available. Either every DPS-affecting legendary is already maxed, or none use a campaign favor currency.',
       }),
     ]);
   }
 
   const hasActiveFilter = favorFilter != null;
-
-  const header = el('div', { class: 'favor-panel__header' }, [
-    el('h3', { class: 'favor-panel__title', text: 'Favor priority' }),
-    el('p', {
-      class: 'favor-panel__hint',
-      text:
-        'Ranked by upgrades you can perform now. Tap a row to filter the hero cards below.',
-    }),
-  ]);
 
   const list = el(
     'ol',
@@ -219,6 +244,49 @@ function renderFavorStat({ label, value, tone }) {
   ]);
 }
 
+/**
+ * Header chrome for the favor priority panel: title, hint copy, and the
+ * level-target pill row. Pulled out of `renderFavorPanel` so the empty
+ * state can re-use the same chrome (the user can still switch milestones
+ * even when no favors are eligible at the current target).
+ */
+function renderFavorPanelHeader({ levelTarget, onLevelTargetChange }) {
+  const target = LEVEL_TARGET_OPTIONS.includes(levelTarget) ? levelTarget : MAX_LEVEL;
+
+  const hint =
+    target < MAX_LEVEL
+      ? `Ranked by below-L${target} upgrades you can perform now. Tap a row to filter the hero cards below.`
+      : 'Ranked by upgrades you can perform now. Tap a row to filter the hero cards below.';
+
+  const pills = LEVEL_TARGET_OPTIONS.map((option) => {
+    const isActive = option === target;
+    const label = option === MAX_LEVEL ? 'L20 (max)' : `L${option}`;
+    return el('button', {
+      class: `level-target__pill${isActive ? ' level-target__pill--active' : ''}`,
+      attrs: {
+        type: 'button',
+        'aria-pressed': isActive ? 'true' : 'false',
+        title: option === MAX_LEVEL
+          ? 'Plan upgrades all the way to MAX (L20)'
+          : `Plan upgrades up to L${option}`,
+      },
+      text: label,
+      on: { click: () => onLevelTargetChange(option) },
+    });
+  });
+
+  return el('div', { class: 'favor-panel__header' }, [
+    el('div', { class: 'favor-panel__header-row' }, [
+      el('h3', { class: 'favor-panel__title', text: 'Favor priority' }),
+      el('div', { class: 'level-target', attrs: { role: 'group', 'aria-label': 'Level target' } }, [
+        el('span', { class: 'level-target__label', text: 'Target:' }),
+        ...pills,
+      ]),
+    ]),
+    el('p', { class: 'favor-panel__hint', text: hint }),
+  ]);
+}
+
 // ---------------------------------------------------------------------------
 // Hero list — DPS row first, then supporting heroes
 // ---------------------------------------------------------------------------
@@ -230,6 +298,7 @@ function renderHeroList({
   effectsById,
   favorsByCurrencyId,
   heroImages,
+  levelTarget,
 }) {
   const heroRows = [];
   if (forgeState.dpsHeroRow) {
@@ -281,12 +350,13 @@ function renderHeroList({
         heroImages,
         effectsById,
         favorsByCurrencyId,
+        levelTarget,
       })
     )
   );
 }
 
-function renderHeroCard({ row, favorFilter, hero, heroImages, effectsById, favorsByCurrencyId }) {
+function renderHeroCard({ row, favorFilter, hero, heroImages, effectsById, favorsByCurrencyId, levelTarget }) {
   const affectingCount = row.slots.filter((s) => s.affectsDps).length;
   const upgradeableCount = row.slots.filter((s) => s.affectsDps && s.upgradeable).length;
 
@@ -316,7 +386,7 @@ function renderHeroCard({ row, favorFilter, hero, heroImages, effectsById, favor
         'div',
         { class: 'slot-grid', attrs: { role: 'list' } },
         row.slots.map((slot) =>
-          renderSlotTile({ slot, favorFilter, effectsById, favorsByCurrencyId })
+          renderSlotTile({ slot, favorFilter, effectsById, favorsByCurrencyId, levelTarget })
         )
       ),
       el('footer', { class: 'hero-card__foot' }, [
@@ -365,8 +435,8 @@ function renderHeroAvatar(hero, heroImages) {
 // Slot tile — the most information-dense element on this view
 // ---------------------------------------------------------------------------
 
-function renderSlotTile({ slot, favorFilter, effectsById, favorsByCurrencyId }) {
-  const tileState = classifyTile(slot);
+function renderSlotTile({ slot, favorFilter, effectsById, favorsByCurrencyId, levelTarget }) {
+  const tileState = classifyTile(slot, levelTarget);
   const tileClasses = ['slot-tile', `slot-tile--${tileState}`];
   if (favorFilter != null && slot.resetCurrencyId === favorFilter && slot.affectsDps) {
     tileClasses.push('slot-tile--filtered');
@@ -382,6 +452,7 @@ function renderSlotTile({ slot, favorFilter, effectsById, favorsByCurrencyId }) 
     effect,
     currentAmount,
     favorsByCurrencyId,
+    levelTarget,
   });
 
   return el(
@@ -405,18 +476,24 @@ function renderSlotTile({ slot, favorFilter, effectsById, favorsByCurrencyId }) 
 /**
  * Map a slot's shape to a visual state keyword consumed by CSS:
  *
- *   'empty'        — no crafted effect yet
- *   'upgradeable'  — affecting + can upgrade now (gold + cost chip)
- *   'blocked'      — affecting + upgrade blocked (gold muted + need-X chip)
- *   'maxed'        — affecting + level 20 (gold + "MAX")
- *   'not-affecting-supporting' — crafted slot on supporting hero that doesn't
- *                                affect DPS (muted; a reforge candidate, not
- *                                a forge-run action)
+ *   'empty'         — no crafted effect yet
+ *   'maxed'         — affecting + level 20 (gold + "MAX")
+ *   'beyond-target' — affecting + level >= target but < 20 (only fires when
+ *                     a milestone target is active; tile reads as "done for
+ *                     this milestone, no action required")
+ *   'upgradeable'   — affecting + below target + can upgrade now (gold + cost chip)
+ *   'blocked'       — affecting + below target + upgrade blocked (gold muted + need-X chip)
+ *   'not-affecting' — crafted slot that doesn't affect DPS (muted; a reforge
+ *                     candidate, not a forge-run action)
+ *
+ * `levelTarget` defaults to MAX_LEVEL — the legacy "level all the way"
+ * behaviour, which means `'beyond-target'` is never emitted.
  */
-function classifyTile(slot) {
+function classifyTile(slot, levelTarget = MAX_LEVEL) {
   if (slot.currentEffectId == null) return 'empty';
   if (!slot.affectsDps) return 'not-affecting';
   if (slot.equippedLevel >= MAX_LEVEL) return 'maxed';
+  if (levelTarget < MAX_LEVEL && slot.equippedLevel >= levelTarget) return 'beyond-target';
   if (slot.upgradeable) return 'upgradeable';
   return 'blocked';
 }
@@ -432,9 +509,14 @@ function renderTileBody({ slot, tileState, currentAmount, qualifier, favorsByCur
   // chip on one line, scope tag on the next. A qualifier line ("per CHA ≥15",
   // "per Human", …) only renders for effects whose description has a
   // `for each` clause — otherwise it's omitted to keep the tile compact.
-  // The cost row is only appended for upgradeable/blocked states (maxed and
-  // not-affecting have nothing to upgrade).
-  const levelText = tileState === 'maxed' ? 'MAX' : `L${slot.equippedLevel}`;
+  // The cost row is only appended for upgradeable/blocked states (maxed,
+  // beyond-target, and not-affecting have nothing to upgrade).
+  const levelText =
+    tileState === 'maxed'
+      ? 'MAX'
+      : tileState === 'beyond-target'
+        ? `L${slot.equippedLevel} ✓`
+        : `L${slot.equippedLevel}`;
 
   const levelRow = el('div', { class: 'slot-tile__level-row' }, [
     el('span', { class: 'slot-tile__level', text: levelText }),
@@ -496,7 +578,7 @@ function renderCostRow(slot, favorsByCurrencyId) {
   ]);
 }
 
-function buildTileTooltip({ slot, tileState, effect, currentAmount, favorsByCurrencyId }) {
+function buildTileTooltip({ slot, tileState, effect, currentAmount, favorsByCurrencyId, levelTarget }) {
   if (tileState === 'empty') {
     return 'Empty slot — craft this in-game to unlock upgrades.';
   }
@@ -520,6 +602,10 @@ function buildTileTooltip({ slot, tileState, effect, currentAmount, favorsByCurr
 
   if (tileState === 'maxed') {
     lines.push('Maxed (L20) — no further upgrades available.');
+  } else if (tileState === 'beyond-target') {
+    lines.push(
+      `Already past target (L${slot.equippedLevel} ≥ L${levelTarget ?? MAX_LEVEL}) — bump the target to plan further upgrades.`
+    );
   } else if (!slot.affectsDps) {
     lines.push("Does not affect the selected DPS (see Reforge tab for reroll options).");
   } else if (tileState === 'upgradeable') {
