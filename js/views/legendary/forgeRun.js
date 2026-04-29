@@ -318,24 +318,57 @@ function renderHeroList({
     ]);
   }
 
-  // If a favor filter is active, only keep heroes that have at least one
-  // affecting slot tied to that favor. Non-matching heroes drop out of
-  // the view entirely; their card wouldn't have any highlightable tiles.
-  const filteredRows = heroRows.filter((row) => {
-    if (favorFilter == null) return true;
-    return row.slots.some(
-      (s) => s.affectsDps && s.resetCurrencyId === favorFilter
+  // Filter heroes based on favor and level-target constraints.
+  //
+  // When BOTH filters are active, we combine them: a hero must have at least
+  // one DPS-affecting slot that is (a) tied to the selected favor AND (b)
+  // below the target level. This ensures heroes like Commodore Krux don't
+  // show up for Tomb of Annihilation at L5 just because they have an L1 slot
+  // for a different favor.
+  //
+  // When only ONE filter is active, the simpler independent check applies.
+
+  let filteredRows = heroRows;
+
+  if (favorFilter != null && levelTarget < MAX_LEVEL) {
+    // Combined filter: slot must match favor AND be below target
+    filteredRows = filteredRows.filter((row) =>
+      row.slots.some(
+        (s) =>
+          s.affectsDps &&
+          s.resetCurrencyId === favorFilter &&
+          s.equippedLevel < levelTarget
+      )
     );
-  });
+  } else if (favorFilter != null) {
+    // Favor-only filter
+    filteredRows = filteredRows.filter((row) =>
+      row.slots.some((s) => s.affectsDps && s.resetCurrencyId === favorFilter)
+    );
+  } else if (levelTarget < MAX_LEVEL) {
+    // Level-target-only filter
+    filteredRows = filteredRows.filter((row) =>
+      row.slots.some((s) => s.affectsDps && s.equippedLevel < levelTarget)
+    );
+  }
 
   if (filteredRows.length === 0) {
-    const favorName =
-      favorsByCurrencyId?.[favorFilter]?.short_name ?? `Favor #${favorFilter}`;
+    // Tailor the empty-state message to whichever filter triggered it.
+    let emptyText;
+    if (favorFilter != null && levelTarget < MAX_LEVEL) {
+      const favorName =
+        favorsByCurrencyId?.[favorFilter]?.short_name ?? `Favor #${favorFilter}`;
+      emptyText = `No heroes have below-L${levelTarget} DPS-affecting slots tied to ${favorName}. Clear the favor filter or bump the target to see more.`;
+    } else if (favorFilter != null) {
+      const favorName =
+        favorsByCurrencyId?.[favorFilter]?.short_name ?? `Favor #${favorFilter}`;
+      emptyText = `No heroes have DPS-affecting slots tied to ${favorName} right now. Clear the filter to see every hero's upgradeable slots.`;
+    } else {
+      // levelTarget filter only
+      emptyText = `Every hero's DPS-affecting slots are already at L${levelTarget}+. Bump the target to keep planning.`;
+    }
     return el('div', { class: 'hero-list hero-list--empty' }, [
-      el('p', {
-        class: 'hero-list__empty',
-        text: `No heroes have DPS-affecting slots tied to ${favorName} right now. Clear the filter to see every hero's upgradeable slots.`,
-      }),
+      el('p', { class: 'hero-list__empty', text: emptyText }),
     ]);
   }
 
