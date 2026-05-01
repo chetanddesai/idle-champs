@@ -718,6 +718,66 @@
   color: var(--accent-gold);
 }
 
+/* Right-hand cluster of header controls — wraps the favorites toggle and
+ * the level-target pill group. Wraps to two rows when the viewport gets
+ * narrow rather than squashing each control. */
+.favor-panel__controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* "Favorites only" toggle. Visually a pill that matches the level-target
+ * row, plus a heart icon. The heart fills with the rose accent (instead
+ * of the gold accent the level-target pills use) so the user can tell
+ * the two control kinds apart at a glance. */
+.favorites-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.favorites-toggle:hover,
+.favorites-toggle:focus-visible {
+  border-color: #e57599;
+  color: var(--text-primary);
+}
+
+.favorites-toggle--active {
+  border-color: #e57599;
+  background: rgba(229, 117, 153, 0.16);
+  color: #ffb6c8;
+}
+
+/* Heart icon — used by both the toggle and the per-card favorite button.
+ * The unfilled state is the muted secondary color; filled flips to the
+ * rose accent. The `currentColor` strokes/fills in the SVG inherit from
+ * here. */
+.favorite-heart {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  line-height: 0;
+}
+
+.favorite-heart--filled {
+  color: #ff5d8f;
+}
+
 .favor-panel__list {
   list-style: none;
   margin: 0;
@@ -884,6 +944,49 @@
 .hero-card--dps {
   border-color: var(--accent-gold);
   box-shadow: 0 0 0 2px rgba(232, 169, 72, 0.1);
+}
+
+/* Favorited hero card — soft rose halo. Stacks below the DPS gold halo
+ * (DPS card always wins because DPS is the anchor of the view), but for
+ * supporting heroes the rose halo replaces the default border so the
+ * favorite stands out. */
+.hero-card--favorite:not(.hero-card--dps) {
+  border-color: #e57599;
+  box-shadow: 0 0 0 1px rgba(229, 117, 153, 0.18);
+}
+
+/* Per-card heart button. Sits between the title block and the role badge
+ * so it's reachable without crowding the avatar. Bumped up the touch
+ * target to 32px for mobile thumbs. */
+.hero-card__favorite {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.hero-card__favorite:hover,
+.hero-card__favorite:focus-visible {
+  color: #ffb6c8;
+  background: rgba(229, 117, 153, 0.12);
+  border-color: rgba(229, 117, 153, 0.3);
+}
+
+.hero-card__favorite--active {
+  color: #ff5d8f;
+}
+
+.hero-card__favorite--active:hover,
+.hero-card__favorite--active:focus-visible {
+  color: #ff7da4;
 }
 
 .hero-card__head {

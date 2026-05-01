@@ -23,6 +23,9 @@
  *   ic.last_refresh_at  — epoch-ms number
  *   ic.selected_dps_id  — number (Legendary view last-picked DPS)
  *   ic.legendary.activeTab — 'forge-run' | 'reforge'
+ *   ic.legendary.levelTarget — 5 | 10 | 20 (Forge Run milestone filter)
+ *   ic.legendary.favorites — number[] (favorited hero IDs, global across DPS)
+ *   ic.legendary.favoritesOnly — boolean (Forge Run "favorites only" toggle)
  *
  * Testability: the module reads `localStorage` lazily via the injected
  * `init(storage)` call, so Node tests pass an in-memory polyfill and the
@@ -44,6 +47,8 @@ export const KEYS = Object.freeze({
   SELECTED_DPS_ID: 'selected_dps_id',
   LEGENDARY_ACTIVE_TAB: 'legendary.activeTab',
   LEGENDARY_LEVEL_TARGET: 'legendary.levelTarget',
+  LEGENDARY_FAVORITES: 'legendary.favorites',
+  LEGENDARY_FAVORITES_ONLY: 'legendary.favoritesOnly',
 });
 
 let storage = null;
@@ -175,6 +180,70 @@ export function clearAll() {
   // unsubscribe during their callback.
   const keys = [...subscribers.keys()];
   for (const key of keys) notify(key, null);
+}
+
+// ---------------------------------------------------------------------------
+// Favorites — small helpers around the LEGENDARY_FAVORITES list.
+// ---------------------------------------------------------------------------
+//
+// The favorites list is a plain Array<number> of hero IDs persisted under
+// `ic.legendary.favorites`. We keep it as an array (not a Set) because Sets
+// don't JSON-serialize cleanly; getFavoritesSet() materializes one when the
+// caller needs O(1) membership checks.
+//
+// Hero IDs are global (an Idle Champions hero ID is the same regardless of
+// which DPS the user has selected), so favorites are intentionally NOT
+// scoped per-DPS — favoriting Donaar once means he's tagged across every
+// DPS view.
+
+/**
+ * Read the favorites list as a Set of hero IDs (numbers). Always returns a
+ * fresh Set; callers are free to mutate it without affecting persisted
+ * state.
+ *
+ * @returns {Set<number>}
+ */
+export function getFavoritesSet() {
+  const raw = get(KEYS.LEGENDARY_FAVORITES);
+  if (!Array.isArray(raw)) return new Set();
+  const out = new Set();
+  for (const id of raw) {
+    // Reject null/undefined explicitly — `Number(null)` is 0, which would
+    // sneak a fake "hero zero" into the set if we coerced first.
+    if (id == null) continue;
+    const n = Number(id);
+    if (Number.isFinite(n)) out.add(n);
+  }
+  return out;
+}
+
+/**
+ * Toggle a hero's favorite status and persist the new list. Returns the
+ * resulting boolean state ("is now a favorite") so callers can drive UI
+ * without re-reading.
+ *
+ * Order of the persisted array is not meaningful — we sort numerically
+ * just to keep the JSON in localStorage stable across toggles, which makes
+ * debugging via DevTools easier.
+ *
+ * @param {number} heroId
+ * @returns {boolean} whether the hero is a favorite AFTER the toggle
+ */
+export function toggleFavorite(heroId) {
+  const id = Number(heroId);
+  if (!Number.isFinite(id)) return false;
+  const current = getFavoritesSet();
+  let nowFavorite;
+  if (current.has(id)) {
+    current.delete(id);
+    nowFavorite = false;
+  } else {
+    current.add(id);
+    nowFavorite = true;
+  }
+  const sorted = [...current].sort((a, b) => a - b);
+  set(KEYS.LEGENDARY_FAVORITES, sorted);
+  return nowFavorite;
 }
 
 // ---------------------------------------------------------------------------

@@ -143,6 +143,95 @@ test('a throwing subscriber does not block the other subscribers', (t) => {
   assert.deepEqual(calls, [CREDS_FIXTURE]);
 });
 
+// ---------------------------------------------------------------------------
+// favorites helpers (getFavoritesSet / toggleFavorite)
+// ---------------------------------------------------------------------------
+
+test('getFavoritesSet returns an empty Set when nothing is persisted', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  const set = state.getFavoritesSet();
+  assert.ok(set instanceof Set);
+  assert.equal(set.size, 0);
+});
+
+test('getFavoritesSet returns a Set of the persisted hero IDs', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.LEGENDARY_FAVORITES, [3, 17, 9]);
+  const set = state.getFavoritesSet();
+  assert.equal(set.size, 3);
+  assert.ok(set.has(3));
+  assert.ok(set.has(17));
+  assert.ok(set.has(9));
+});
+
+test('getFavoritesSet coerces string IDs and drops non-finite values', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.LEGENDARY_FAVORITES, ['12', 7, 'oops', null, NaN]);
+  const set = state.getFavoritesSet();
+  assert.equal(set.size, 2);
+  assert.ok(set.has(12));
+  assert.ok(set.has(7));
+});
+
+test('getFavoritesSet returns a fresh Set each call (caller can mutate safely)', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.LEGENDARY_FAVORITES, [1, 2]);
+  const a = state.getFavoritesSet();
+  a.delete(1);
+  const b = state.getFavoritesSet();
+  assert.equal(b.size, 2);
+  assert.ok(b.has(1));
+});
+
+test('toggleFavorite adds a missing hero and returns true', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  const result = state.toggleFavorite(42);
+  assert.equal(result, true);
+  assert.deepEqual(state.get(KEYS.LEGENDARY_FAVORITES), [42]);
+});
+
+test('toggleFavorite removes an existing hero and returns false', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.LEGENDARY_FAVORITES, [10, 20]);
+  const result = state.toggleFavorite(10);
+  assert.equal(result, false);
+  assert.deepEqual(state.get(KEYS.LEGENDARY_FAVORITES), [20]);
+});
+
+test('toggleFavorite persists the list sorted ascending for stable JSON', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.toggleFavorite(50);
+  state.toggleFavorite(7);
+  state.toggleFavorite(33);
+  assert.deepEqual(state.get(KEYS.LEGENDARY_FAVORITES), [7, 33, 50]);
+});
+
+test('toggleFavorite ignores non-finite ids and returns false', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.LEGENDARY_FAVORITES, [1]);
+  assert.equal(state.toggleFavorite(NaN), false);
+  assert.equal(state.toggleFavorite('not a number'), false);
+  assert.deepEqual(state.get(KEYS.LEGENDARY_FAVORITES), [1]);
+});
+
+test('toggleFavorite notifies subscribers on the favorites key', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  const calls = [];
+  state.subscribe(KEYS.LEGENDARY_FAVORITES, (v) => calls.push(v));
+  state.toggleFavorite(8);
+  state.toggleFavorite(8);
+  assert.deepEqual(calls, [[8], []]);
+});
+
 test('subscribe requires a function callback', () => {
   const storage = makeMemoryStorage();
   state.init(storage);

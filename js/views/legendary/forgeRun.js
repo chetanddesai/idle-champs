@@ -73,6 +73,10 @@ const LEVEL_TARGET_OPTIONS = [5, 10, 20];
  * @param {(id:number|null) => void} params.onFavorFilterChange
  * @param {number} params.levelTarget          milestone the player is planning toward (5/10/20)
  * @param {(target:number) => void} params.onLevelTargetChange
+ * @param {boolean} params.favoritesOnly        if true, hide non-favorited heroes
+ * @param {(next:boolean) => void} params.onFavoritesOnlyChange
+ * @param {Set<number>} params.favorites        set of favorited hero IDs
+ * @param {(heroId:number) => void} params.onFavoriteToggle
  * @param {number} params.selectedDpsId
  * @returns {HTMLElement}
  */
@@ -88,6 +92,10 @@ export function render({
   onFavorFilterChange,
   levelTarget,
   onLevelTargetChange,
+  favoritesOnly,
+  onFavoritesOnlyChange,
+  favorites,
+  onFavoriteToggle,
   selectedDpsId,
 }) {
   const container = el('div', {
@@ -107,6 +115,8 @@ export function render({
       onFavorFilterChange,
       levelTarget,
       onLevelTargetChange,
+      favoritesOnly,
+      onFavoritesOnlyChange,
     })
   );
 
@@ -119,6 +129,9 @@ export function render({
       favorsByCurrencyId,
       heroImages: defs.heroImages,
       levelTarget,
+      favoritesOnly,
+      favorites,
+      onFavoriteToggle,
     })
   );
 
@@ -144,10 +157,17 @@ function renderFavorPanel({
   onFavorFilterChange,
   levelTarget,
   onLevelTargetChange,
+  favoritesOnly,
+  onFavoritesOnlyChange,
 }) {
   // Header (incl. target switcher) renders even on empty breakdowns so the
   // user can re-pick the target without losing the panel chrome.
-  const header = renderFavorPanelHeader({ levelTarget, onLevelTargetChange });
+  const header = renderFavorPanelHeader({
+    levelTarget,
+    onLevelTargetChange,
+    favoritesOnly,
+    onFavoritesOnlyChange,
+  });
 
   if (!Array.isArray(breakdown) || breakdown.length === 0) {
     return el('section', { class: 'favor-panel favor-panel--empty' }, [
@@ -245,12 +265,18 @@ function renderFavorStat({ label, value, tone }) {
 }
 
 /**
- * Header chrome for the favor priority panel: title, hint copy, and the
- * level-target pill row. Pulled out of `renderFavorPanel` so the empty
- * state can re-use the same chrome (the user can still switch milestones
- * even when no favors are eligible at the current target).
+ * Header chrome for the favor priority panel: title, hint copy, the
+ * level-target pill row, and the "favorites only" toggle. Pulled out of
+ * `renderFavorPanel` so the empty state can re-use the same chrome (the
+ * user can still switch milestones even when no favors are eligible at
+ * the current target).
  */
-function renderFavorPanelHeader({ levelTarget, onLevelTargetChange }) {
+function renderFavorPanelHeader({
+  levelTarget,
+  onLevelTargetChange,
+  favoritesOnly,
+  onFavoritesOnlyChange,
+}) {
   const target = LEVEL_TARGET_OPTIONS.includes(levelTarget) ? levelTarget : MAX_LEVEL;
 
   const hint =
@@ -275,16 +301,64 @@ function renderFavorPanelHeader({ levelTarget, onLevelTargetChange }) {
     });
   });
 
+  // "Favorites only" toggle. Lives in the same control row as the L5/10/20
+  // pills because it's the same kind of "narrow the hero list" knob from
+  // the user's perspective. The heart icon mirrors the per-card heart so
+  // the visual association is obvious.
+  const favoritesToggle = el(
+    'button',
+    {
+      class: `favorites-toggle${favoritesOnly ? ' favorites-toggle--active' : ''}`,
+      attrs: {
+        type: 'button',
+        'aria-pressed': favoritesOnly ? 'true' : 'false',
+        title: favoritesOnly
+          ? 'Showing favorites only — click to show every hero'
+          : 'Show favorites only',
+      },
+      on: { click: () => onFavoritesOnlyChange(!favoritesOnly) },
+    },
+    [
+      renderHeartIcon({ filled: favoritesOnly }),
+      el('span', { text: 'Favorites only' }),
+    ]
+  );
+
   return el('div', { class: 'favor-panel__header' }, [
     el('div', { class: 'favor-panel__header-row' }, [
       el('h3', { class: 'favor-panel__title', text: 'Favor priority' }),
-      el('div', { class: 'level-target', attrs: { role: 'group', 'aria-label': 'Level target' } }, [
-        el('span', { class: 'level-target__label', text: 'Target:' }),
-        ...pills,
+      el('div', { class: 'favor-panel__controls' }, [
+        favoritesToggle,
+        el('div', { class: 'level-target', attrs: { role: 'group', 'aria-label': 'Level target' } }, [
+          el('span', { class: 'level-target__label', text: 'Target:' }),
+          ...pills,
+        ]),
       ]),
     ]),
     el('p', { class: 'favor-panel__hint', text: hint }),
   ]);
+}
+
+/**
+ * Heart SVG used by the per-card favorite button and the "favorites only"
+ * toggle. `filled` swaps between an outline (not favorite) and a solid
+ * (favorite). Inline so we don't add another asset to the cache-busting
+ * checklist.
+ */
+function renderHeartIcon({ filled }) {
+  // 16x16 to match the existing inline SVGs in index.html.
+  // Outline path: a stroked heart silhouette.
+  // Filled path: same silhouette filled solid.
+  const svg = el('span', {
+    class: `favorite-heart${filled ? ' favorite-heart--filled' : ''}`,
+    attrs: { 'aria-hidden': 'true' },
+  });
+  // Build the SVG via innerHTML — `el()` doesn't have a clean way to set
+  // attributes on nested SVG primitives, and these are static strings.
+  svg.innerHTML = filled
+    ? '<svg viewBox="0 0 16 16" width="14" height="14"><path fill="currentColor" d="M8 14.5s-5.5-3.4-5.5-7.5C2.5 5 4 3.5 6 3.5c1 0 1.7.4 2 1 .3-.6 1-1 2-1 2 0 3.5 1.5 3.5 3.5 0 4.1-5.5 7.5-5.5 7.5z"/></svg>'
+    : '<svg viewBox="0 0 16 16" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" d="M8 13.5s-5-3-5-6.7C3 5 4.3 3.8 6 3.8c1 0 1.7.5 2 1.2.3-.7 1-1.2 2-1.2 1.7 0 3 1.2 3 3 0 3.7-5 6.7-5 6.7z"/></svg>';
+  return svg;
 }
 
 // ---------------------------------------------------------------------------
@@ -299,6 +373,9 @@ function renderHeroList({
   favorsByCurrencyId,
   heroImages,
   levelTarget,
+  favoritesOnly,
+  favorites,
+  onFavoriteToggle,
 }) {
   const heroRows = [];
   if (forgeState.dpsHeroRow) {
@@ -318,20 +395,23 @@ function renderHeroList({
     ]);
   }
 
-  // Filter heroes based on favor and level-target constraints.
+  // Filter heroes based on favor + level-target + favorites constraints.
   //
-  // When BOTH filters are active, we combine them: a hero must have at least
-  // one DPS-affecting slot that is (a) tied to the selected favor AND (b)
-  // below the target level. This ensures heroes like Commodore Krux don't
-  // show up for Tomb of Annihilation at L5 just because they have an L1 slot
-  // for a different favor.
+  // Favor + level-target combine when both are active: a hero must have at
+  // least one DPS-affecting slot that is (a) tied to the selected favor AND
+  // (b) below the target level. This prevents heroes from showing up for a
+  // favor when their slot for THAT favor is already past the milestone, even
+  // if they have other below-target slots for different favors.
   //
-  // When only ONE filter is active, the simpler independent check applies.
+  // Favorites-only is an independent layer applied after the slot-based
+  // filters: keep only heroes whose ID is in the favorites set.
+  //
+  // The DPS hero is exempt from the favorites-only filter — they're the
+  // anchor of the whole view, hiding them would be confusing.
 
   let filteredRows = heroRows;
 
   if (favorFilter != null && levelTarget < MAX_LEVEL) {
-    // Combined filter: slot must match favor AND be below target
     filteredRows = filteredRows.filter((row) =>
       row.slots.some(
         (s) =>
@@ -341,21 +421,28 @@ function renderHeroList({
       )
     );
   } else if (favorFilter != null) {
-    // Favor-only filter
     filteredRows = filteredRows.filter((row) =>
       row.slots.some((s) => s.affectsDps && s.resetCurrencyId === favorFilter)
     );
   } else if (levelTarget < MAX_LEVEL) {
-    // Level-target-only filter
     filteredRows = filteredRows.filter((row) =>
       row.slots.some((s) => s.affectsDps && s.equippedLevel < levelTarget)
+    );
+  }
+
+  if (favoritesOnly && favorites instanceof Set) {
+    filteredRows = filteredRows.filter(
+      (row) => row.isDps || favorites.has(row.heroId)
     );
   }
 
   if (filteredRows.length === 0) {
     // Tailor the empty-state message to whichever filter triggered it.
     let emptyText;
-    if (favorFilter != null && levelTarget < MAX_LEVEL) {
+    if (favoritesOnly) {
+      emptyText =
+        "No favorited heroes match the current filters. Tap a heart on a hero card to add favorites, or turn off 'Favorites only' to see every hero.";
+    } else if (favorFilter != null && levelTarget < MAX_LEVEL) {
       const favorName =
         favorsByCurrencyId?.[favorFilter]?.short_name ?? `Favor #${favorFilter}`;
       emptyText = `No heroes have below-L${levelTarget} DPS-affecting slots tied to ${favorName}. Clear the favor filter or bump the target to see more.`;
@@ -364,7 +451,6 @@ function renderHeroList({
         favorsByCurrencyId?.[favorFilter]?.short_name ?? `Favor #${favorFilter}`;
       emptyText = `No heroes have DPS-affecting slots tied to ${favorName} right now. Clear the filter to see every hero's upgradeable slots.`;
     } else {
-      // levelTarget filter only
       emptyText = `Every hero's DPS-affecting slots are already at L${levelTarget}+. Bump the target to keep planning.`;
     }
     return el('div', { class: 'hero-list hero-list--empty' }, [
@@ -384,12 +470,24 @@ function renderHeroList({
         effectsById,
         favorsByCurrencyId,
         levelTarget,
+        isFavorite: favorites instanceof Set && favorites.has(row.heroId),
+        onFavoriteToggle,
       })
     )
   );
 }
 
-function renderHeroCard({ row, favorFilter, hero, heroImages, effectsById, favorsByCurrencyId, levelTarget }) {
+function renderHeroCard({
+  row,
+  favorFilter,
+  hero,
+  heroImages,
+  effectsById,
+  favorsByCurrencyId,
+  levelTarget,
+  isFavorite,
+  onFavoriteToggle,
+}) {
   const affectingCount = row.slots.filter((s) => s.affectsDps).length;
   const upgradeableCount = row.slots.filter((s) => s.affectsDps && s.upgradeable).length;
 
@@ -397,22 +495,52 @@ function renderHeroCard({ row, favorFilter, hero, heroImages, effectsById, favor
     ? el('span', { class: 'hero-card__badge hero-card__badge--dps', text: 'DPS' })
     : el('span', { class: 'hero-card__badge', text: 'Supporting' });
 
+  const heroName = hero?.name ?? `Hero #${row.heroId}`;
+  const favoriteBtn = el(
+    'button',
+    {
+      class: `hero-card__favorite${isFavorite ? ' hero-card__favorite--active' : ''}`,
+      attrs: {
+        type: 'button',
+        'aria-pressed': isFavorite ? 'true' : 'false',
+        'aria-label': isFavorite
+          ? `Remove ${heroName} from favorites`
+          : `Mark ${heroName} as a favorite`,
+        title: isFavorite ? 'Remove from favorites' : 'Mark as favorite',
+      },
+      on: {
+        click: (e) => {
+          // Stop bubbling — the card itself isn't clickable today, but
+          // future ambient handlers shouldn't pick this up.
+          e.stopPropagation();
+          if (typeof onFavoriteToggle === 'function') {
+            onFavoriteToggle(row.heroId);
+          }
+        },
+      },
+    },
+    [renderHeartIcon({ filled: !!isFavorite })]
+  );
+
   return el(
     'article',
     {
-      class: `hero-card${row.isDps ? ' hero-card--dps' : ''}`,
+      class: `hero-card${row.isDps ? ' hero-card--dps' : ''}${
+        isFavorite ? ' hero-card--favorite' : ''
+      }`,
       attrs: { 'data-hero-id': String(row.heroId) },
     },
     [
       el('header', { class: 'hero-card__head' }, [
         renderHeroAvatar(hero, heroImages),
         el('div', { class: 'hero-card__titles' }, [
-          el('h4', { class: 'hero-card__name', text: hero?.name ?? `Hero #${row.heroId}` }),
+          el('h4', { class: 'hero-card__name', text: heroName }),
           el('p', {
             class: 'hero-card__sub',
             text: [hero?.race, hero?.class].filter(Boolean).join(' · ') || '—',
           }),
         ]),
+        favoriteBtn,
         roleBadge,
       ]),
       el(

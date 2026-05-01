@@ -104,6 +104,8 @@ export function render(host) {
   const selectedDpsId = coerceSelectedDpsId(dpsOptions);
   const activeTab = coerceActiveTab();
   const levelTarget = coerceLevelTarget();
+  const favoritesOnly = coerceFavoritesOnly();
+  const favorites = state.getFavoritesSet();
 
   // Header is rendered regardless of whether a DPS is picked — the
   // dropdown is how the user picks one.
@@ -129,6 +131,8 @@ export function render(host) {
       userDetails,
       selectedDpsId,
       levelTarget,
+      favoritesOnly,
+      favorites,
     });
   }
 
@@ -172,6 +176,22 @@ function handleLevelTargetChange(newTarget) {
   // that still exists. Clear it for clarity.
   forgeFavorFilter = null;
   state.set(KEYS.LEGENDARY_LEVEL_TARGET, newTarget);
+  rerender();
+}
+
+function handleFavoritesOnlyChange(next) {
+  const current = coerceFavoritesOnly();
+  const value = !!next;
+  if (value === current) return;
+  state.set(KEYS.LEGENDARY_FAVORITES_ONLY, value);
+  rerender();
+}
+
+function handleFavoriteToggle(heroId) {
+  // Toggle persists immediately. We re-render so the heart re-paints AND
+  // — when "favorites only" is on — the row removes itself if the user
+  // un-favorited their last visible hero.
+  state.toggleFavorite(heroId);
   rerender();
 }
 
@@ -280,6 +300,14 @@ function coerceLevelTarget() {
   return 20;
 }
 
+/**
+ * Resolve the persisted "favorites only" toggle. Defaults to false (off)
+ * for first-time users so the unfiltered list is what they see by default.
+ */
+function coerceFavoritesOnly() {
+  return state.get(KEYS.LEGENDARY_FAVORITES_ONLY) === true;
+}
+
 // ---------------------------------------------------------------------------
 // Internal — rendering
 // ---------------------------------------------------------------------------
@@ -327,7 +355,15 @@ function renderEmptyDpsState() {
   ]);
 }
 
-function renderActiveTab({ activeTab, classification, userDetails, selectedDpsId, levelTarget }) {
+function renderActiveTab({
+  activeTab,
+  classification,
+  userDetails,
+  selectedDpsId,
+  levelTarget,
+  favoritesOnly,
+  favorites,
+}) {
   if (activeTab === 'reforge') {
     return renderReforgePlaceholder();
   }
@@ -347,6 +383,10 @@ function renderActiveTab({ activeTab, classification, userDetails, selectedDpsId
     onFavorFilterChange: handleFavorFilterChange,
     levelTarget,
     onLevelTargetChange: handleLevelTargetChange,
+    favoritesOnly,
+    onFavoritesOnlyChange: handleFavoritesOnlyChange,
+    favorites,
+    onFavoriteToggle: handleFavoriteToggle,
     selectedDpsId,
   });
 }
