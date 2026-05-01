@@ -490,6 +490,160 @@ describe('buildForgeRun — levelTarget defaults to MAX_LEVEL when omitted/inval
   });
 });
 
+describe('buildForgeRun — favoritesOnly narrows the favor breakdown', () => {
+  // Baseline classification (Cazrin DPS, Bruenor + Minsc + Obscura supporting).
+  const classification = classifySlots({
+    dpsHeroId: CAZRIN.id,
+    heroes: HEROES,
+    scopes: ALL_SCOPES,
+    legendaryItems: LEGS_BASELINE,
+  });
+
+  test('favoritesOnly=false matches the unfiltered breakdown', () => {
+    const open = buildForgeRun(classification, BAL_PLENTY, { levelTarget: 20 });
+    const explicit = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 20,
+      favoritesOnly: false,
+      favoriteHeroIds: new Set([BRUENOR.id]),
+    });
+    assert.deepEqual(
+      explicit.favorBreakdown.map((f) => ({
+        id: f.resetCurrencyId,
+        a: f.affectingCount,
+        u: f.upgradeableCount,
+      })),
+      open.favorBreakdown.map((f) => ({
+        id: f.resetCurrencyId,
+        a: f.affectingCount,
+        u: f.upgradeableCount,
+      }))
+    );
+  });
+
+  test('favoritesOnly=true with no favorites collapses to DPS-only counts', () => {
+    const dpsOnly = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 20,
+      favoritesOnly: true,
+      favoriteHeroIds: new Set(),
+    });
+    // Cazrin (DPS) DPS-affecting slots in LEGS_BASELINE:
+    //   slot 1 (L5, cur 10), slot 2 (L19, cur 10), slot 4 (L3, cur 12),
+    //   slot 5 (L3, cur 13).
+    // Currency 10: affecting=2 (slot 1 + slot 2). Slot 2 is L19 (still <20),
+    //   so it stays in the breakdown.
+    // Currency 12: affecting=1 (slot 4 only — Cazrin).
+    // Currency 13: affecting=1 (slot 5 only — Cazrin).
+    const cur10 = dpsOnly.favorBreakdown.find((f) => f.resetCurrencyId === 10);
+    const cur12 = dpsOnly.favorBreakdown.find((f) => f.resetCurrencyId === 12);
+    const cur13 = dpsOnly.favorBreakdown.find((f) => f.resetCurrencyId === 13);
+    assert.ok(cur10);
+    assert.equal(cur10.affectingCount, 2);
+    assert.ok(cur12);
+    assert.equal(cur12.affectingCount, 1);
+    assert.ok(cur13);
+    assert.equal(cur13.affectingCount, 1);
+    // Currency 11 — Minsc-only — should drop out entirely.
+    assert.equal(
+      dpsOnly.favorBreakdown.find((f) => f.resetCurrencyId === 11),
+      undefined
+    );
+  });
+
+  test('favoritesOnly=true with Bruenor favorited adds his affecting slots back', () => {
+    const withBruenor = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 20,
+      favoritesOnly: true,
+      favoriteHeroIds: new Set([BRUENOR.id]),
+    });
+    // Bruenor adds 1 DPS-affecting slot tied to currency 10 (slot 1, L5).
+    // Currency 10 affecting goes from 2 (DPS-only) → 3.
+    const cur10 = withBruenor.favorBreakdown.find((f) => f.resetCurrencyId === 10);
+    assert.ok(cur10);
+    assert.equal(cur10.affectingCount, 3);
+    // Currency 11 (Minsc-only) is still out — Minsc isn't favorited.
+    assert.equal(
+      withBruenor.favorBreakdown.find((f) => f.resetCurrencyId === 11),
+      undefined
+    );
+  });
+
+  test('DPS hero is exempt from favoritesOnly even when not in the favorites set', () => {
+    // Favorites set explicitly excludes the DPS — DPS slots must still
+    // contribute. Use a non-existent hero id to make the intent clear.
+    const result = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 20,
+      favoritesOnly: true,
+      favoriteHeroIds: new Set([999999]),
+    });
+    // Should match the "no favorites" DPS-only breakdown.
+    const dpsOnly = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 20,
+      favoritesOnly: true,
+      favoriteHeroIds: new Set(),
+    });
+    assert.deepEqual(
+      result.favorBreakdown.map((f) => f.resetCurrencyId).sort(),
+      dpsOnly.favorBreakdown.map((f) => f.resetCurrencyId).sort()
+    );
+  });
+
+  test('favoritesOnly + levelTarget compose: target=10 + Bruenor favorited', () => {
+    const result = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 10,
+      favoritesOnly: true,
+      favoriteHeroIds: new Set([BRUENOR.id]),
+    });
+    // Below-L10 + (DPS or Bruenor):
+    //   Cazrin1 (L5, cur 10), Cazrin4 (L3, cur 12), Cazrin5 (L3, cur 13),
+    //   Bruenor1 (L5, cur 10).
+    // Currency 10 affecting: 2 (Cazrin1 + Bruenor1). Cazrin2 (L19) is
+    //   above target so it drops out.
+    const cur10 = result.favorBreakdown.find((f) => f.resetCurrencyId === 10);
+    assert.ok(cur10);
+    assert.equal(cur10.affectingCount, 2);
+    // Currency 11 (Minsc-only) still gone — not favorited.
+    assert.equal(
+      result.favorBreakdown.find((f) => f.resetCurrencyId === 11),
+      undefined
+    );
+  });
+
+  test('favoriteHeroIds accepts an array (not just a Set)', () => {
+    const arr = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 20,
+      favoritesOnly: true,
+      favoriteHeroIds: [BRUENOR.id],
+    });
+    const set = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 20,
+      favoritesOnly: true,
+      favoriteHeroIds: new Set([BRUENOR.id]),
+    });
+    assert.deepEqual(
+      arr.favorBreakdown.map((f) => [f.resetCurrencyId, f.affectingCount]),
+      set.favorBreakdown.map((f) => [f.resetCurrencyId, f.affectingCount])
+    );
+  });
+
+  test('favoriteHeroIds nullish + favoritesOnly=true collapses to DPS-only', () => {
+    const result = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 20,
+      favoritesOnly: true,
+      // favoriteHeroIds intentionally omitted
+    });
+    // Same DPS-only breakdown as the empty-Set case.
+    const dpsOnly = buildForgeRun(classification, BAL_PLENTY, {
+      levelTarget: 20,
+      favoritesOnly: true,
+      favoriteHeroIds: new Set(),
+    });
+    assert.deepEqual(
+      result.favorBreakdown.map((f) => f.resetCurrencyId),
+      dpsOnly.favorBreakdown.map((f) => f.resetCurrencyId)
+    );
+  });
+});
+
 // ---------------------------------------------------------------------------
 // buildReforge
 // ---------------------------------------------------------------------------

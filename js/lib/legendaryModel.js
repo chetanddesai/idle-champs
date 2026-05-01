@@ -249,9 +249,20 @@ export function classifySlots(inputs) {
  * Favor priority panel is ranked by `upgradeableCount` desc, tiebroken by
  * `affectingCount` desc (PRD §9 decision 15).
  *
+ * The optional `favoritesOnly` + `favoriteHeroIds` knob narrows the favor
+ * aggregation to the DPS hero plus any "favorited" supporting heroes — so
+ * the panel's Upgradeable / Affecting counts and the panel's ranking only
+ * reflect heroes the user has explicitly tagged. The DPS hero is always
+ * exempt because it's the anchor of the view (the hero list keeps the
+ * same exemption). The hero-list / slot-tile rows still come back
+ * un-filtered; the view layer applies the favorites filter to those.
+ *
  * @param {ClassificationOutput} classification
  * @param {UserBalances}         userBalances
- * @param {{levelTarget?: number}} [options]
+ * @param {object}  [options]
+ * @param {number}  [options.levelTarget]    integer in [1, 20]; defaults to 20
+ * @param {boolean} [options.favoritesOnly]  if true, narrow favor aggregation to favorites + DPS
+ * @param {Set<number>|number[]} [options.favoriteHeroIds]  hero ids treated as favorites
  * @returns {ForgeRunState}
  */
 export function buildForgeRun(classification, userBalances, options) {
@@ -262,6 +273,28 @@ export function buildForgeRun(classification, userBalances, options) {
     Number.isFinite(rawTarget) && rawTarget >= 1 && rawTarget <= MAX_LEVEL
       ? Math.floor(rawTarget)
       : MAX_LEVEL;
+
+  const favoritesOnly = options?.favoritesOnly === true;
+
+  // Coerce favorite hero ids into a Set<number>. Accepts Set, array, or
+  // nullish. Non-finite / non-number entries are silently dropped — same
+  // defensive coercion getFavoritesSet() in state.js applies.
+  let favoriteHeroIds;
+  if (options?.favoriteHeroIds instanceof Set) {
+    favoriteHeroIds = new Set(
+      [...options.favoriteHeroIds]
+        .map((n) => Number(n))
+        .filter((n) => Number.isFinite(n))
+    );
+  } else if (Array.isArray(options?.favoriteHeroIds)) {
+    favoriteHeroIds = new Set(
+      options.favoriteHeroIds
+        .map((n) => Number(n))
+        .filter((n) => Number.isFinite(n))
+    );
+  } else {
+    favoriteHeroIds = new Set();
+  }
 
   const empty = Object.freeze({
     selectedDpsId: classification?.selectedDpsId ?? null,
@@ -280,6 +313,17 @@ export function buildForgeRun(classification, userBalances, options) {
     : new Map();
   const scales = typeof userBalances?.scales === 'number' ? userBalances.scales : 0;
 
+  // A hero contributes to the favor aggregation when it's the DPS hero OR
+  // (favoritesOnly is off) OR (favoritesOnly is on AND the hero is
+  // favorited). The DPS hero is always exempt — it's the anchor of the
+  // view and is never hidden by the favorites toggle.
+  const dpsHeroId = classification.selectedDpsId;
+  const heroContributes = (heroId) => {
+    if (heroId === dpsHeroId) return true;
+    if (!favoritesOnly) return true;
+    return favoriteHeroIds.has(heroId);
+  };
+
   const isUpgradeable = (slot) =>
     slot.currentEffectId != null &&
     slot.equippedLevel < levelTarget &&
@@ -288,12 +332,14 @@ export function buildForgeRun(classification, userBalances, options) {
 
   // Favor aggregation — { [resetCurrencyId]: { affectingCount, upgradeableCount } }
   // accumulated across every DPS-affecting slot that's below the target on
-  // DPS-hero and supporting-hero rows alike. Slots already at/above target
-  // don't contribute — they're "done" relative to the current milestone.
+  // DPS-hero and (contributing) supporting-hero rows. Slots already
+  // at/above target, and slots on non-contributing heroes when
+  // favoritesOnly is on, don't contribute.
   const favorAgg = new Map();
   const addToFavor = (slot, { upgradeable }) => {
     if (!slot.affectsDps || slot.resetCurrencyId === 0) return;
     if (slot.equippedLevel >= levelTarget) return;
+    if (!heroContributes(slot.heroId)) return;
     let entry = favorAgg.get(slot.resetCurrencyId);
     if (!entry) {
       entry = { resetCurrencyId: slot.resetCurrencyId, affectingCount: 0, upgradeableCount: 0 };

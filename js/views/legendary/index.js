@@ -183,6 +183,10 @@ function handleFavoritesOnlyChange(next) {
   const current = coerceFavoritesOnly();
   const value = !!next;
   if (value === current) return;
+  // Same rationale as handleLevelTargetChange: toggling re-segments the
+  // favor priority breakdown, so any active per-favor filter may now
+  // point at a row that no longer exists. Clear it for clarity.
+  forgeFavorFilter = null;
   state.set(KEYS.LEGENDARY_FAVORITES_ONLY, value);
   rerender();
 }
@@ -191,6 +195,11 @@ function handleFavoriteToggle(heroId) {
   // Toggle persists immediately. We re-render so the heart re-paints AND
   // — when "favorites only" is on — the row removes itself if the user
   // un-favorited their last visible hero.
+  //
+  // Note: we deliberately DO NOT clear the favor filter here. A heart
+  // toggle is a small, incremental change; clearing the filter on every
+  // click would be jarring. If the toggle happens to drop the only hero
+  // backing the active favor row, the empty-state copy explains why.
   state.toggleFavorite(heroId);
   rerender();
 }
@@ -369,7 +378,11 @@ function renderActiveTab({
   }
 
   const userBalances = deriveUserBalances(userDetails);
-  const forgeState = buildForgeRun(classification, userBalances, { levelTarget });
+  const forgeState = buildForgeRun(classification, userBalances, {
+    levelTarget,
+    favoritesOnly,
+    favoriteHeroIds: favorites,
+  });
 
   return forgeRun.render({
     forgeState,
