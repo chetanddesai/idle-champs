@@ -1,4 +1,6 @@
-# idle-champs
+# Idle Champions Helper
+
+> Short name: **IC Helper** (used as the home-screen label when installed as a PWA).
 
 Static GitHub Pages companion site for **Idle Champions of the Forgotten Realms**, built as a sibling to [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). V1 covers **Legendary Items** and **Specialization Choices**.
 
