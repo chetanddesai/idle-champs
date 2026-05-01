@@ -11,6 +11,27 @@
     <meta name="theme-color" content="#0f0e17" />
     <meta name="color-scheme" content="dark" />
 
+    <!--
+      Google Analytics (gtag.js / GA4). Loaded async; the inline init block
+      runs synchronously to seed `dataLayer` and the gtag() shim before the
+      external script lands. Allowed by CSP via the script-src,
+      connect-src, and img-src additions for googletagmanager.com /
+      google-analytics.com below.
+
+      Privacy note: enabling GA means user behavior on this site is sent
+      to Google. The footer's "user_id and hash never leave your browser"
+      claim still holds for the IC credentials specifically — those stay
+      in localStorage and are sent only to Idle Champions servers — but
+      page-view + UI-interaction telemetry now goes to GA.
+    -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BT8TYM7NDM"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-BT8TYM7NDM');
+    </script>
+
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png" />
@@ -49,23 +70,32 @@
     <link rel="stylesheet" href="css/components.css?v=6" />
 
     <!--
-      Content Security Policy: fetch() is permitted only against the master
-      server + play-server shards (ps0…ps99) and the Google Fonts surface we
-      actually use. No analytics, no third-party embeds.
+      Content Security Policy: fetch() is permitted against the master
+      server + play-server shards (ps0…ps99), the Google Fonts surface we
+      use, and Google Analytics (gtag.js).
 
-      script-src includes 'unsafe-inline' to allow the two inline <script>
-      blocks in this file: the __BUILD_ID__ assignment above and the
-      <script type="importmap"> below. XSS risk is minimal in this app:
-      there is no server-rendered HTML and no user-controlled string that
-      reaches innerHTML (all dynamic UI uses textContent / DOM helpers).
-      External-file alternatives were considered but rejected: external
-      import maps have uneven browser support, and moving __BUILD_ID__
-      to a separate file would split the single-file release knob into
-      multiple files (defeating the point of the cache-busting design).
+      script-src includes 'unsafe-inline' to allow the inline <script>
+      blocks in this file: the __BUILD_ID__ assignment, the gtag init
+      block above, and the <script type="importmap"> below. XSS risk is
+      minimal in this app: there is no server-rendered HTML and no
+      user-controlled string that reaches innerHTML (all dynamic UI uses
+      textContent / DOM helpers). External-file alternatives were
+      considered but rejected: external import maps have uneven browser
+      support, and moving __BUILD_ID__ to a separate file would split
+      the single-file release knob into multiple files (defeating the
+      point of the cache-busting design).
+
+      Google Analytics additions (per Google's recommended GA4 CSP,
+      https://support.google.com/analytics/answer/9976101):
+        - script-src:  https://www.googletagmanager.com   (loads gtag.js)
+        - img-src:     https://www.googletagmanager.com   (tracking pixels)
+                       https://www.google-analytics.com   (legacy hits)
+        - connect-src: https://www.google-analytics.com   (GA4 beacons)
+                       https://www.googletagmanager.com   (config fetch)
     -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://emmotes.github.io; connect-src 'self' https://master.idlechampions.com https://*.idlechampions.com; manifest-src 'self'; base-uri 'self'; form-action 'self';"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://emmotes.github.io https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://master.idlechampions.com https://*.idlechampions.com https://www.google-analytics.com https://www.googletagmanager.com; manifest-src 'self'; base-uri 'self'; form-action 'self';"
     />
 
     <!--
@@ -191,8 +221,11 @@
       </p>
       <p>
         Your <code>user_id</code> and <code>hash</code> are stored only in your browser's
-        <code>localStorage</code> and transmitted only to the official Idle Champions
-        play servers.
+        <a href="https://github.com/chetanddesai/idle-champs/blob/main/js/state.js" rel="noopener"><code>localStorage</code></a>
+        and
+        <a href="https://github.com/chetanddesai/idle-champs/blob/main/js/serverCalls.js" rel="noopener">transmitted only to the official Idle Champions play servers</a>.
+        Anonymous page-view analytics are sent to Google Analytics to help shape
+        future improvements; no game credentials are included.
       </p>
     </footer>
 
