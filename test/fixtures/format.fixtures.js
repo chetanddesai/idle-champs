@@ -51,6 +51,20 @@ export const FAVOR_CASES = Object.freeze([
   { name: 'NaN → placeholder', input: Number.NaN, expected: '—' },
 ]);
 
+export const SCIENTIFIC_CASES = Object.freeze([
+  { name: 'small unchanged', input: 125, expected: '125' },
+  { name: '999 still integer', input: 999, expected: '999' },
+  { name: '1000 switches to scientific', input: 1000, expected: '1.0e+3' },
+  { name: 'L5 base 125 doubling result', input: 2000, expected: '2.0e+3' },
+  { name: 'L7 base 20 doubling result', input: 1280, expected: '1.3e+3' },
+  { name: 'L9 base 125 doubling result', input: 32_000, expected: '3.2e+4' },
+  { name: 'L20 base 125 doubling result', input: 65_536_000, expected: '6.6e+7' },
+  { name: 'negative large', input: -1_500_000, expected: '-1.5e+6' },
+  { name: 'zero stays integer', input: 0, expected: '0' },
+  { name: 'null → placeholder', input: null, expected: '—' },
+  { name: 'NaN → placeholder', input: Number.NaN, expected: '—' },
+]);
+
 // Anchor `now` to a fixed epoch so tests are stable across clock drift.
 // 2026-04-24T22:00:00.000Z.
 export const NOW = new Date('2026-04-24T22:00:00.000Z').getTime();

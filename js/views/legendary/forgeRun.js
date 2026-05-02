@@ -31,6 +31,7 @@ import { el } from '../../lib/dom.js';
 import {
   formatInteger,
   formatCompact,
+  formatScientific,
   formatFavor,
 } from '../../lib/format.js';
 import { heroPortraitUrl, heroMonogram } from '../../lib/heroImage.js';
@@ -695,10 +696,13 @@ function renderTileBody({ slot, tileState, currentAmount, qualifier, favorsByCur
 
 function renderAmountChip(currentAmount) {
   if (currentAmount == null) return null;
+  // Scientific notation rather than K/M/B compact: legendary scaling is
+  // geometric, so adjacent levels look identical under compact ("65M" vs.
+  // "131M" both round to the same eyeball read) but read clearly apart in
+  // exponential form. The tile-level tooltip carries the exact number.
   return el('span', {
     class: 'slot-tile__amount',
-    text: `+${formatCompact(currentAmount)}%`,
-    attrs: { title: `Current bonus at this level: +${formatInteger(currentAmount)}%` },
+    text: `+${formatScientific(currentAmount)}%`,
   });
 }
 
@@ -721,19 +725,20 @@ function renderCostRow(slot, favorsByCurrencyId) {
     favorsByCurrencyId?.[slot.resetCurrencyId]?.short_name ??
     (slot.resetCurrencyId ? `#${slot.resetCurrencyId}` : '');
 
+  // Per-element titles intentionally omitted — the tile container carries
+  // a single tooltip (`buildTileTooltip`) that already lists the exact
+  // Scales + favor breakdown alongside the effect description, so nesting
+  // sub-tooltips would show a redundant bubble whenever a player's pointer
+  // happened to land on a chip rather than the tile background.
   return el('div', { class: 'slot-tile__cost' }, [
     el('span', {
       class: 'slot-tile__cost-scales',
       text: formatCompact(slot.upgradeCost),
-      attrs: { title: `${formatInteger(slot.upgradeCost)} Scales of Tiamat` },
     }),
     slot.upgradeFavorCost > 0 &&
       el('span', {
         class: 'slot-tile__cost-favor',
         text: favorName ? `${formatCompact(slot.upgradeFavorCost)} ${favorName}` : formatCompact(slot.upgradeFavorCost),
-        attrs: {
-          title: `${formatFavor(slot.upgradeFavorCost)} favor${favorName ? ` (${favorName})` : ''}`,
-        },
       }),
   ]);
 }

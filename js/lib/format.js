@@ -25,7 +25,16 @@
  *     or `formatCompact`      (short form when space is tight)
  *
  *   Favor balances, `upgrade_favor_cost`, `upgrade_favor_required`
- *     → `formatFavor`         (scientific once the value exceeds ~1000)
+ *     → `formatFavor`         (scientific once the value exceeds ~1000,
+ *                              two decimals — chosen to match how IC's own
+ *                              client renders very large favor balances)
+ *
+ *   Damage bonus amounts on Forge Run tiles (legendary effect amounts
+ *   scale geometrically — see `effectFormat.js`)
+ *     → `formatScientific`    (scientific with one decimal — keeps the
+ *                              tile chip narrow and avoids the K/M/B/T
+ *                              ambiguity at the high end of legendary
+ *                              levels)
  *
  *   `fetched_at`, `last_refresh_at`, API response timestamps
  *     → `formatTimeAgo`
@@ -149,6 +158,38 @@ export function formatFavor(n) {
   if (!isFiniteNumber(n)) return PLACEHOLDER;
   if (Math.abs(n) < 1000) return formatInteger(n);
   return n.toExponential(2);
+}
+
+/**
+ * Format a number using scientific notation once it exceeds the readable
+ * range. Below 1000, falls through to `formatInteger` so small values stay
+ * exact and grouped ("125", "999"). At or above 1000, uses single-decimal
+ * exponential form to keep tile chips narrow.
+ *
+ *   formatScientific(125)        → "125"
+ *   formatScientific(999)        → "999"
+ *   formatScientific(1000)       → "1.0e+3"
+ *   formatScientific(2000)       → "2.0e+3"
+ *   formatScientific(32_000)     → "3.2e+4"
+ *   formatScientific(65_536_000) → "6.6e+7"
+ *   formatScientific(0)          → "0"
+ *   formatScientific(null)       → "—"
+ *
+ * Used for the `+<amount>%` chip on Forge Run tiles where the geometric
+ * legendary scaling can push values from ~100% at L1 into the tens-of-
+ * millions percent at L20. Compact "K/M/B" notation hides too much
+ * precision at the high end ("65M" vs. "104M" reads as nearly the same
+ * even though they're a doubling apart), and scientific is the form
+ * IC's own client uses for very large bonuses.
+ *
+ * @param {unknown} n
+ * @param {number} [fractionDigits=1]
+ * @returns {string}
+ */
+export function formatScientific(n, fractionDigits = 1) {
+  if (!isFiniteNumber(n)) return PLACEHOLDER;
+  if (Math.abs(n) < 1000) return formatInteger(n);
+  return n.toExponential(fractionDigits);
 }
 
 /**

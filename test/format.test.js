@@ -11,6 +11,7 @@ import {
   formatInteger,
   formatCompact,
   formatFavor,
+  formatScientific,
   formatTimeAgo,
   formatDuration,
   formatPhase,
@@ -20,6 +21,7 @@ import {
   INTEGER_CASES,
   COMPACT_CASES,
   FAVOR_CASES,
+  SCIENTIFIC_CASES,
   TIMEAGO_CASES,
   DURATION_CASES,
   PHASE_CASES,
@@ -48,6 +50,20 @@ test('formatFavor', async (t) => {
       assert.equal(formatFavor(c.input), c.expected);
     });
   }
+});
+
+test('formatScientific', async (t) => {
+  for (const c of SCIENTIFIC_CASES) {
+    await t.test(c.name, () => {
+      assert.equal(formatScientific(c.input), c.expected);
+    });
+  }
+});
+
+test('formatScientific — explicit fractionDigits override', () => {
+  // Two-decimal precision used for parity tests against formatFavor.
+  assert.equal(formatScientific(2000, 2), '2.00e+3');
+  assert.equal(formatScientific(65_536_000, 0), '7e+7');
 });
 
 test('formatTimeAgo', async (t) => {
