@@ -285,6 +285,13 @@
   margin: 0 auto;
 }
 
+/* Top-level error boundary card. Reuses .placeholder typography and
+   only adds a centered action row beneath the body copy. */
+.error-boundary__actions {
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
 /* ---------- Home dashboard ---------- */
 
 .home-card__header {

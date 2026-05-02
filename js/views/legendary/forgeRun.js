@@ -98,52 +98,51 @@ export function render({
   onFavoriteToggle,
   selectedDpsId,
 }) {
-  const container = el('div', {
-    class: 'forge-run',
-    attrs: {
-      role: 'tabpanel',
-      id: 'legendary-tabpanel-forge-run',
-      'aria-labelledby': 'legendary-tab-forge-run',
+  // Build the container via el() with a children array so null returns
+  // from any child renderer (e.g. renderNonContributorDisclosure when
+  // every hero contributes — small rosters, well-supported DPS) are
+  // silently filtered by appendChildren() instead of throwing
+  // "appendChild: parameter 1 is not of type 'Node'".
+  return el(
+    'div',
+    {
+      class: 'forge-run',
+      attrs: {
+        role: 'tabpanel',
+        id: 'legendary-tabpanel-forge-run',
+        'aria-labelledby': 'legendary-tab-forge-run',
+      },
     },
-  });
-
-  container.appendChild(
-    renderFavorPanel({
-      breakdown: forgeState.favorBreakdown,
-      favorsByCurrencyId,
-      favorFilter,
-      onFavorFilterChange,
-      levelTarget,
-      onLevelTargetChange,
-      favoritesOnly,
-      onFavoritesOnlyChange,
-    })
+    [
+      renderFavorPanel({
+        breakdown: forgeState.favorBreakdown,
+        favorsByCurrencyId,
+        favorFilter,
+        onFavorFilterChange,
+        levelTarget,
+        onLevelTargetChange,
+        favoritesOnly,
+        onFavoritesOnlyChange,
+      }),
+      renderHeroList({
+        forgeState,
+        favorFilter,
+        heroesById,
+        effectsById,
+        favorsByCurrencyId,
+        heroImages: defs.heroImages,
+        levelTarget,
+        favoritesOnly,
+        favorites,
+        onFavoriteToggle,
+      }),
+      renderNonContributorDisclosure({
+        classification,
+        forgeState,
+        selectedDpsId,
+      }),
+    ]
   );
-
-  container.appendChild(
-    renderHeroList({
-      forgeState,
-      favorFilter,
-      heroesById,
-      effectsById,
-      favorsByCurrencyId,
-      heroImages: defs.heroImages,
-      levelTarget,
-      favoritesOnly,
-      favorites,
-      onFavoriteToggle,
-    })
-  );
-
-  container.appendChild(
-    renderNonContributorDisclosure({
-      classification,
-      forgeState,
-      selectedDpsId,
-    })
-  );
-
-  return container;
 }
 
 // ---------------------------------------------------------------------------

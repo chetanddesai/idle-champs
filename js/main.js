@@ -24,7 +24,7 @@ import { getPlayServerForDefinitions, getUserDetails } from './serverCalls.js';
 import { isValidCredentials } from './credentials.js';
 import { formatTimeAgo } from './lib/format.js';
 import { el, mount } from './lib/dom.js';
-import { showToast, showError } from './lib/toast.js';
+import { showToast, showError, describeError } from './lib/toast.js';
 import * as settingsView from './views/settings.js';
 import * as homeView from './views/home.js';
 import * as legendaryView from './views/legendary/index.js';
@@ -74,8 +74,70 @@ function renderCurrentRoute() {
     return;
   }
 
-  const fn = ROUTES[currentRoute()] || renderHome;
-  fn(host);
+  // Top-level error boundary. Any uncaught exception inside a view's
+  // render path falls through here so customers see a friendly card
+  // (and a reload button) instead of a half-rendered page. We also
+  // surface the error to GA via gtag('event', 'exception', ...) so
+  // these show up in analytics next time something regresses.
+  const route = currentRoute();
+  const fn = ROUTES[route] || renderHome;
+  try {
+    fn(host);
+  } catch (err) {
+    renderErrorBoundary(host, err, route);
+  }
+}
+
+function reportException(err, route) {
+  // eslint-disable-next-line no-console
+  console.error('[ic-helper] view render failed:', route, err);
+  try {
+    if (typeof globalThis.gtag === 'function') {
+      const stack = err && err.stack ? String(err.stack).slice(0, 500) : '';
+      globalThis.gtag('event', 'exception', {
+        description: `${route} :: ${describeError(err)}`,
+        stack,
+        fatal: true,
+      });
+    }
+  } catch {
+    // GA is best-effort; never let logging break the boundary itself.
+  }
+}
+
+function renderErrorBoundary(host, err, route) {
+  reportException(err, route);
+
+  try {
+    mount(host, [
+      el('section', { class: 'card placeholder error-boundary' }, [
+        el('h2', { class: 'placeholder__title', text: 'Something went wrong' }),
+        el('p', {
+          class: 'placeholder__body',
+          text:
+            'This is a bug. Reloading usually clears it, and the error has been logged so we can investigate.',
+        }),
+        el('div', { class: 'btn-row error-boundary__actions' }, [
+          el('button', {
+            class: 'btn btn--primary',
+            attrs: { type: 'button' },
+            text: 'Reload page',
+            on: {
+              click: () => globalThis.location.reload(),
+            },
+          }),
+        ]),
+      ]),
+    ]);
+  } catch (mountErr) {
+    // Last-ditch fallback: the boundary itself failed to render. Use
+    // plain DOM so the user is never left staring at a blank page.
+    // eslint-disable-next-line no-console
+    console.error('[ic-helper] error boundary failed:', mountErr);
+    if (host) {
+      host.textContent = 'Something went wrong. Please reload the page.';
+    }
+  }
 }
 
 function renderHome(host) {
