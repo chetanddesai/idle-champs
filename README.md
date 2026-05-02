@@ -2,7 +2,7 @@
 
 > Short name: **IC Helper** (used as the home-screen label when installed as a PWA).
 
-Static GitHub Pages companion site for **Idle Champions of the Forgotten Realms**, built as a sibling to [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). V1 covers **Legendary Items** and **Specialization Choices**.
+Static GitHub Pages companion site for **Idle Champions of the Forgotten Realms**. V1 covers **Legendary Items** and **Specialization Choices**.
 
 **Live site:** <https://chetanddesai.github.io/idle-champs>
 
@@ -52,7 +52,7 @@ npm test
 | `js/lib/`                   | Pure helpers: `scopeMatcher`, `legendaryModel`, `format`, `dom`. All `node:test`-covered.   |
 | `js/views/`                 | DOM-rendering view modules (Settings today; Legendary + Specializations in later milestones). |
 | `test/`                     | `node:test` suite + frozen fixtures for each pure module.                                   |
-| `img/`, `site.webmanifest`  | Favicons & manifest — shared with my sibling site `[ic-specs](https://github.com/chetanddesai/ic-specs)` so the two read as one family. |
+| `img/`, `site.webmanifest`  | Favicons & PWA manifest.                                                                    |
 | `data/`                     | Bundled trimmed game definitions used as a zero-network baseline for labels (see below).    |
 | `scripts/refresh-defs.js`   | Regenerates `data/*.json` from a live `getdefinitions` call.                                |
 | `docs/`                     | PRD, tech design, API reference, and scrubbed sample responses.                             |
@@ -116,7 +116,6 @@ Commit the updated files. A typical refresh cadence is "after any Idle Champions
 ## Acknowledgments
 
 - **`[Emmotes/ic_servercalls](https://github.com/Emmotes/ic_servercalls)`** — the foundational community reference for the Idle Champions play-server API. The endpoint catalog and parameter shapes in `[docs/server-calls.md](./docs/server-calls.md)` were learned from Emmote's project; the empirical notes, response-enrichment strategy, and suggested client-side data models are this project's own additions. Thanks to [@Emmotes](https://github.com/Emmotes) for the foundational work and for making the repo MIT-licensed so the community tooling story is cleanly aligned.
-- **`[chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs)`** — sibling site I maintain that shares this project's visual language. Favicons and `site.webmanifest` are the same assets across both.
 - **Codename Entertainment / Wizards of the Coast** — authors of *Idle Champions of the Forgotten Realms*. This project is an unaffiliated fan-made tool; all game names, characters, and trademarks belong to their respective owners.
 
 ## License
