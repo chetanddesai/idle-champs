@@ -21,12 +21,22 @@
  *   - effect_string: '<type>,<base>' e.g. "hero_dps_multiplier_mult,125"
  *   - description:   template with `$amount` or `$(amount)` placeholders
  *
- * Scaling rule (docs/server-calls.md §"Resolving legendary effect IDs"):
- *   amount_at_level_N  =  base × N
+ * Scaling rule (each legendary level doubles the bonus — IC's geometric
+ * upgrade curve, NOT linear; see docs/server-calls.md §"Resolving legendary
+ * effect IDs"):
  *
- * There is no polynomial/diminishing-returns term in the live data — the
- * multiplier is strictly linear in level. We preserve that semantic here
- * rather than re-deriving it from the formula in the view.
+ *   amount_at_level_N  =  base × 2^(N − 1)   for N ≥ 1
+ *   amount_at_level_0  =  0                   (uncrafted slot — no bonus)
+ *
+ * Worked examples (matching in-game tooltips):
+ *   base 125 @ L1  → 125
+ *   base 125 @ L5  → 125 × 16  = 2000
+ *   base 125 @ L9  → 125 × 256 = 32_000
+ *   base 125 @ L20 → 125 × 524288 = 65_536_000
+ *   base  20 @ L7  →  20 × 64  = 1280
+ *
+ * We compute the value here (not in the view) so the same number is shared
+ * between the tile chip, the chip's own title, and the full tile tooltip.
  */
 
 const PLACEHOLDER = '?';
@@ -122,17 +132,20 @@ export function effectBaseAmount(effectString) {
 
 /**
  * Compute the current amount an effect is applying at the given equipped
- * level. Per the live-API scaling rule (docs/server-calls.md), the amount
- * is linear in level:
+ * level. Per IC's legendary-upgrade scaling rule, each level *doubles* the
+ * bonus (geometric, not linear):
  *
- *   amount_at_level_N = base × N
+ *   amount_at_level_N = base × 2^(N − 1)   for N ≥ 1
+ *   amount_at_level_0 = 0                  (uncrafted slot)
  *
- * At level 0 (uncrafted) this returns 0, which is semantically correct (an
- * uncrafted slot applies no bonus) but callers should usually not render
- * this for empty tiles at all.
+ * Level 0 returns 0 rather than `base / 2` — semantically an uncrafted slot
+ * applies no bonus, and the formula's domain starts at L1. Callers usually
+ * skip rendering for empty tiles entirely.
  *
- *   effectCurrentAmount({effect_string:'_,100'}, 5)  → 500
- *   effectCurrentAmount({effect_string:'_,125'}, 20) → 2500
+ *   effectCurrentAmount({effect_string:'_,100'}, 1)  → 100
+ *   effectCurrentAmount({effect_string:'_,125'}, 5)  → 2000     (125 × 16)
+ *   effectCurrentAmount({effect_string:'_,20'}, 7)   → 1280     (20 × 64)
+ *   effectCurrentAmount({effect_string:'_,125'}, 20) → 65536000 (125 × 524288)
  *   effectCurrentAmount({effect_string:'_,100'}, 0)  → 0
  *   effectCurrentAmount(null, 5)                     → null
  *   effectCurrentAmount({effect_string:'bad'}, 5)    → null
@@ -144,8 +157,10 @@ export function effectBaseAmount(effectString) {
 export function effectCurrentAmount(effect, level) {
   const base = effectBaseAmount(effect?.effect_string);
   if (base == null) return null;
-  if (!Number.isFinite(Number(level))) return null;
-  return base * Number(level);
+  const lvl = Number(level);
+  if (!Number.isFinite(lvl)) return null;
+  if (lvl <= 0) return 0;
+  return base * 2 ** (lvl - 1);
 }
 
 /**

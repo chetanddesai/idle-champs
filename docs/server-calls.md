@@ -301,7 +301,7 @@ Slot keys observed are strings `"1"`–`"6"`. Each item is an object:
 
 Key points for rendering:
 
-1. **Effect-scaling:** the integer after the comma in `effect_string` is the **per-level amount**. To show the in-game text, substitute `amount = base × level` into the `description` template. The template uses either `$amount` or `$(amount)` as a placeholder (both forms appear in the live data — replace both).
+1. **Effect-scaling:** the integer after the comma in `effect_string` is the **base amount at level 1**. Each subsequent legendary level **doubles** the bonus (geometric, not linear). To show the in-game text, substitute `amount = base × 2^(level − 1)` into the `description` template. Worked examples: a "125% per Female Champion" effect at level 5 reads as `125 × 2⁴ = 2000%`; a "20% for each CHA ≥ 11 Champion" effect at level 7 reads as `20 × 2⁶ = 1280%`. Level 0 (uncrafted) is 0. The template uses either `$amount` or `$(amount)` as a placeholder (both forms appear in the live data — replace both).
 2. **No display name:** unlike `buff_defines`, legendary effects have no `name` field. The resolved `description` is the label the UI should show.
 3. **Targets:** `["active_campaign"]` means the effect only fires in the adventure where the corresponding favor is earned; `["all_slots"]` means it applies globally. Worth displaying as a secondary badge.
 4. **ID-space is disjoint from `buff_defines`.** A lookup by the same integer against both will silently return the wrong record (e.g. `buff_id=1` is "Small Potion of Giant's Strength"; `legendary_effect_id=1` is the global DPS effect above).
@@ -314,8 +314,9 @@ function resolveLegendaryEffect(effectId, level, legendaryEffectDefines) {
   const def = legendaryEffectDefines.find(e => e.id === effectId);
   if (!def) return { id: effectId, description: `(unknown effect ${effectId})` };
   const eff = def.effects[0];
-  const base = Number(eff.effect_string.split(',').pop());      // e.g. 100
-  const amount = base * level;                                  // e.g. level=5 → 500
+  const base = Number(eff.effect_string.split(',').pop());      // e.g. 125
+  // Geometric scaling — each level doubles the bonus. Domain starts at L1.
+  const amount = level >= 1 ? base * 2 ** (level - 1) : 0;       // level=5 → 2000
   const description = eff.description
     .replace(/\$\(amount\)/g, String(amount))
     .replace(/\$amount/g, String(amount));

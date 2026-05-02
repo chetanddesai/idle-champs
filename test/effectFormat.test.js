@@ -136,14 +136,14 @@ test('effectBaseAmount — malformed input returns null', () => {
 // effectCurrentAmount
 // ---------------------------------------------------------------------------
 
-test('effectCurrentAmount — base × level (linear scaling)', () => {
+test('effectCurrentAmount — base × 2^(level-1) (geometric scaling)', () => {
   assert.equal(
     effectCurrentAmount({ effect_string: 'hero_dps_multiplier_mult,125' }, 5),
-    625
+    2000
   );
   assert.equal(
     effectCurrentAmount({ effect_string: 'hero_dps_multiplier_mult,125' }, 20),
-    2500
+    65_536_000
   );
   assert.equal(
     effectCurrentAmount({ effect_string: 'global_dps_multiplier_mult,100' }, 1),
@@ -151,9 +151,42 @@ test('effectCurrentAmount — base × level (linear scaling)', () => {
   );
 });
 
-test('effectCurrentAmount — level 0 returns 0', () => {
+test('effectCurrentAmount — customer-reported examples', () => {
+  // "increasing damage of all female champions by 125% at level 5 → 2000"
+  assert.equal(
+    effectCurrentAmount({ effect_string: 'hero_dps_multiplier_mult,125' }, 5),
+    2000
+  );
+  // "increasing damage by 20% for each champion with CHA ≥ 11 at level 7 → 1280"
+  assert.equal(
+    effectCurrentAmount({ effect_string: 'global_dps_multiplier_mult,20' }, 7),
+    1280
+  );
+});
+
+test('effectCurrentAmount — every level doubles the previous level', () => {
+  const effect = { effect_string: 'foo,100' };
+  // Each step is exactly 2× the prior step, never additive.
+  assert.equal(effectCurrentAmount(effect, 1), 100);
+  assert.equal(effectCurrentAmount(effect, 2), 200);
+  assert.equal(effectCurrentAmount(effect, 3), 400);
+  assert.equal(effectCurrentAmount(effect, 4), 800);
+  assert.equal(effectCurrentAmount(effect, 5), 1600);
+  assert.equal(effectCurrentAmount(effect, 6), 3200);
+  assert.equal(effectCurrentAmount(effect, 10), 51_200);
+});
+
+test('effectCurrentAmount — level 0 (uncrafted) returns 0', () => {
+  // Domain of the doubling formula starts at L1; L0 is "no bonus".
   assert.equal(
     effectCurrentAmount({ effect_string: 'foo,100' }, 0),
+    0
+  );
+});
+
+test('effectCurrentAmount — negative level treated as uncrafted (returns 0)', () => {
+  assert.equal(
+    effectCurrentAmount({ effect_string: 'foo,100' }, -1),
     0
   );
 });
