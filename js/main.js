@@ -302,11 +302,16 @@ async function bootstrap() {
   renderCurrentRoute();
   updateRefreshBadge();
 
-  // If we already have credentials and no cached userdetails, trigger a
-  // first refresh in the background.
+  // Auto-refresh when credentials exist but either userdetails or the
+  // definitions cache is missing. The definitions cache case covers
+  // returning customers who upgraded from the bundled-defs model — they
+  // have userdetails in localStorage already but ic.definitions.cache
+  // doesn't exist yet, leaving the Legendary view stuck on its loading
+  // state until the user manually clicks Refresh.
   const creds = state.get(KEYS.CREDENTIALS);
   const cached = state.get(KEYS.USER_DETAILS);
-  if (isValidCredentials(creds) && !cached) {
+  const hasDefs = !!state.get(KEYS.DEFINITIONS_CACHE);
+  if (isValidCredentials(creds) && (!cached || !hasDefs)) {
     doRefresh();
   }
 }

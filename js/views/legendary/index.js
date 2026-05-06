@@ -418,9 +418,10 @@ function currentHostIsLegendary(host) {
 function renderLoading(host) {
   mount(host, [
     el('section', { class: 'card legendary-card legendary-card--loading' }, [
+      el('p', { class: 'card__meta', text: 'Loading legendary data…' }),
       el('p', {
-        class: 'card__meta',
-        text: 'Loading legendary data…',
+        class: 'card__meta card__meta--hint',
+        text: 'If nothing appears in a few seconds, tap Refresh above.',
       }),
     ]),
   ]);

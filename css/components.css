@@ -404,6 +404,12 @@
   margin: 1rem 0;
 }
 
+.legendary-card--loading .card__meta--hint {
+  font-size: 0.8rem;
+  opacity: 0.65;
+  margin-top: 0.25rem;
+}
+
 /* ---------- Legendary header (portrait + selector + chips + tabs) ---------- */
 
 .legendary-header {
