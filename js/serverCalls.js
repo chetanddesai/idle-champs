@@ -37,8 +37,8 @@
 export const MASTER_SERVER = 'https://master.idlechampions.com/~idledragons/';
 
 // Boilerplate params the server expects on every call. Mirrors
-// scripts/refresh-defs.js — keep the two in lockstep if either needs
-// adjusting after a game update.
+// scripts/refresh-hero-images.js — keep the two in lockstep if either
+// needs adjusting after a game update.
 const BOILERPLATE = Object.freeze({
   language_id: '1',
   timestamp: '0',
@@ -78,8 +78,8 @@ export class ApiError extends Error {
 function buildUrl(baseUrl, method, params) {
   const qs = new URLSearchParams({ call: method, ...BOILERPLATE, ...params });
   // The server expects GET `baseUrl + post.php` with query params (matches
-  // Emmote's reference client and our refresh-defs.js). `baseUrl` always
-  // ends with a trailing slash by convention.
+  // Emmote's reference client and our refresh-hero-images.js). `baseUrl`
+  // always ends with a trailing slash by convention.
   return `${baseUrl}post.php?${qs.toString()}`;
 }
 
@@ -226,6 +226,51 @@ export async function getUserDetails(ctx) {
     });
   }
   return { details: body.details, body, serverUrl };
+}
+
+/**
+ * Fetch the bundled definitions (heroes, attacks, legendary effects,
+ * campaigns) the Legendary view consumes. We always request the full
+ * payload — no `checksum`, no delta-merging — and rely on
+ * `js/lib/definitions.js` + the runtime cache to keep the working-set
+ * size manageable. See `Runtime defs patching` design doc for the
+ * always-full-payload trade-off rationale.
+ *
+ * Filter is fixed to the four arrays the runtime parser
+ * (`js/lib/legendaryDefsParser.js`) expects; broadening it later means
+ * extending the parser at the same time.
+ *
+ * @param {object} ctx
+ * @param {string} ctx.playServer       — base URL (trailing slash)
+ * @param {string|number} ctx.userId
+ * @param {string} ctx.hash
+ * @param {string|number} ctx.instanceId
+ * @param {Function} [ctx.fetchFn]
+ * @returns {Promise<{ body: object, serverUrl: string }>}
+ */
+export async function getDefinitions(ctx) {
+  const { playServer, userId, hash, instanceId, fetchFn } = ctx || {};
+  if (!playServer) throw new ApiError({ kind: 'api', message: 'getDefinitions: playServer required', raw: null });
+  if (userId == null || !hash) {
+    throw new ApiError({ kind: 'api', message: 'getDefinitions: userId and hash required', raw: null });
+  }
+  if (instanceId == null) {
+    throw new ApiError({ kind: 'api', message: 'getDefinitions: instanceId required', raw: null });
+  }
+  return request(
+    'getdefinitions',
+    playServer,
+    {
+      user_id: String(userId),
+      hash: String(hash),
+      instance_id: String(instanceId),
+      supports_chunked_defs: '0',
+      new_achievements: '1',
+      challenge_sets_no_deltas: '0',
+      filter: 'hero_defines,attack_defines,legendary_effect_defines,campaign_defines',
+    },
+    { fetchFn }
+  );
 }
 
 // ---------------------------------------------------------------------------

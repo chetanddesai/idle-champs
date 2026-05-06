@@ -4,7 +4,7 @@
  * Pure helpers for resolving a hero's portrait URL against the bundled
  * `data/definitions.hero-images.json` map.
  *
- * The bundled map is produced by `scripts/refresh-defs.js` from Emmote's
+ * The bundled map is produced by `scripts/refresh-hero-images.js` from Emmote's
  * ic_wiki directory listing (MIT licensed). Runtime simply reads the map
  * and composes base_url + slug + portrait_path — no remote calls, no
  * cache management. The browser's HTTP cache handles image reuse.

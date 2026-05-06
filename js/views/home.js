@@ -17,16 +17,17 @@
  * this view when a refresh lands.
  *
  * DPS name resolution: if a DPS has been selected in the Legendary view,
- * this module lazy-loads `data/definitions.heroes.json` to display its
- * name on the Legendary card. A fetch failure or race just renders
- * "Forge Run ready" instead — the Home view never blocks on defs.
+ * this module reads heroes from the runtime definitions cache to display
+ * its name on the Legendary card. A missing cache (first session, before
+ * Refresh has populated `ic.definitions.cache`) just renders "Forge Run
+ * ready" instead — the Home view never blocks on defs.
  */
 
 import * as state from '../state.js';
 import { KEYS } from '../state.js';
 import { el, mount } from '../lib/dom.js';
 import { formatInteger, formatTimeAgo } from '../lib/format.js';
-import { loadHeroes } from '../lib/definitions.js';
+import { loadCachedDefs } from '../lib/definitions.js';
 
 /**
  * Compute quick account-summary numbers from `details`. Missing fields
@@ -105,31 +106,34 @@ export function render(host) {
     renderSpecializationsCard(),
   ]);
 
-  // Lazy DPS-name resolution. If a DPS is remembered, try to upgrade the
+  // DPS-name resolution. If a DPS is remembered AND the runtime defs
+  // cache has been populated (first Refresh has landed), upgrade the
   // Legendary card's subtitle from "Forge Run ready" to "DPS: Cazrin".
+  // Synchronous: no `await`, no race against subsequent renders.
   if (selectedDpsId != null) {
-    resolveDpsName(selectedDpsId).then((name) => {
-      if (!name) return;
+    const name = resolveDpsName(selectedDpsId);
+    if (name) {
       const subtitle = host.querySelector('[data-role="legendary-subtitle"]');
       if (subtitle && subtitle.dataset.dpsId === String(selectedDpsId)) {
         subtitle.textContent = `DPS: ${name}. Forge Run ranks upgrades by favor priority; Reforge flags reroll candidates.`;
       }
-    });
+    }
   }
 }
 
 /**
- * Resolve a DPS hero id to its display name. Returns `null` if defs
- * aren't loadable or the id isn't found.
+ * Resolve a DPS hero id to its display name from the cached defs.
+ * Returns `null` when the cache is empty (first session before
+ * Refresh) or the id isn't found.
  *
  * @param {number | string} dpsId
- * @returns {Promise<string | null>}
+ * @returns {string | null}
  */
-async function resolveDpsName(dpsId) {
-  const heroes = await loadHeroes();
-  if (!Array.isArray(heroes)) return null;
+function resolveDpsName(dpsId) {
+  const cached = loadCachedDefs();
+  if (!cached || !Array.isArray(cached.heroes)) return null;
   const id = Number(dpsId);
-  const match = heroes.find((h) => Number(h?.id) === id);
+  const match = cached.heroes.find((h) => Number(h?.id) === id);
   return match?.name || null;
 }
 

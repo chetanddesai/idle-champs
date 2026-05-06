@@ -451,50 +451,70 @@ Landing view when valid credentials exist. Shows:
 
 | Cache                          | Scope                        | TTL                                                                       | Invalidation                                                                                                                                       |
 | ------------------------------ | ---------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Play-server URL                | Session + `localStorage`     | 24h                                                                       | Auto on TTL; manual via settings "Re-discover"                                                                                                     |
-| Game definitions (baseline)    | Repo-committed `data/*.json` | Refreshed manually via `scripts/refresh-defs.js` after major game updates | Read at every page load; serves as the zero-network fallback for labels (see §4.4)                                                                 |
-| Game definitions (live deltas) | `localStorage`               | Until the player clicks "Refresh Data" in settings                        | Optional background refresh: site calls `getdefinitions?filter=…` on load; new entries are merged on top of the bundled baseline in `localStorage` |
+| Play-server URL                | Session + `localStorage` (`ic.play_server`) | 24h                                                | Auto on TTL; manual via settings "Re-discover"                                                                                                     |
+| Game definitions (parsed)      | `localStorage` (`ic.definitions.cache`) | User-driven (no TTL, no auto-expiry)                  | Populated by `state.refreshAccount()` on every Refresh, which calls `getdefinitions` and persists the parsed result. Empty until first Refresh resolves; survives page reloads thereafter. See §4.2 for the always-full-payload trade-off. |
+| Hero portraits (bundled)       | Repo-committed `data/definitions.hero-images.json` | Refreshed manually via `npm run refresh-hero-images` after a new champion releases | Read once at view mount, cached in-memory by `js/lib/definitions.js`. Cache-busted via `__BUILD_ID__` (see §4.3). |
 | User details / legendary state | `localStorage` (`ic.userdetails`) + in-memory | User-driven (no TTL, no auto-expiry)                                      | Manual "Refresh" button in the global header (V1); in V2, also refetched after in-site mutations.                                                   |
 | Formation saves                | In-memory only, per session  | User-driven                                                               | Refetched on manual "Refresh"; in V2, also after `SaveFormation`.                                                                                   |
 
 
 ### 4.2 Bundled definitions strategy
 
-**V1 ships a curated, trimmed subset of `getdefinitions` output as static JSON files in `data/`, committed to the repo.** This gives the site a zero-latency first paint for all human-readable labels (hero names, legendary-effect descriptions) without an initial API round trip. The live server is still the source of truth for player **state**; `data/*.json` only covers reference data (names, descriptions, IDs).
+**V1 sources hero / legendary-effect / scope / favor definitions from a live `getdefinitions` API call cached in `localStorage`.** The only repo-committed data file is `data/definitions.hero-images.json` (the hero portrait map; ~3.5 KB). Everything else is fetched on every Refresh and parsed by `js/lib/legendaryDefsParser.js` into the trimmed shapes the runtime consumes. The live server is the source of truth for both definitions *and* player state; the cache layer is purely a latency / offline-resilience optimisation.
 
-#### Bundled files
+This is a deliberate change from earlier drafts that bundled all four parsed-defs files in `data/`. The trade-off was straightforward: (a) maintainer-only refresh = stale planner the day a new champion releases until someone runs the script and pushes; (b) runtime fetch = ~200–500 KB extra on every Refresh click, but new content lands the next time the customer hits Refresh. We picked (b).
 
-
-| File                                            | Contents                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Approx size |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| `data/definitions.heroes.json`                  | Trimmed + enriched `hero_defines` — one entry per hero with `id`, `name`, `seat_id`, `class`, `race`, `tags` (lowercased string array — pre-tokenized race / gender / alignment / class / role / campaign / etc.), `damage_types` (lowercased string array, subset of `["melee", "ranged", "magic"]` derived at refresh time by joining `attack_defines[base_attack_id]`), `ability_scores` (`{str,dex,con,int,wis,cha}`), `legendary_effect_id`. The five classification axes used by the legendary scope matcher (tags for race/gender/alignment, plus damage_types and ability_scores) are the exact fields consumed by §3.2.2. All other hero fields (graphic IDs, level curves, feats, etc.) dropped. | ~105 KB     |
-| `data/definitions.legendary-effects.json`       | Trimmed `legendary_effect_defines` — one entry per effect with `id`, `effect_string`, `targets`, `description`. The `description` template uses `$amount` / `$(amount)` placeholders as documented in `[server-calls.md](./server-calls.md#resolving-legendary-effect-ids)`.                                                                                                                                                                                                                                                                                                                                                                                                                               | ~25 KB      |
-| `data/definitions.legendary-effect-scopes.json` | **Derived**, not fetched. Produced by `scripts/refresh-defs.js` by parsing each effect's description. One entry per effect: `{id, kind, value?, stat?, min?}` where `kind ∈ {global, race, gender, alignment, damage_type, stat_threshold, unknown}`. Enables the O(1) runtime matcher in §3.2.2 with no runtime regex.                                                                                                                                                                                                                                                                                                                                                                                    | ~6 KB       |
-| `data/definitions.favors.json`                  | Trimmed `campaign_defines` — one entry per campaign that has a reset currency, `{reset_currency_id, short_name, name, campaign_id}`, sorted by `reset_currency_id`. The sole source for rendering human-readable favor labels (used by the Forge Run favor breakdown panel). Only entries where `reset_currency_id != null && != 0` ship; duplicates on `reset_currency_id` dedupe to the first campaign (empirically none — every favor currency maps to exactly one campaign).                                                                                                                                                                                                                          | ~4 KB       |
-| `data/definitions.checksum.json`                | Metadata: `server_checksum` (null for filtered responses — server doesn't include a checksum when a `filter` is supplied), `fetched_at`, `hero_count`, `legendary_effect_count`, `scope_count`, `favor_count`, `unknown_scope_ids` (effect IDs the scope parser couldn't classify — flag for investigation on next refresh), `favors_missing_short_name` (reset_currency_ids without a display label — expected to be empty; non-empty on a refresh means the UI will fall back to `Favor #<id>`), `source`.                                                                                                                                                                                               | < 1 KB      |
+#### The single bundled file
 
 
-Total bundle weight: **~140 KB uncompressed / ~14 KB gzipped** (what GitHub Pages actually serves). Comfortably under the §2.3 300 KB shell budget. All five files are pretty-printed with 2-space indentation so they diff cleanly in PRs and are readable in the browser.
+| File                                | Contents                                                                                                                                                                                                                                                                              | Approx size |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `data/definitions.hero-images.json` | Hero portrait map: `{ source, attribution, base_url, portrait_path, heroes: { hero_id → wiki-slug } }`. Browsers can't regenerate this — slug resolution requires scraping Emmote's `ic_wiki` directory listing, which CORS + GitHub's no-public-listing-API design rules out client-side. Refreshed by the maintainer-only `npm run refresh-hero-images` script on each new champion launch. New champions render with a monogram fallback (per `js/lib/heroImage.js`) until the next maintainer push. | ~3.5 KB     |
 
-**Fields dropped deliberately.** `hero_defines` entries from the live API are ~2 KB each (173 × 2 KB = ~340 KB). We keep only the fields the UI and the scope matcher use. `attack_defines` is fetched at refresh time to derive `damage_types` but never persisted; only the per-hero record ships.
 
-**Scope derivation (at refresh time).** The refresh script parses every `hero_dps_multiplier_mult` effect's description against the template `"Increases the damage of all X by"` and maps the captured token to a `kind`/`value` pair per §3.2.2. Effects starting with `global_` are tagged `{kind: "global"}` without parsing. Stat-threshold effects use a dedicated regex. Any effect that doesn't match a known shape is tagged `{kind: "unknown"}`, its ID is appended to `unknown_scope_ids`, and a stderr warning fires — making it obvious when a new game update introduces an effect shape the parser doesn't recognize. The "Halfing" typo in the game's effect description is normalized to "Halfling" at derivation time (hero tags already spell it correctly).
+Total bundle weight: **~3.5 KB uncompressed / ~1 KB gzipped** — well under the §2.3 300 KB shell budget.
 
-**Damage-type derivation.** Per-hero `damage_types` is computed at refresh time as the intersection of `{melee, ranged, magic}` with the union of `attack_defines[hero.base_attack_id].tags` and `...damage_types`. This cleanly lands heroes in multiple buckets when appropriate (e.g., Cazrin's Magic Missile is `tags:["ranged"]` + `damage_types:["magic"]` → hero `damage_types = ["ranged", "magic"]`). All 173 heroes currently classify into at least one of the three buckets.
+#### Runtime cache (`ic.definitions.cache`)
+
+
+```js
+{
+  fetched_at: 1730000000000,        // epoch ms, set on every successful refresh
+  heroes:  [/* trimmed hero records, sorted by id */],
+  effects: [/* trimmed legendary_effect records, sorted by id */],
+  scopes:  [/* derived per-effect scope records, sorted by id */],
+  favors:  [/* deduped per-favor records, sorted by reset_currency_id */],
+}
+```
+
+
+- **`heroes[]`** — `{id, name, seat_id, class, race, tags, damage_types, ability_scores, legendary_effect_id}`. The five classification axes used by the legendary scope matcher (tags for race/gender/alignment, plus `damage_types` and `ability_scores`) are the exact fields consumed by §3.2.2.
+- **`effects[]`** — `{id, effect_string, targets, description}`. The `description` template uses `$amount` / `$(amount)` placeholders as documented in [server-calls.md](./server-calls.md#resolving-legendary-effect-ids).
+- **`scopes[]`** — derived: `{id, kind, value?, stat?, min?}` where `kind ∈ {global, race, gender, alignment, damage_type, stat_threshold, unknown}`. Enables the O(1) runtime matcher in §3.2.2 with no runtime regex. Scope parsing happens once per refresh, not once per render.
+- **`favors[]`** — `{reset_currency_id, short_name, name, campaign_id}`. The sole source for rendering human-readable favor labels (used by the Forge Run favor breakdown panel). Empty until first refresh resolves.
+
+**Fields dropped deliberately.** `hero_defines` entries from the live API are ~2 KB each (174 × 2 KB ≈ 340 KB). The parser keeps only the fields the UI and the scope matcher use. `attack_defines` is fetched alongside `hero_defines` to derive `damage_types` but never persisted; only the per-hero record lands in the cache.
+
+**Scope derivation.** The runtime parser (`js/lib/legendaryDefsParser.js`) parses every `hero_dps_multiplier_mult` effect's description against the template `"Increases the damage of all X by"` and maps the captured token to a `kind`/`value` pair per §3.2.2. Effects starting with `global_` are tagged `{kind: "global"}` without parsing. Stat-threshold effects use a dedicated regex. Any effect that doesn't match a known shape is tagged `{kind: "unknown"}` — its ID is surfaced via `parseDefinitions(...).unknownScopeIds` so the maintainer can extend the parser. The runtime UI also renders a banner (FR-14) when the *current DPS* has unknown effects in their pool. The "Halfing" typo in the game's effect description is normalized to "Halfling" at derivation time (hero tags already spell it correctly).
+
+**Damage-type derivation.** Per-hero `damage_types` is computed as the intersection of `{melee, ranged, magic}` with the union of `attack_defines[hero.base_attack_id].tags` and `...damage_types`. This cleanly lands heroes in multiple buckets when appropriate (e.g., Cazrin's Magic Missile is `tags:["ranged"]` + `damage_types:["magic"]` → hero `damage_types = ["ranged", "magic"]`).
+
+#### Refresh trigger
+
+The `getdefinitions` call piggybacks on `state.refreshAccount()` — exactly the same flow that fetches `getuserdetails`. The user-visible trigger is the **Refresh** button in the header, plus the auto-refresh that fires after a successful credential save (see FR-3 / FR-4). The two server calls are sequential — `getuserdetails` first to obtain `instance_id`, then `getdefinitions(instanceId, …)` — and a `getdefinitions` failure is silent so a stale-but-present cache survives a flaky network. See [server-calls.md → Convention for the helper site](./server-calls.md#convention-for-the-helper-site) for the always-full-payload trade-off.
+
+#### First-load UX
+
+The credential gate (§3.0) routes unauthenticated users to Settings before they can reach the Legendary view. Once they save credentials, the auto-refresh fires both `getuserdetails` and `getdefinitions` in sequence; the Legendary view renders a `Loading legendary data…` placeholder until the cache lands, then re-renders against the fresh data via a `state.subscribe(KEYS.DEFINITIONS_CACHE, …)` callback. Returning sessions read the cache synchronously from `localStorage` and render instantly.
 
 #### Runtime read order
 
-For every label that needs resolving at runtime, the site looks up IDs in this order:
+For every label that needs resolving at runtime, the site reads from:
 
-1. `localStorage.ic.defs.{group}` — the merged live-delta copy (if present).
-2. `data/definitions.{group}.json` — the bundled baseline (always present).
-3. Fallback placeholder (e.g. `"(unknown hero 999)"`) — only if an ID is in live state but not in either definitions source. The UI must render gracefully in this case.
+1. `localStorage.ic.definitions.cache` — populated by the most recent successful Refresh.
+2. Fallback placeholder (e.g. `"(unknown hero 999)"`) — only if an ID is in live state but not in the cache. The UI must render gracefully in this case.
 
-#### Opportunistic background refresh
-
-On each page load, after the bundled data is rendered, the site optionally fires `getdefinitions?filter=hero_defines,legendary_effect_defines,campaign_defines` in the background. Any entries it returns are merged into `localStorage` under `ic.defs.hero_defines`, `ic.defs.legendary_effect_defines`, and `ic.defs.campaign_defines`, and views refresh their labels from those if present. If the bundled baseline already covers everything the current state references, the user never sees a label flicker.
-
-> **Empirical note for V1 implementers:** filtered `getdefinitions` responses do **not** include a top-level `checksum` field (only unfiltered responses do). The V1 refresh strategy therefore always re-fetches the filtered groups wholesale rather than trying to use `checksum` for delta-only responses. This keeps the refresh simple; if V2 ever needs checksum-based deltas it will need an unfiltered call.
+There is no longer a separate "bundled baseline" tier; the cache is the only source of definitions data.
 
 ### 4.3 Cache-busting for static assets
 
@@ -518,17 +538,17 @@ GitHub Pages serves static assets with `Cache-Control: max-age=600` (10 min). Th
 
 **Security trade-off.** `script-src` in CSP includes `'unsafe-inline'` to permit the two inline blocks this design requires (`__BUILD_ID__` assignment + the import map). The alternatives (CSP hashes, external BUILD_ID file, external import-map file) were rejected because they either (a) require a hash update on every bump, defeating the single-find-replace protocol, or (b) depend on external-import-map browser support that lags behind inline. XSS surface in this app is minimal: no server-rendered HTML, no user-controlled strings reach `innerHTML` (all dynamic UI uses `textContent` / DOM helpers in `js/lib/dom.js`).
 
-### 4.4 Refreshing the bundled baseline
+### 4.4 Refreshing hero portraits
 
-The bundle needs to be regenerated after major Idle Champions updates (new champion releases, new legendary effects, renamed items). The repo ships a CLI for this:
+Hero/effect/scope/favor data refreshes itself at runtime (§4.2). The only file that needs maintainer action is the hero portrait map, regenerated by:
 
 ```bash
 # One-time setup — copy the example and fill in your own credentials.
 cp .credentials.example.json .credentials.json
 # Edit .credentials.json with your user_id + hash (never committed — .gitignored).
 
-# Refresh the bundled files from live getdefinitions.
-node scripts/refresh-defs.js
+# Refresh data/definitions.hero-images.json.
+npm run refresh-hero-images
 ```
 
 **Credential handling — security invariant.** The refresh script reads credentials exclusively from `.credentials.json` at the repo root. That file is listed in `.gitignore` and must never be committed. `.credentials.example.json` is the committed template that documents the required shape. The repo's CI (if any) must also refuse to run the refresh script with credentials from environment variables or CLI args — a single, gitignored credential file is the only sanctioned path, keeping the security surface tiny.
@@ -539,10 +559,10 @@ The script:
 2. Calls `getPlayServerForDefinitions` against the master server.
 3. Calls `getuserdetails` to obtain `instance_id`, transparently retrying on `switch_play_server`.
 4. Calls `getdefinitions?filter=hero_defines,attack_defines,legendary_effect_defines,campaign_defines`.
-5. Trims each entry to the V1-required fields listed in §4.2 and derives the scope and favor bundles.
-6. Writes the four data bundles + checksum metadata in `data/`, sorted by `id` / `reset_currency_id` for stable diffs.
+5. Runs the shared parser (`js/lib/legendaryDefsParser.js`) for sanity-check warnings — informational only; nothing is written from the parser side. (The parser doubles as an early-warning that new game content has introduced an effect shape the runtime planner won't recognise.)
+6. Resolves hero-name → wiki-slug against `https://github.com/Emmotes/ic_wiki/contents/docs/images` and writes `data/definitions.hero-images.json`. New champions whose name doesn't resolve via the heuristics get added to `HERO_SLUG_OVERRIDES` in the script and the script re-runs.
 
-**Recommended cadence.** Run after any Idle Champions year/season release or whenever the UI begins rendering `(unknown hero N)` placeholders, then commit the updated `data/*.json`.
+**Recommended cadence.** Run after any new champion launch — typically once per Idle Champions year/season release. Then bump `__BUILD_ID__` in `index.html` (per §4.3) so customers pick up the new portraits immediately rather than waiting on GitHub Pages's CDN cache. The dedicated [`refresh-hero-images` skill](../skills/refresh-hero-images/SKILL.md) walks any AI agent through this end-to-end.
 
 ---
 
@@ -579,14 +599,14 @@ The script:
 │   ├── apple-touch-icon.png
 │   ├── android-chrome-192x192.png
 │   └── android-chrome-512x512.png
-├── data/                           # Bundled trimmed game definitions (see §4.2)
-│   ├── definitions.heroes.json
-│   ├── definitions.legendary-effects.json
-│   ├── definitions.legendary-effect-scopes.json  # Derived scope tags, see §3.2.2 / §4.2
-│   ├── definitions.favors.json                   # reset_currency_id → short_name lookup, see §4.2
-│   └── definitions.checksum.json
+├── data/                           # The single bundled file; defs come from runtime cache (see §4.2)
+│   └── definitions.hero-images.json # hero_id → wiki-slug; refreshed manually via `refresh-hero-images`
 ├── scripts/
-│   └── refresh-defs.js             # Regenerates data/*.json from live getdefinitions (see §4.4)
+│   └── refresh-hero-images.js      # Regenerates data/definitions.hero-images.json (see §4.4)
+├── skills/                         # Project-local AI-agent skills (symlinked into .cursor/skills, .claude/skills)
+│   ├── README.md                   # Convention: source-of-truth here, symlinks for tool discovery
+│   └── refresh-hero-images/
+│       └── SKILL.md                # Walks any agent through `npm run refresh-hero-images`
 ├── test/                           # Node `node:test` suites — run with `npm test`
 │   ├── scopeMatcher.test.js        # Unit tests for js/lib/scopeMatcher.js
 │   ├── legendaryModel.test.js      # Unit tests for js/lib/legendaryModel.js
@@ -595,9 +615,9 @@ The script:
 │       ├── scopeMatcher.fixtures.js     # Frozen hero + scope fixtures
 │       ├── legendaryModel.fixtures.js   # Frozen classifier + balance fixtures
 │       └── format.fixtures.js           # Frozen numeric / time / phase fixtures
-├── package.json                    # `"type": "module"`, zero runtime deps, `test` + `refresh` scripts
-├── .credentials.example.json       # Template for local creds used by refresh-defs.js — commit
-├── .credentials.json               # Gitignored. Never commit. Required only for refresh-defs.js.
+├── package.json                    # `"type": "module"`, zero runtime deps, `test` + `refresh-hero-images` scripts
+├── .credentials.example.json       # Template for local creds used by refresh-hero-images.js — commit
+├── .credentials.json               # Gitignored. Never commit. Required only for refresh-hero-images.js.
 ├── .gitignore
 ├── site.webmanifest                # Same shape as ic-specs; name/short_name specific to this site
 └── docs/
@@ -762,11 +782,11 @@ The site uses the same public play-server endpoints the official game client use
 | 5   | **V1 categories**                         | Two: Legendary Items and Specialization Choices. Architecture supports adding more without shell changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | 6   | **Mobile parity**                         | Every action available on desktop must be available on mobile. Dense tables degrade to stacked cards.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | 7   | **Framework**                             | Vanilla HTML/CSS/JS. No React/Vue/Svelte build step. A tiny DOM helper module is acceptable.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| 8   | **Data caching**                          | Definitions: bundled trimmed baseline in `data/*.json` (committed) + optional live-delta merge into `localStorage` (see §4.2). Play-server URL cached 24h. User/legendary state is in-memory per session and invalidated on mutation.                                                                                                                                                                                                                                                                                                                                                                          |
+| 8   | **Data caching**                          | Definitions: parsed runtime cache in `localStorage` (`ic.definitions.cache`), populated by every Refresh (§4.2). Hero portraits stay bundled in `data/definitions.hero-images.json` (only repo data file). Play-server URL cached 24h. User/legendary state is in-memory per session and invalidated on mutation.                                                                                                                                                                                                                                                                                                          |
 | 9   | **Disclaimer**                            | Footer + About section clearly state unaffiliated fan-made tool; trademarks belong to Codename Entertainment / Wizards of the Coast.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | 10  | **Branding & styling**                    | Shared with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs). `img/` favicons and `site.webmanifest` are the same assets across both (see §2.4). CSS tokens, font stack, header/footer/card patterns are identical (see §7). The two sites read as one visual family; PRD §7 is the self-contained authoritative spec.                                                                                                                                                                                                                                                        |
-| 11  | **Definitions strategy**                  | Ship trimmed baseline in `data/*.json` (committed), refresh via `scripts/refresh-defs.js` after major game updates, optionally fetch live deltas in the background and merge into `localStorage`. Runtime read order: localStorage → bundled `data/` → `(unknown …)` placeholder (see §4.2 & §4.4).                                                                                                                                                                                                                                                                                                            |
-| 12  | **Credential handling (tooling)**         | `scripts/refresh-defs.js` reads credentials **only** from `.credentials.json` at the repo root. That file is gitignored. `.credentials.example.json` is the committed template. No CLI-arg or env-var fallback is provided, keeping the credential surface small and auditable.                                                                                                                                                                                                                                                                                                                                |
+| 11  | **Definitions strategy**                  | Hero / effect / scope / favor defs come from a runtime `getdefinitions` call cached in `localStorage` (`ic.definitions.cache`); the `getdefinitions` fetch piggybacks on the existing Refresh button so new game content lands automatically (§4.2). Hero portraits are the only thing still bundled (`data/definitions.hero-images.json`) — refreshed manually via `npm run refresh-hero-images` because slug resolution requires CORS-blocked wiki scraping (§4.4). The `getdefinitions` call always requests the full filtered payload (no `checksum`) — rationale in [server-calls.md](./server-calls.md#calling-getdefinitions). |
+| 12  | **Credential handling (tooling)**         | `scripts/refresh-hero-images.js` reads credentials **only** from `.credentials.json` at the repo root. That file is gitignored. `.credentials.example.json` is the committed template. No CLI-arg or env-var fallback is provided, keeping the credential surface small and auditable.                                                                                                                                                                                                                                                                                                                                |
 | 13  | **Legendary tab framing**                 | The Legendary tab is **DPS-first**, not a generic roster browser. It is rendered as one card with **two tabs sharing the DPS context**: **Forge Run** (deterministic planner for DPS-affecting legendaries — each in-game upgrade costs Scales of Tiamat *and* a campaign-specific favor; favor is the gating resource so the view is ranked by favor) and **Reforge** (probabilistic planner for Scales-of-Tiamat reroll of supporting-hero slots into DPS-affecting effects). Forge Run ships first in V1; Reforge is the immediate follow-up. A generic browse / craft-everywhere view is explicitly out of V1 scope (see §3.2). V1 is read-only — see decision 18. |
 | 14  | **Legendary effect scope classification** | Derived at bundle-refresh time by parsing `legendary_effect_defines` descriptions into a `{kind, value|stat+min}` tag per effect (see §3.2.2). Five scope kinds cover 100% of current effects: `race`, `gender`, `alignment`, `damage_type`, `stat_threshold`, plus `global`. Any unrecognized effect is tagged `unknown` and logged so new game content is caught explicitly.                                                                                                                                                                                                                                 |
 | 15  | **Forge-run favor ranking**               | V1 ranks favor currencies by *count of upgradeable-now DPS-affecting legendaries* (descending, ties broken by total affecting count). Weighted "DPS-gain per favor unit" rankings are V2 material and explicitly deferred.                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -807,8 +827,8 @@ The site uses the same public play-server endpoints the official game client use
 
 - A player can go from "zero credentials" to "seeing their ranked DPS-targeted forge-run upgrade list" in under 60 seconds on both desktop and mobile.
 - After the player performs an upgrade / reforge / craft in the game client, tapping the site's **Refresh** button re-hydrates `details.legendary_details` within one round-trip and the tile(s) reflect the updated state on the next render — verifying Appendix B #8's "no-sync-delay" assumption for `getuserdetails` (§9 decision 18 defers in-site mutations to V2).
-- The legendary scope matcher classifies 100% of current legendary effects without any `unknown` tags on a freshly refreshed bundle (`unknown_scope_ids` in `data/definitions.checksum.json` is an empty list). If a refresh ever lands with a non-empty `unknown_scope_ids`, that's a build-level signal to extend the parser before merging.
-- Selecting a DPS champion resolves the full slot classification (affecting / not affecting / reforge candidate / empty) for all 173 heroes in under 100 ms on a mid-range mobile device, using bundled `data/` only — no network.
+- The legendary scope matcher classifies 100% of current legendary effects without any `unknown` tags after a Refresh on a current account. The runtime parser in `js/lib/legendaryDefsParser.js` returns an `audit.unknown_scope_ids` list; smoke testing surfaces a non-empty list as a code-level signal to extend the parser before shipping. The `npm run refresh-hero-images` script invokes the same parser and prints the same warnings out-of-band, giving a maintainer-side early warning when a new game release introduces a never-before-seen effect shape.
+- Selecting a DPS champion resolves the full slot classification (affecting / not affecting / reforge candidate / empty) for all 173 heroes in under 100 ms on a mid-range mobile device, using only the runtime cache (`localStorage`) + bundled hero-portrait map — no network.
 - The Specializations view correctly reads each saved formation's current specializations from `getallformationsaves`; in-site writes via `SaveFormation` are V2-scope per §9 decision 18.
 - The site shell (HTML + CSS + JS, excluding API payloads) loads in < 300 KB.
 - Passes Lighthouse audits at target thresholds (§2.3).
@@ -817,8 +837,8 @@ The site uses the same public play-server endpoints the official game client use
 - Credentials are never transmitted to any host other than `*.idlechampions.com`.
 - No external analytics, ad, or telemetry network requests are made.
 - Visual consistency with my sibling site [chetanddesai/ic-specs](https://github.com/chetanddesai/ic-specs): same design tokens (§7.1), fonts (§7.2), header pattern with top-right Contribute pill (§7.3), card treatment (§7.4), and footer pattern (§7.6). Favicons and manifest are the same assets across both repos (§2.4).
-- Bundled definition files (`data/*.json`) total under 50 KB, cover every label needed by the Legendary and Specializations views, and enable the site to render correctly with zero network round trips.
-- `scripts/refresh-defs.js` regenerates the bundled files end-to-end from credentials in `.credentials.json` (gitignored) with no arguments, and never writes credentials into any committed file.
+- The single bundled data file (`data/definitions.hero-images.json`, ~3.5 KB) covers every hero portrait the Legendary view needs after a Refresh has populated `ic.definitions.cache`.
+- `scripts/refresh-hero-images.js` regenerates `data/definitions.hero-images.json` end-to-end from credentials in `.credentials.json` (gitignored) with no arguments, and never writes credentials into any committed file. The same script runs the runtime parser as a sanity check and prints any "unknown scope" warnings to stderr.
 
 ---
 

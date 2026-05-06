@@ -1,0 +1,167 @@
+{
+  "_comment": "Tiny scrubbed sample of a getdefinitions response, hand-built to exercise every code path in js/lib/legendaryDefsParser.js. Real responses are MB-scale; this is intentionally minimal.",
+
+  "hero_defines": [
+    {
+      "id": 1,
+      "name": "Bruenor",
+      "seat_id": 1,
+      "base_attack_id": 100,
+      "character_sheet_details": {
+        "class": "Fighter",
+        "race": "Dwarf (Shield)",
+        "ability_scores": { "str": 17, "dex": 10, "con": 16, "int": 8, "wis": 13, "cha": 12 }
+      },
+      "tags": ["male", "DWARF", "fighter", "support", "good"],
+      "properties": { "legendary_effect_id": [1, 6, 43] }
+    },
+    {
+      "id": 14,
+      "name": "Cazrin",
+      "seat_id": 14,
+      "base_attack_id": 101,
+      "character_sheet_details": {
+        "class": "Wizard",
+        "race": "Human",
+        "ability_scores": { "str": 9, "dex": 14, "con": 13, "int": 17, "wis": 12, "cha": 10 }
+      },
+      "tags": ["female", "human", "wizard", "dps", "good", "chaotic"],
+      "properties": { "legendary_effect_id": [1, 5, 17] }
+    },
+    {
+      "id": 99,
+      "name": "Y4E15",
+      "seat_id": 99,
+      "tags": []
+    }
+  ],
+
+  "attack_defines": [
+    {
+      "id": 100,
+      "tags": ["melee"],
+      "damage_types": ["physical"]
+    },
+    {
+      "id": 101,
+      "tags": ["ranged"],
+      "damage_types": ["magic"]
+    }
+  ],
+
+  "legendary_effect_defines": [
+    {
+      "id": 1,
+      "effects": [
+        {
+          "effect_string": "global_dps_multiplier_mult,100",
+          "targets": ["active_campaign"],
+          "description": "Increases the damage of all Champions by $amount%"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "effects": [
+        {
+          "effect_string": "hero_dps_multiplier_mult,125",
+          "targets": ["all_slots"],
+          "description": "Increases the damage of all Male Champions by $(amount)%"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "effects": [
+        {
+          "effect_string": "hero_dps_multiplier_mult,150",
+          "targets": ["all_slots"],
+          "description": "Increases the damage of all Human Champions by $(amount)%"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "effects": [
+        {
+          "effect_string": "hero_dps_multiplier_mult,175",
+          "targets": ["all_slots"],
+          "description": "Increases the damage of all Halfing Champions by $(amount)%"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "effects": [
+        {
+          "effect_string": "hero_dps_multiplier_mult,200",
+          "targets": ["all_slots"],
+          "description": "Increases the damage of all Good Champions by $(amount)%"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "effects": [
+        {
+          "effect_string": "hero_dps_multiplier_mult,150",
+          "targets": ["all_slots"],
+          "description": "Increases the damage of all Magic Champions by $(amount)%"
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "effects": [
+        {
+          "effect_string": "hero_dps_multiplier_mult,300",
+          "targets": ["all_slots"],
+          "description": "Increases the damage of Champions with a STR score of 11 or higher by $(amount)%"
+        }
+      ]
+    },
+    {
+      "id": 99,
+      "effects": [
+        {
+          "effect_string": "some_unknown_kind_mult,50",
+          "targets": ["all_slots"],
+          "description": "Imbues your DPS with arcane resonance — increases something complicated by $(amount)%."
+        }
+      ]
+    }
+  ],
+
+  "campaign_defines": [
+    {
+      "id": 1,
+      "reset_currency_id": 1,
+      "short_name": "Grand Tour",
+      "name": "A Grand Tour of the Sword Coast"
+    },
+    {
+      "id": 2,
+      "reset_currency_id": 3,
+      "short_name": "Tomb of Annihilation",
+      "name": "Tomb of Annihilation"
+    },
+    {
+      "id": 99,
+      "reset_currency_id": 0,
+      "short_name": "Welcome Mission",
+      "name": "Welcome Mission"
+    },
+    {
+      "id": 100,
+      "reset_currency_id": 999,
+      "short_name": null,
+      "name": "Unannounced Campaign"
+    },
+    {
+      "id": 101,
+      "reset_currency_id": 1,
+      "short_name": "DUPLICATE — should be ignored",
+      "name": "Should never appear"
+    }
+  ]
+}

@@ -14,7 +14,7 @@
  *
  * Shapes:
  *
- *   Hero (subset; see js/lib/scopeMatcher.js docstring + data/definitions.heroes.json):
+ *   Hero (subset; see js/lib/scopeMatcher.js docstring + js/lib/legendaryDefsParser.js):
  *     { id, tags, damage_types, ability_scores, legendary_effect_id: number[6] }
  *
  *   Scope: see js/lib/scopeMatcher.js docstring.

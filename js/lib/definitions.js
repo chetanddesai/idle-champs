@@ -1,36 +1,55 @@
 /**
- * definitions.js — runtime loader for the bundled `data/*.json` definition files.
+ * definitions.js — the cache layer for the Legendary view's definitions
+ * bundle, plus pure indexer helpers.
  *
- * PRD §4.2 ships a trimmed, curated subset of `getdefinitions` output as
- * committed static JSON. This module is the shared entry point for reading
- * those files at runtime. It:
+ * Definitions split:
  *
- *   - Fetches each file at most once per session. The `Map<path, Promise>`
- *     cache means repeat calls dedupe even when multiple views race to
- *     trigger the first fetch during bootstrap.
- *   - Falls back to an empty shape (`[]` for arrays, `{}` for objects) on
- *     any fetch / parse failure so the UI degrades gracefully instead of
- *     crashing. The caller still sees the failure in the browser console.
- *   - Offers pure indexer helpers (`indexHeroesById`, `indexEffectsById`,
- *     `indexFavorsByCurrencyId`) for views that need `{[id]: record}` lookup
- *     without re-implementing the loop each time. These are covered by
- *     `node:test` since they touch no I/O.
+ *   - `heroes` / `effects` / `scopes` / `favors` come from a runtime
+ *     `getdefinitions` call (see js/serverCalls.js + state.refreshAccount)
+ *     and live in localStorage under `ic.definitions.cache`. Empty until
+ *     the user clicks Refresh once after saving credentials. The runtime
+ *     parser (`js/lib/legendaryDefsParser.js`) turns the raw response
+ *     into the trimmed shapes we persist.
  *
- * Every path is module-relative via `./data/...` because `index.html` lives
- * at the repo root — `fetch(relativeUrl)` resolves against the page URL.
+ *   - `heroImages` is the *only* bundled JSON file. It maps hero IDs to
+ *     Emmote's wiki slugs and ships at `data/definitions.hero-images.json`.
+ *     Browsers can't regenerate it (CORS-blocked + no public listing API),
+ *     so it's refreshed by the maintainer-only `npm run refresh-hero-images`
+ *     script. New champions render as a monogram fallback (per
+ *     `js/lib/heroImage.js`) until the next maintainer push.
  *
- * This module deliberately does NOT handle the "opportunistic background
- * refresh" flow from PRD §4.2 — that's a V2 concern. V1 reads the bundled
- * baseline and trusts it until the developer runs `scripts/refresh-defs.js`.
+ * Public API:
+ *
+ *   - `loadCachedDefs()`            — sync read of the parsed cache; null
+ *                                     when missing / malformed.
+ *   - `loadLegendaryDefs()`         — async; returns the cache + heroImages
+ *                                     bundle, or null when there's no
+ *                                     cache (callers render a loading
+ *                                     state and rely on the
+ *                                     `KEYS.DEFINITIONS_CACHE` subscription
+ *                                     to re-render when the first refresh
+ *                                     lands).
+ *   - `applyDefinitionsResponse()`  — runs the parser over a raw
+ *                                     `getdefinitions` body and persists
+ *                                     the result to localStorage.
+ *   - `index*ById` / `buildDpsOptions` / `ownedHeroDefsMap` — pure
+ *                                     helpers used by the view layer;
+ *                                     unchanged by the cache split.
+ *   - `withBuildId`                 — pure cache-bust helper (still used
+ *                                     by the bundled hero-images fetch).
+ *
+ * `loadHeroImages()` is a `loadOnce`-cached fetch against the bundled file.
+ * Cache busting via `__BUILD_ID__` matches the import-map and CSS strategy
+ * (see HTML comment in index.html and PRD §4.4).
  */
 
-const HEROES_PATH = './data/definitions.heroes.json';
-const LEGENDARY_EFFECTS_PATH = './data/definitions.legendary-effects.json';
-const LEGENDARY_EFFECT_SCOPES_PATH = './data/definitions.legendary-effect-scopes.json';
-const FAVORS_PATH = './data/definitions.favors.json';
+import * as state from '../state.js';
+import { KEYS } from '../state.js';
+import { parseDefinitions } from './legendaryDefsParser.js';
+
 const HERO_IMAGES_PATH = './data/definitions.hero-images.json';
 
-const cache = new Map();
+const fetchCache = new Map();
 
 /**
  * Append the global `__BUILD_ID__` as a `?v=` / `&v=` query param so that
@@ -42,7 +61,7 @@ const cache = new Map();
  * default `'dev'`, the path is returned unchanged so local `node:test`
  * runs and first-time dev loads don't pollute the filename space.
  *
- * @param {string} path     — e.g. `./data/definitions.heroes.json`
+ * @param {string} path     — e.g. `./data/definitions.hero-images.json`
  * @param {unknown} buildId — value of `globalThis.__BUILD_ID__`
  * @returns {string}
  */
@@ -55,20 +74,17 @@ export function withBuildId(path, buildId) {
 }
 
 /**
- * Fetch + cache a single JSON file. Returns `fallback` on failure so the
- * caller can always proceed with *something*.
- *
- * The cache is keyed by the *unversioned* path so bumping `__BUILD_ID__`
- * between loads doesn't matter mid-session — the first fetch within a
- * session wins. The version is appended only to the URL we actually
- * hand to `fetch`, which is what the browser / HTTP cache sees.
+ * Fetch + cache a single bundled JSON file. Returns `fallback` on failure
+ * so the caller can always proceed with *something*. The cache is keyed
+ * by the unversioned path so a mid-session `__BUILD_ID__` change doesn't
+ * matter; the version is appended only to the URL we hand to `fetch`.
  *
  * @param {string} path
  * @param {unknown} fallback
  * @returns {Promise<unknown>}
  */
 function loadOnce(path, fallback) {
-  if (cache.has(path)) return cache.get(path);
+  if (fetchCache.has(path)) return fetchCache.get(path);
   const url = withBuildId(path, globalThis.__BUILD_ID__);
   const p = fetch(url)
     .then((r) => {
@@ -80,45 +96,109 @@ function loadOnce(path, fallback) {
       console.error(err);
       return fallback;
     });
-  cache.set(path, p);
+  fetchCache.set(path, p);
   return p;
 }
-
-/** @returns {Promise<Array<object>>} trimmed hero definitions (see data/definitions.heroes.json) */
-export const loadHeroes = () => loadOnce(HEROES_PATH, []);
-
-/** @returns {Promise<Array<object>>} trimmed legendary-effect definitions */
-export const loadLegendaryEffects = () => loadOnce(LEGENDARY_EFFECTS_PATH, []);
-
-/** @returns {Promise<Array<object>>} derived scope records for every effect */
-export const loadLegendaryEffectScopes = () => loadOnce(LEGENDARY_EFFECT_SCOPES_PATH, []);
-
-/** @returns {Promise<Array<object>>} favor/campaign definitions */
-export const loadFavors = () => loadOnce(FAVORS_PATH, []);
 
 /** @returns {Promise<object>} hero portrait URL map (see data/definitions.hero-images.json) */
 export const loadHeroImages = () => loadOnce(HERO_IMAGES_PATH, {});
 
+// ---------------------------------------------------------------------------
+// Cached definitions (heroes / effects / scopes / favors)
+// ---------------------------------------------------------------------------
+
 /**
- * Load every definition file the Legendary view needs, in parallel.
- * Convenience for `views/legendary/index.js` which needs all five on mount.
+ * Read the parsed-defs cache from state. Returns the persisted bundle
+ * `{ fetched_at, heroes, effects, scopes, favors }` or `null` when the
+ * cache is missing or doesn't validate. Validation is intentionally
+ * shallow — we trust the parser to produce well-shaped output and treat
+ * a corrupt cache as no-cache so the next Refresh re-populates from
+ * scratch instead of crashing the view.
  *
- * @returns {Promise<{heroes, effects, scopes, favors, heroImages}>}
+ * @returns {{ fetched_at:number, heroes:Array, effects:Array, scopes:Array, favors:Array } | null}
+ */
+export function loadCachedDefs() {
+  const raw = state.get(KEYS.DEFINITIONS_CACHE);
+  if (!raw || typeof raw !== 'object') return null;
+  if (
+    !Array.isArray(raw.heroes) ||
+    !Array.isArray(raw.effects) ||
+    !Array.isArray(raw.scopes) ||
+    !Array.isArray(raw.favors)
+  ) {
+    return null;
+  }
+  return raw;
+}
+
+/**
+ * Load the full definitions bundle the Legendary view consumes:
+ *
+ *   - heroes / effects / scopes / favors — from the localStorage cache
+ *     (populated by the most recent runtime Refresh).
+ *   - heroImages — from the bundled `data/definitions.hero-images.json`
+ *     file (cached after first fetch).
+ *
+ * Returns `null` when the parsed-defs cache is missing — the legendary
+ * view shows a loading state in that case and relies on a subscription
+ * to `KEYS.DEFINITIONS_CACHE` to re-render once the first Refresh lands.
+ *
+ * @returns {Promise<{
+ *   heroes: Array<object>,
+ *   effects: Array<object>,
+ *   scopes: Array<object>,
+ *   favors: Array<object>,
+ *   heroImages: object,
+ *   fetched_at: number,
+ * } | null>}
  */
 export async function loadLegendaryDefs() {
-  const [heroes, effects, scopes, favors, heroImages] = await Promise.all([
-    loadHeroes(),
-    loadLegendaryEffects(),
-    loadLegendaryEffectScopes(),
-    loadFavors(),
-    loadHeroImages(),
-  ]);
-  return { heroes, effects, scopes, favors, heroImages };
+  const cached = loadCachedDefs();
+  if (!cached) return null;
+  const heroImages = await loadHeroImages();
+  return {
+    heroes: cached.heroes,
+    effects: cached.effects,
+    scopes: cached.scopes,
+    favors: cached.favors,
+    heroImages,
+    fetched_at: cached.fetched_at,
+  };
+}
+
+/**
+ * Run the parser over a raw `getdefinitions` response body and persist
+ * the trimmed shapes to localStorage under `KEYS.DEFINITIONS_CACHE`.
+ * Subscribers (the legendary view) fire on the next event-loop tick.
+ *
+ * Returns the parser's audit lists (`unknownScopeIds`,
+ * `favorsMissingShortName`) so callers can log GA events / surface
+ * warnings; the persisted cache itself only holds the four data arrays.
+ *
+ * @param {object} body — `getdefinitions` response body
+ * @param {object} [opts]
+ * @param {() => number} [opts.now]
+ * @returns {{ unknownScopeIds: number[], favorsMissingShortName: number[] }}
+ */
+export function applyDefinitionsResponse(body, opts = {}) {
+  const now = opts.now || (() => Date.now());
+  const parsed = parseDefinitions(body);
+  state.set(KEYS.DEFINITIONS_CACHE, {
+    fetched_at: now(),
+    heroes: parsed.heroes,
+    effects: parsed.effects,
+    scopes: parsed.scopes,
+    favors: parsed.favors,
+  });
+  return {
+    unknownScopeIds: parsed.unknownScopeIds,
+    favorsMissingShortName: parsed.favorsMissingShortName,
+  };
 }
 
 // ---------------------------------------------------------------------------
 // Pure indexer helpers — exported separately so views can share them and
-// tests can exercise them without DOM / fetch.
+// tests can exercise them without DOM / fetch / state.
 // ---------------------------------------------------------------------------
 
 /**
@@ -172,7 +252,7 @@ export function indexFavorsByCurrencyId(favors) {
 /**
  * Filter + sort the heroes definitions into the DPS-dropdown options per
  * tech-design FR-7 / Appendix B #11: heroes the player owns AND that carry
- * the `"dps"` tag in `definitions.heroes.json`, alphabetized by name.
+ * the `"dps"` tag in the cached defs, alphabetized by name.
  *
  * Ownership is sourced from `getuserdetails.details.heroes` — each entry
  * has `hero_id` plus an `owned` flag that arrives as the string `"1"` or

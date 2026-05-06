@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "node --test",
-    "refresh": "node scripts/refresh-defs.js"
+    "refresh-hero-images": "node scripts/refresh-hero-images.js"
   },
   "repository": {
     "type": "git",

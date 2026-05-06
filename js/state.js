@@ -26,6 +26,11 @@
  *   ic.legendary.levelTarget — 5 | 10 | 20 (Forge Run milestone filter)
  *   ic.legendary.favorites — number[] (favorited hero IDs, global across DPS)
  *   ic.legendary.favoritesOnly — boolean (Forge Run "favorites only" toggle)
+ *   ic.definitions.cache  — { fetched_at, heroes, effects, scopes, favors }
+ *                           parsed `getdefinitions` payload, hydrated from
+ *                           the runtime API on Refresh (see
+ *                           js/lib/definitions.js). NOT bundled — empty on
+ *                           first session until Refresh resolves.
  *
  * Testability: the module reads `localStorage` lazily via the injected
  * `init(storage)` call, so Node tests pass an in-memory polyfill and the
@@ -49,6 +54,7 @@ export const KEYS = Object.freeze({
   LEGENDARY_LEVEL_TARGET: 'legendary.levelTarget',
   LEGENDARY_FAVORITES: 'legendary.favorites',
   LEGENDARY_FAVORITES_ONLY: 'legendary.favoritesOnly',
+  DEFINITIONS_CACHE: 'definitions.cache',
 });
 
 let storage = null;
@@ -252,27 +258,54 @@ export function toggleFavorite(heroId) {
 
 /**
  * Refresh the cached account state. This is the ONLY function that
- * writes to `ic.userdetails`, `ic.instance_id`, `ic.play_server`, and
- * `ic.last_refresh_at`. Both the Refresh button and post-mutation
+ * writes to `ic.userdetails`, `ic.instance_id`, `ic.play_server`,
+ * `ic.last_refresh_at`, and (via the injected `applyDefinitions` callback)
+ * `ic.definitions.cache`. Both the Refresh button and post-mutation
  * flows call this function.
  *
- * Dependency-injection contract: the caller passes the two `serverCalls`
- * functions explicitly so this module is testable without touching the
- * network. In production `main.js` wires these up once at startup:
+ * Dependency-injection contract: the caller passes the serverCalls
+ * functions and the cache-write callback explicitly so this module is
+ * testable without touching the network and without coupling state.js
+ * to definitions.js (which itself imports state — DI breaks the cycle).
+ * In production `main.js` wires these up once at startup:
  *
  *   import * as state from './state.js';
- *   import { getPlayServerForDefinitions, getUserDetails } from './serverCalls.js';
- *   await state.refreshAccount({ getPlayServerForDefinitions, getUserDetails });
+ *   import { getPlayServerForDefinitions, getUserDetails, getDefinitions } from './serverCalls.js';
+ *   import { applyDefinitionsResponse } from './lib/definitions.js';
+ *   await state.refreshAccount({
+ *     getPlayServerForDefinitions,
+ *     getUserDetails,
+ *     getDefinitions,
+ *     applyDefinitions: applyDefinitionsResponse,
+ *   });
+ *
+ * Failure semantics:
+ *   - `getPlayServerForDefinitions` and `getUserDetails` errors propagate
+ *     to the caller (Refresh button surfaces them as a toast).
+ *   - `getDefinitions` errors are swallowed (silent fallback). The prior
+ *     cache stays in place, the rest of the refresh succeeds. This matches
+ *     the always-full-payload trade-off captured in the runtime defs
+ *     patching design doc — defs are large but non-critical, and we'd
+ *     rather complete the userdetails refresh than block on a stale
+ *     parser-fix release.
  *
  * @param {object} deps
  * @param {Function} deps.getPlayServerForDefinitions
  * @param {Function} deps.getUserDetails
+ * @param {Function} [deps.getDefinitions]
+ * @param {(body: object) => unknown} [deps.applyDefinitions]
  * @param {() => number} [deps.now=Date.now]
  * @returns {Promise<object>} the refreshed `details` object
  */
 export async function refreshAccount(deps) {
   ensureInit();
-  const { getPlayServerForDefinitions, getUserDetails, now = () => Date.now() } = deps || {};
+  const {
+    getPlayServerForDefinitions,
+    getUserDetails,
+    getDefinitions,
+    applyDefinitions,
+    now = () => Date.now(),
+  } = deps || {};
   if (typeof getPlayServerForDefinitions !== 'function') {
     throw new Error('refreshAccount: getPlayServerForDefinitions dep required');
   }
@@ -309,11 +342,38 @@ export async function refreshAccount(deps) {
   // the new shard so subsequent calls land directly.
   if (serverUrl && serverUrl !== playServer) {
     set(KEYS.PLAY_SERVER, serverUrl);
+    playServer = serverUrl;
   }
 
   set(KEYS.USER_DETAILS, details);
   if (details.instance_id != null) set(KEYS.INSTANCE_ID, details.instance_id);
   set(KEYS.LAST_REFRESH_AT, now());
+
+  // Fire-and-include getdefinitions in the same refresh. We do this
+  // sequentially after getuserdetails because:
+  //   - we need the persisted instance_id for the call's auth params, and
+  //   - we never want to retry a defs fetch when the auth call already
+  //     failed (that'd waste a server round-trip on credentials we know
+  //     are bad).
+  //
+  // Failures here are intentionally silent — see the function header.
+  if (typeof getDefinitions === 'function' && typeof applyDefinitions === 'function') {
+    const instanceId = get(KEYS.INSTANCE_ID);
+    if (instanceId != null) {
+      try {
+        const { body } = await getDefinitions({
+          playServer,
+          userId: creds.userId,
+          hash: creds.hash,
+          instanceId,
+        });
+        applyDefinitions(body);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn('[refreshAccount] getdefinitions failed; keeping prior cache.', err);
+      }
+    }
+  }
 
   return details;
 }

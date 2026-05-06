@@ -11,7 +11,7 @@
  *
  * Keyed by `reset_currency_id` (matches `getuserdetails.details
  * .reset_currencies[].currency_id` and the `reset_currency_id` field on
- * the bundled favor records — see `data/definitions.favors.json`). The
+ * the cached favor records — see `js/lib/legendaryDefsParser.js`'s
  * stored string is a free-form display label; for campaigns with multiple
  * equally-good options we encode the alternation inline (e.g.
  * "Lost Modron or Fast Food") rather than splitting into an array, since
@@ -19,8 +19,8 @@
  *
  * Adding a new campaign:
  *
- *   1. Look up the favor's `reset_currency_id` in
- *      `data/definitions.favors.json` (e.g. Grand Tour = 1).
+ *   1. Look up the favor's `reset_currency_id` in the runtime cache
+ *      (`ic.definitions.cache → favors[]`) — e.g. Grand Tour = 1.
  *   2. Append a `[id, 'Adventure Name']` pair below.
  *   3. Add a unit test in `test/idealAdventures.test.js`.
  *

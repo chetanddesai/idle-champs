@@ -436,3 +436,123 @@ test('refreshAccount — subscribers fire for each key written', async () => {
     [['ts', 42]]
   );
 });
+
+// ---------------------------------------------------------------------------
+// refreshAccount — getDefinitions / applyDefinitions injection (cache-only
+// runtime defs, see js/lib/definitions.js)
+// ---------------------------------------------------------------------------
+
+test('refreshAccount — calls getDefinitions and forwards body to applyDefinitions', async () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.CREDENTIALS, CREDS_FIXTURE);
+
+  const defsBody = { hero_defines: [], attack_defines: [], legendary_effect_defines: [], campaign_defines: [] };
+  const calls = [];
+
+  const deps = {
+    getPlayServerForDefinitions: async () => ({ playServer: PLAY_SERVER }),
+    getUserDetails: async () => ({ details: DETAILS_FIXTURE, serverUrl: PLAY_SERVER }),
+    getDefinitions: async (ctx) => {
+      calls.push(['gd', ctx]);
+      return { body: defsBody, serverUrl: PLAY_SERVER };
+    },
+    applyDefinitions: (body) => calls.push(['apply', body]),
+    now: () => 7,
+  };
+
+  await state.refreshAccount(deps);
+
+  // getDefinitions must receive the persisted instance_id (from
+  // DETAILS_FIXTURE.instance_id) rather than the cached one (which
+  // doesn't exist on a first refresh).
+  const gdCall = calls.find(([k]) => k === 'gd');
+  assert.ok(gdCall);
+  assert.equal(gdCall[1].playServer, PLAY_SERVER);
+  assert.equal(gdCall[1].userId, CREDS_FIXTURE.userId);
+  assert.equal(gdCall[1].instanceId, DETAILS_FIXTURE.instance_id);
+
+  const applyCall = calls.find(([k]) => k === 'apply');
+  assert.ok(applyCall);
+  assert.equal(applyCall[1], defsBody);
+});
+
+test('refreshAccount — getDefinitions failure is silent (cache untouched, refresh continues)', async (t) => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.CREDENTIALS, CREDS_FIXTURE);
+
+  // Suppress the expected console.warn from the silent-fallback branch.
+  const originalWarn = console.warn;
+  t.after(() => {
+    console.warn = originalWarn;
+  });
+  console.warn = () => {};
+
+  let appliedWith = null;
+
+  const deps = {
+    getPlayServerForDefinitions: async () => ({ playServer: PLAY_SERVER }),
+    getUserDetails: async () => ({ details: DETAILS_FIXTURE, serverUrl: PLAY_SERVER }),
+    getDefinitions: async () => {
+      throw new Error('CSP / network blew up');
+    },
+    applyDefinitions: (body) => {
+      appliedWith = body;
+    },
+    now: () => 1,
+  };
+
+  // Refresh succeeds even though getDefinitions threw.
+  const details = await state.refreshAccount(deps);
+  assert.equal(details, DETAILS_FIXTURE);
+  assert.equal(appliedWith, null, 'applyDefinitions must NOT be called on getDefinitions failure');
+  // userdetails-derived state is still written. State JSON-roundtrips
+  // through localStorage, so compare structurally rather than by ref.
+  assert.equal(state.get(KEYS.LAST_REFRESH_AT), 1);
+  assert.deepEqual(state.get(KEYS.USER_DETAILS), DETAILS_FIXTURE);
+});
+
+test('refreshAccount — without getDefinitions+applyDefinitions deps, refresh still succeeds (back-compat)', async () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.CREDENTIALS, CREDS_FIXTURE);
+
+  const deps = {
+    getPlayServerForDefinitions: async () => ({ playServer: PLAY_SERVER }),
+    getUserDetails: async () => ({ details: DETAILS_FIXTURE, serverUrl: PLAY_SERVER }),
+    now: () => 99,
+  };
+
+  const details = await state.refreshAccount(deps);
+  assert.equal(details, DETAILS_FIXTURE);
+  // No defs fetch, no defs cache write — explicit no-op.
+  assert.equal(state.get(KEYS.DEFINITIONS_CACHE), null);
+});
+
+test('refreshAccount — getDefinitions skipped when instance_id is unavailable', async () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.CREDENTIALS, CREDS_FIXTURE);
+
+  let getDefsCalled = false;
+  const deps = {
+    getPlayServerForDefinitions: async () => ({ playServer: PLAY_SERVER }),
+    // Server returned details without an instance_id (shouldn't happen in
+    // practice, but the contract is: getDefinitions can't be called
+    // without one).
+    getUserDetails: async () => ({
+      details: { ...DETAILS_FIXTURE, instance_id: null },
+      serverUrl: PLAY_SERVER,
+    }),
+    getDefinitions: async () => {
+      getDefsCalled = true;
+      return { body: {}, serverUrl: PLAY_SERVER };
+    },
+    applyDefinitions: () => {},
+    now: () => 1,
+  };
+
+  await state.refreshAccount(deps);
+  assert.equal(getDefsCalled, false);
+});

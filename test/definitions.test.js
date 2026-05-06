@@ -1,12 +1,23 @@
 /**
- * test/definitions.test.js — unit tests for the pure indexer + transform
- * helpers exported from `js/lib/definitions.js`. The `load*` functions
- * touch `fetch` and are exercised in-browser; only the pure bits are
- * covered here.
+ * test/definitions.test.js — unit tests for `js/lib/definitions.js`.
+ * Covers:
+ *   - Pure indexer + transform helpers (indexHeroesById, buildDpsOptions, …).
+ *   - `loadCachedDefs` / `loadLegendaryDefs` cache reads against a stubbed
+ *     state module (using the in-memory storage polyfill from
+ *     `test/fixtures/state.fixtures.js`).
+ *   - `applyDefinitionsResponse`: parser invocation + cache write +
+ *     subscriber notification.
+ *
+ * The bundled hero-images fetch is exercised in-browser; we don't try to
+ * mock global fetch here — `loadLegendaryDefs` tests stub `fetch` directly
+ * for the hero-images path.
  */
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+
+import * as state from '../js/state.js';
+import { KEYS } from '../js/state.js';
 
 import {
   indexHeroesById,
@@ -15,7 +26,20 @@ import {
   buildDpsOptions,
   ownedHeroDefsMap,
   withBuildId,
+  loadCachedDefs,
+  loadLegendaryDefs,
+  applyDefinitionsResponse,
 } from '../js/lib/definitions.js';
+
+import { makeMemoryStorage } from './fixtures/state.fixtures.js';
+
+const VALID_CACHE = Object.freeze({
+  fetched_at: 1717000000000,
+  heroes: [{ id: 1, name: 'Bruenor', tags: ['dwarf', 'dps'] }],
+  effects: [{ id: 1, effect_string: 'global_dps_multiplier_mult,100' }],
+  scopes: [{ id: 1, kind: 'global' }],
+  favors: [{ reset_currency_id: 1, short_name: 'Grand Tour' }],
+});
 
 // ---------------------------------------------------------------------------
 // indexHeroesById
@@ -187,4 +211,172 @@ test('withBuildId — returns path unchanged when path is empty or non-string', 
 
 test('withBuildId — URL-encodes buildIds that contain reserved characters', () => {
   assert.equal(withBuildId('./data/heroes.json', '1 / 2'), './data/heroes.json?v=1%20%2F%202');
+});
+
+// ---------------------------------------------------------------------------
+// loadCachedDefs — cache-only reader, validation
+// ---------------------------------------------------------------------------
+
+test('loadCachedDefs — returns the persisted cache verbatim', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.DEFINITIONS_CACHE, VALID_CACHE);
+  assert.deepEqual(loadCachedDefs(), VALID_CACHE);
+});
+
+test('loadCachedDefs — returns null when cache is missing', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  assert.equal(loadCachedDefs(), null);
+});
+
+test('loadCachedDefs — returns null on shape violations (treat malformed as no-cache)', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  // Missing one of the four required arrays — nothing's downstream-safe.
+  state.set(KEYS.DEFINITIONS_CACHE, { heroes: [], effects: [], scopes: [] });
+  assert.equal(loadCachedDefs(), null);
+
+  // One of the fields is the wrong type.
+  state.set(KEYS.DEFINITIONS_CACHE, { ...VALID_CACHE, scopes: 'not-an-array' });
+  assert.equal(loadCachedDefs(), null);
+
+  // Primitive (corruption from manual edits in DevTools).
+  state.set(KEYS.DEFINITIONS_CACHE, 'just a string');
+  assert.equal(loadCachedDefs(), null);
+});
+
+// ---------------------------------------------------------------------------
+// loadLegendaryDefs — combines cache + bundled hero-images
+// ---------------------------------------------------------------------------
+
+test('loadLegendaryDefs — returns null when cache is empty (no fetch attempted)', async () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  let fetchedUrl = null;
+  globalThis.fetch = async (url) => {
+    fetchedUrl = url;
+    return { ok: true, json: async () => ({ heroes: {} }) };
+  };
+  try {
+    const result = await loadLegendaryDefs();
+    assert.equal(result, null);
+    assert.equal(
+      fetchedUrl,
+      null,
+      'should not fetch hero-images when cache is empty — view shows loading state instead'
+    );
+  } finally {
+    delete globalThis.fetch;
+  }
+});
+
+test('loadLegendaryDefs — combines cached defs with the bundled hero-images map', async () => {
+  // Uses the global fetch cache inside definitions.js, which deduplicates
+  // across tests in the same module — that's fine because every call
+  // resolves to the same mocked map below.
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.DEFINITIONS_CACHE, VALID_CACHE);
+  globalThis.fetch = async () => ({
+    ok: true,
+    json: async () => ({ heroes: { 1: 'bruenor' } }),
+  });
+  try {
+    const result = await loadLegendaryDefs();
+    assert.ok(result, 'should hydrate when cache is present');
+    assert.deepEqual(result.heroes, VALID_CACHE.heroes);
+    assert.deepEqual(result.effects, VALID_CACHE.effects);
+    assert.deepEqual(result.scopes, VALID_CACHE.scopes);
+    assert.deepEqual(result.favors, VALID_CACHE.favors);
+    assert.equal(result.fetched_at, VALID_CACHE.fetched_at);
+    assert.ok(result.heroImages, 'heroImages bundle should be present');
+  } finally {
+    delete globalThis.fetch;
+  }
+});
+
+// ---------------------------------------------------------------------------
+// applyDefinitionsResponse — parser + persist + notify
+// ---------------------------------------------------------------------------
+
+test('applyDefinitionsResponse — parses the response body and persists to the cache key', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  const body = {
+    hero_defines: [
+      {
+        id: 1,
+        name: 'Bruenor',
+        seat_id: 1,
+        base_attack_id: 100,
+        tags: ['dwarf', 'fighter'],
+      },
+    ],
+    attack_defines: [{ id: 100, tags: ['melee'], damage_types: ['physical'] }],
+    legendary_effect_defines: [
+      {
+        id: 1,
+        effects: [
+          {
+            effect_string: 'global_dps_multiplier_mult,100',
+            description: 'Increases the damage of all Champions by $amount%',
+          },
+        ],
+      },
+    ],
+    campaign_defines: [
+      { id: 1, reset_currency_id: 1, short_name: 'Grand Tour', name: 'A Grand Tour' },
+    ],
+  };
+  applyDefinitionsResponse(body, { now: () => 1717000000000 });
+  const stored = state.get(KEYS.DEFINITIONS_CACHE);
+  assert.equal(stored.fetched_at, 1717000000000);
+  assert.equal(stored.heroes.length, 1);
+  assert.equal(stored.heroes[0].id, 1);
+  assert.equal(stored.scopes[0].kind, 'global');
+  assert.equal(stored.favors[0].short_name, 'Grand Tour');
+});
+
+test('applyDefinitionsResponse — returns audit lists for caller-side logging', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  const body = {
+    hero_defines: [],
+    attack_defines: [],
+    legendary_effect_defines: [
+      {
+        id: 42,
+        effects: [
+          {
+            effect_string: 'totally_new_kind,50',
+            description: 'Imbues your DPS with arcane resonance.',
+          },
+        ],
+      },
+    ],
+    campaign_defines: [{ id: 1, reset_currency_id: 7, short_name: null }],
+  };
+  const audit = applyDefinitionsResponse(body);
+  assert.deepEqual(audit.unknownScopeIds, [42]);
+  assert.deepEqual(audit.favorsMissingShortName, [7]);
+});
+
+test('applyDefinitionsResponse — fires KEYS.DEFINITIONS_CACHE subscribers', () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  const calls = [];
+  state.subscribe(KEYS.DEFINITIONS_CACHE, (v) => calls.push(v));
+  applyDefinitionsResponse(
+    {
+      hero_defines: [],
+      attack_defines: [],
+      legendary_effect_defines: [],
+      campaign_defines: [],
+    },
+    { now: () => 1 }
+  );
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].fetched_at, 1);
+  assert.deepEqual(calls[0].heroes, []);
 });

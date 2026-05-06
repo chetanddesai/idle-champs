@@ -20,7 +20,12 @@
 
 import * as state from './state.js';
 import { KEYS } from './state.js';
-import { getPlayServerForDefinitions, getUserDetails } from './serverCalls.js';
+import {
+  getPlayServerForDefinitions,
+  getUserDetails,
+  getDefinitions,
+} from './serverCalls.js';
+import { applyDefinitionsResponse } from './lib/definitions.js';
 import { isValidCredentials } from './credentials.js';
 import { formatTimeAgo } from './lib/format.js';
 import { el, mount } from './lib/dom.js';
@@ -205,7 +210,12 @@ async function doRefresh() {
   updateRefreshBadge();
   let success = false;
   try {
-    await state.refreshAccount({ getPlayServerForDefinitions, getUserDetails });
+    await state.refreshAccount({
+      getPlayServerForDefinitions,
+      getUserDetails,
+      getDefinitions,
+      applyDefinitions: applyDefinitionsResponse,
+    });
     showToast('Account refreshed.', 'success');
     success = true;
   } catch (err) {

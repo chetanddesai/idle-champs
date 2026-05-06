@@ -3,7 +3,7 @@
  *
  * These records are snapshots of the real bundled data (data/*.json) at the
  * time the test suite was written. They are hardcoded here on purpose — the
- * tests must NOT depend on the live data pipeline, or future refresh-defs
+ * tests must NOT depend on the live data pipeline, or future refresh
  * runs could silently change test results.
  *
  * When a game update breaks a fixture (a hero's stats get rebalanced, a
@@ -69,9 +69,9 @@ export const MINSC = Object.freeze({
 
 // ---------- Scopes ----------
 // At least one scope per kind, and enough overlap to exercise every branch
-// in effectAffectsHero. IDs mirror the actual effect ids from the bundle so
-// cross-referencing against data/definitions.legendary-effects.json is
-// straightforward when debugging a failing test.
+// in effectAffectsHero. IDs mirror the actual effect ids the live game uses
+// so cross-referencing against `getdefinitions` `legendary_effect_defines`
+// (or the runtime cache) is straightforward when debugging a failing test.
 
 export const S_GLOBAL         = Object.freeze({ id: 1,  kind: 'global' });
 

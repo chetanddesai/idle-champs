@@ -3,19 +3,23 @@
  *
  * Responsibilities:
  *
- *   1. Bootstrap the bundled definition files on first mount (heroes,
- *      legendary-effects, effect scopes, favors, hero portraits). Caching is
- *      handled by `js/lib/definitions.js`; we Promise.all them on mount so
- *      the five files stream in parallel.
+ *   1. Read the runtime definitions bundle from the localStorage cache
+ *      (heroes, legendary-effects, effect scopes, favors), augmented with
+ *      the bundled hero-portrait map. The cache is populated by
+ *      `state.refreshAccount()` on every Refresh; if it's empty (very
+ *      first session, before the first Refresh resolves), we render a
+ *      loading state and rely on a `KEYS.DEFINITIONS_CACHE` subscription
+ *      to re-render once the data lands.
  *   2. Own the two persistent UI-state values this view exposes:
  *        - ic.selected_dps_id       (which DPS the player is planning for)
  *        - ic.legendary.activeTab   ('forge-run' | 'reforge')
  *      Transient session state (current favor filter) lives in a
  *      module-level variable that resets on DPS change.
  *   3. Own the classifySlots memoization per tech-design Appendix B #10:
- *      `Map<dpsHeroId, ClassificationOutput>` lives here; a subscription
- *      to ic.userdetails clears the whole map whenever account state
- *      refreshes. This keeps legendaryModel.classifySlots pure.
+ *      `Map<dpsHeroId, ClassificationOutput>` lives here; subscriptions
+ *      to ic.userdetails AND ic.definitions.cache clear the whole map
+ *      whenever account state OR defs refresh. This keeps
+ *      legendaryModel.classifySlots pure.
  *   4. Compose the shared header (DPS dropdown + chip row + Scales badge +
  *      tab switcher) with the active tab's body.
  *
@@ -28,7 +32,8 @@ import * as state from '../../state.js';
 import { KEYS } from '../../state.js';
 import { el, mount } from '../../lib/dom.js';
 import {
-  loadLegendaryDefs,
+  loadCachedDefs,
+  loadHeroImages,
   indexHeroesById,
   indexEffectsById,
   indexFavorsByCurrencyId,
@@ -44,16 +49,25 @@ import * as forgeRun from './forgeRun.js';
 // Module-level singletons — shared across every render of this view.
 // ---------------------------------------------------------------------------
 
-/** Parsed bundled definitions; null until `loadLegendaryDefs()` resolves. */
+/**
+ * The current definitions bundle: parsed cache plus the bundled hero-image
+ * map. Null until either the cache or the hero-images fetch resolves.
+ *
+ *   - heroes/effects/scopes/favors come from `KEYS.DEFINITIONS_CACHE`.
+ *   - heroImages is the only piece that still requires a fetch
+ *     (`data/definitions.hero-images.json`).
+ */
 let defs = null;
 
-/** Pre-indexed lookups derived from `defs` (built once after defs load). */
+/** Pre-indexed lookups derived from `defs` (built whenever defs reloads). */
 let heroesById = null;
 let effectsById = null;
 let favorsByCurrencyId = null;
 
-/** Promise guard so concurrent renders share the same in-flight load. */
-let defsLoad = null;
+/** Bundled hero portraits cache (resolves once per session). */
+let heroImagesCache = null;
+/** In-flight hero-images fetch; null when not loading. */
+let heroImagesLoad = null;
 
 /**
  * classifySlots memo keyed by dps hero id.
@@ -68,7 +82,7 @@ const classificationMemo = new Map();
  */
 let forgeFavorFilter = null;
 
-/** True once the ic.userdetails subscription has been wired. */
+/** True once subscriptions (ic.userdetails + ic.definitions.cache) are wired. */
 let subscriptionsWired = false;
 
 // ---------------------------------------------------------------------------
@@ -86,9 +100,25 @@ export function render(host) {
 
   wireSubscriptionsOnce();
 
+  // Ensure `defs` reflects the latest cache contents. Cheap on every
+  // call (sync read + indexer rebuild over ~150 records).
+  refreshDefsFromCache();
+
   if (!defs) {
+    // No cache yet — first session before the user has clicked Refresh.
+    // The credential gate already routes unauthenticated users to
+    // settings, so reaching here means we're authenticated and waiting
+    // for the in-flight first-Refresh to populate the cache. The
+    // ic.definitions.cache subscription will re-render us when it does.
     renderLoading(host);
-    ensureDefsLoaded().then(() => {
+    return;
+  }
+
+  if (!heroImagesCache) {
+    // Cache landed but the bundled hero-images fetch hasn't resolved yet.
+    // Kick it off (idempotent) and re-render when it lands.
+    renderLoading(host);
+    ensureHeroImagesLoaded().then(() => {
       if (currentHostIsLegendary(host)) render(host);
     });
     return;
@@ -205,6 +235,10 @@ function handleFavoriteToggle(heroId) {
 }
 
 function rerender() {
+  // Only re-render when the user is actually on the Legendary route.
+  // Otherwise our subscriptions (ic.userdetails, ic.definitions.cache)
+  // would stomp on whatever view is currently mounted in #app-main.
+  if (globalThis.location.hash !== '#/legendary') return;
   const host = document.getElementById('app-main');
   if (host) render(host);
 }
@@ -213,36 +247,90 @@ function rerender() {
 // Internal — defs + memo management
 // ---------------------------------------------------------------------------
 
-function ensureDefsLoaded() {
-  if (defs) return Promise.resolve(defs);
-  if (defsLoad) return defsLoad;
-  defsLoad = loadLegendaryDefs()
-    .then((result) => {
-      defs = result;
-      heroesById = indexHeroesById(result.heroes);
-      effectsById = indexEffectsById(result.effects);
-      favorsByCurrencyId = indexFavorsByCurrencyId(result.favors);
-      return result;
+/**
+ * Re-read the parsed-defs cache from state and rebuild the indexer maps.
+ * Called from `render()` (so the view always sees fresh cache contents)
+ * and from the `KEYS.DEFINITIONS_CACHE` subscription (so the memo is
+ * cleared the moment a new cache lands).
+ *
+ * Idempotent and cheap — a sync state read plus three small loops over
+ * ~150 records each. We deliberately don't memoise on the cache identity
+ * because the savings are negligible and the explicit semantics ("every
+ * render reflects the current cache") is easier to reason about than
+ * "stale unless the cache changed since last we checked".
+ */
+function refreshDefsFromCache() {
+  const cached = loadCachedDefs();
+  if (!cached) {
+    defs = null;
+    heroesById = null;
+    effectsById = null;
+    favorsByCurrencyId = null;
+    return;
+  }
+  // Combine cached parsed-defs with the bundled hero-images map. The
+  // hero-images fetch is async; if it hasn't resolved yet we still set
+  // `defs` so the cache-present-but-images-pending branch in `render()`
+  // can run, but the `heroImages` field will be `null` until the fetch
+  // lands.
+  defs = {
+    heroes: cached.heroes,
+    effects: cached.effects,
+    scopes: cached.scopes,
+    favors: cached.favors,
+    heroImages: heroImagesCache,
+    fetched_at: cached.fetched_at,
+  };
+  heroesById = indexHeroesById(cached.heroes);
+  effectsById = indexEffectsById(cached.effects);
+  favorsByCurrencyId = indexFavorsByCurrencyId(cached.favors);
+}
+
+/**
+ * Kick off the bundled hero-images fetch the first time it's needed.
+ * Idempotent: subsequent calls return the same promise (or a resolved
+ * one) so concurrent renders share a single fetch.
+ */
+function ensureHeroImagesLoaded() {
+  if (heroImagesCache) return Promise.resolve(heroImagesCache);
+  if (heroImagesLoad) return heroImagesLoad;
+  heroImagesLoad = loadHeroImages()
+    .then((img) => {
+      heroImagesCache = img || {};
+      // Patch the existing defs bundle so the next render sees portraits
+      // without having to re-run `refreshDefsFromCache()` first.
+      if (defs) defs.heroImages = heroImagesCache;
+      return heroImagesCache;
     })
     .catch((err) => {
       // eslint-disable-next-line no-console
-      console.error('Failed to load legendary definitions:', err);
-      defsLoad = null; // allow retry on next render
+      console.error('Failed to load hero-images bundle:', err);
+      heroImagesLoad = null; // allow retry on next render
       throw err;
     });
-  return defsLoad;
+  return heroImagesLoad;
 }
 
 function wireSubscriptionsOnce() {
   if (subscriptionsWired) return;
   subscriptionsWired = true;
+
   // Per Appendix B #10: clear the memo whenever account state refreshes.
   // This is *separate* from the main.js subscription that re-renders
   // the current route — both fire on userdetails change; our handler
-  // just needs to run first, which it does because it's synchronous and
-  // registers during this view's first render.
+  // runs first because it's synchronous and registers during this view's
+  // first render.
   state.subscribe(KEYS.USER_DETAILS, () => {
     classificationMemo.clear();
+  });
+
+  // Definitions cache landed (first refresh) or refreshed (subsequent
+  // refreshes). Clear the memo — any classification computed against the
+  // old defs may now be stale — and re-render so a brand-new champion
+  // shows up in the DPS dropdown without requiring a hash change.
+  state.subscribe(KEYS.DEFINITIONS_CACHE, () => {
+    classificationMemo.clear();
+    rerender();
   });
 }
 

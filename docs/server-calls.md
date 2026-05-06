@@ -86,15 +86,16 @@ Think of `getdefinitions` as the **schema / dictionary** and the state calls as 
 - Most groups return as **arrays** of objects each with an `id` — clients should build `Map<id, entry>` lookups on first load.
 - `getdefinitions` supports a `checksum` parameter: if the client passes the checksum of its cached copy and the server's copy hasn't changed, only the deltas are returned. Cache defines in `localStorage` keyed by checksum.
 
+> **Helper-site decision: don't use `checksum`.** This site explicitly never sends `checksum` and always requests the full filtered payload. Rationale: with the four filtered groups it needs (`hero_defines,attack_defines,legendary_effect_defines,campaign_defines`), the response is ~200–500 KB; the maintenance cost of a delta-merge code path (response-shape research, two parser surfaces, edge cases for adds vs. updates vs. removals) was judged higher than the per-Refresh bandwidth savings. The full-payload approach also makes the cache layer ([`js/lib/definitions.js`](../js/lib/definitions.js)) trivial: every Refresh overwrites `ic.definitions.cache` wholesale. If/when `getdefinitions` payloads grow large enough that this trade-off flips, revisit.
+
 #### Convention for the helper site
 
-1. **Session start:** `getPlayServerForDefinitions` → cache URL.
-2. **First authenticated load:** `getuserdetails` → extract `instance_id`; keep `details.heroes`, `details.loot`, `details.legendary_details` (mirrors `getlegendarydetails` in full — no separate call needed for reads), `details.stats.multiplayer_points` (Scales of Tiamat balance), and `details.reset_currencies[]` (per-favor balances) in memory. Favor **display names** are *not* on this response — they come from `campaign_defines` in `getdefinitions` (see below).
-3. **Definitions load:** `getdefinitions?filter={only-the-groups-this-view-needs}` → build per-group ID→entry lookup maps. Pass the stored `checksum` from the last successful call on subsequent loads.
-4. **Category views:** join state (steps 2–3) against the definition maps to produce rendered rows. Don't re-fetch definitions when switching views — they're effectively static within a session.
-5. **Mutations** (craft/upgrade/reforge, SaveFormation, etc.): on success, re-fetch **only** the relevant state call (e.g. `getuserdetails` after a craft — see *Favor display-name resolution* and the Legendary section on why `getlegendarydetails` is not called independently in V1) — never `getdefinitions`.
+1. **Session start:** `getPlayServerForDefinitions` → cache URL in `ic.play_server`.
+2. **Refresh (button click or post-credential-save auto-trigger):** `getuserdetails` → extract `instance_id`; persist `details` to `ic.userdetails`. Then call `getdefinitions?filter=hero_defines,attack_defines,legendary_effect_defines,campaign_defines` → run the parser ([`js/lib/legendaryDefsParser.js`](../js/lib/legendaryDefsParser.js)) → persist the trimmed shapes to `ic.definitions.cache`. The two calls are sequential (we need `instance_id` before `getdefinitions` can be called); a `getdefinitions` failure is silent so a stale-but-present cache survives a flaky network.
+3. **Category views:** read from `ic.userdetails` + `ic.definitions.cache` synchronously. No fetches on view switch — both caches live in `localStorage` and survive page reloads.
+4. **Mutations** (craft/upgrade/reforge, SaveFormation, etc.) — V2-deferred: on success, re-fetch **only** `getuserdetails`. `getdefinitions` is not refreshed by mutations because game definitions don't change in response to player actions; only the user's *state* against those definitions does.
 
-This keeps every category view to at most one "live" state fetch, with one cached schema fetch shared across the entire session.
+The single Refresh button is the only definitions-refresh trigger. New game content (champions, effects, favors) reaches users the next time they click Refresh — no maintainer push required.
 
 ### Favor display-name resolution
 

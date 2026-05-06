@@ -20,7 +20,7 @@ Plain HTML/CSS/JS served from GitHub Pages at <https://chetanddesai.github.io/id
 
 ## Running locally
 
-Because the site loads its bundled `data/*.json` and ES modules via `fetch` + dynamic import, it must be served over HTTP — opening `index.html` directly with `file://` will fail the module loads and the CORS checks. The simplest dev server that matches how GitHub Pages will serve the site:
+Because the site loads `data/definitions.hero-images.json` and ES modules via `fetch` + dynamic import, it must be served over HTTP — opening `index.html` directly with `file://` will fail the module loads and the CORS checks. The simplest dev server that matches how GitHub Pages will serve the site:
 
 ```bash
 npx http-server . -p 8080 -c-1
@@ -53,18 +53,33 @@ npm test
 | `js/views/`                 | DOM-rendering view modules (Settings today; Legendary + Specializations in later milestones). |
 | `test/`                     | `node:test` suite + frozen fixtures for each pure module.                                   |
 | `img/`, `site.webmanifest`  | Favicons & PWA manifest.                                                                    |
-| `data/`                     | Bundled trimmed game definitions used as a zero-network baseline for labels (see below).    |
-| `scripts/refresh-defs.js`   | Regenerates `data/*.json` from a live `getdefinitions` call.                                |
+| `data/`                     | The single bundled file, `definitions.hero-images.json`. Hero/effect/scope/favor defs come from a runtime `getdefinitions` call cached in `localStorage` — see "Refreshing definitions" below. |
+| `scripts/refresh-hero-images.js` | Regenerates `data/definitions.hero-images.json` against Emmote's wiki listing. Maintainer-only, runs after a new champion releases. |
+| `skills/`                   | Project-local AI-agent skills (`refresh-hero-images`); symlinked into `.cursor/skills/` and `.claude/skills/` for tool discovery. |
 | `docs/`                     | PRD, tech design, API reference, and scrubbed sample responses.                             |
 
 
-## Refreshing bundled definitions
+## Refreshing definitions
 
-The repo ships a curated slice of `getdefinitions` as committed JSON at `data/definitions.*.json` (~40 KB total). This lets the site render hero names and legendary-effect descriptions without an initial API round trip. The bundle needs to be refreshed after major Idle Champions updates (new champion releases, new legendary effects, renamed items). The PRD's [§4.2](./docs/PRD.md) documents the runtime read order and delta-merge strategy.
+There are **two separate refresh paths** depending on what changed:
 
-### One-time setup — local credentials
+### Hero / effect / scope / favor definitions — runtime, no maintainer step
 
-`scripts/refresh-defs.js` reads your account credentials from a **gitignored** file at the repo root:
+These come from a live `getdefinitions` API call on every Refresh and are cached in the browser's `localStorage` under `ic.definitions.cache`. New champions, new legendary effects, renamed items, etc. all land in the planner the next time the user clicks **Refresh** in the header — no maintainer push required.
+
+The trade-off is a slightly larger Refresh payload (~200–500 KB depending on filter scope). The upside is that the planner stays current automatically; we never need to redeploy just because Idle Champions released a new champion or favor.
+
+If a new effect lands that the parser doesn't recognise, the UI shows a `?` badge and a banner; the maintainer extends `js/lib/legendaryDefsParser.js` and pushes a release.
+
+### Hero portraits — manual, maintainer-only
+
+The portrait map (`data/definitions.hero-images.json`) maps hero IDs to slug names on Emmote's `ic_wiki` GitHub Pages site (MIT licensed, attribution at the bottom of the site). Browsers can't regenerate it because resolution requires scraping a directory listing that GitHub Pages doesn't expose to JS — only a server-side script can do it. New champions render with a monogram fallback (initials in a tinted circle) until the next maintainer push.
+
+The dedicated [`refresh-hero-images` skill](./skills/refresh-hero-images/SKILL.md) walks any AI agent through this maintenance step end-to-end. The summary version:
+
+#### One-time setup — local credentials
+
+`scripts/refresh-hero-images.js` reads your account credentials from a **gitignored** file at the repo root:
 
 ```bash
 cp .credentials.example.json .credentials.json
@@ -84,16 +99,16 @@ The file shape:
 - `.credentials.example.json` is the committed template; it contains no real credentials.
 - The script has no CLI-arg or environment-variable fallback by design. A single gitignored file is the only sanctioned path.
 
-### How to get your `user_id` and `hash`
+#### How to get your `user_id` and `hash`
 
 Inside the Idle Champions game client, open **Settings → Support → Copy Support URL** (paths vary slightly across platforms). Paste the URL somewhere safe — it contains `user_id=…` and `device_hash=…` query parameters. Copy those into `.credentials.json` (note: `device_hash` becomes `hash`).
 
 Treat `hash` as a full-account credential. Do not paste it into anything you don't trust.
 
-### Running the refresh
+#### Running the refresh
 
 ```bash
-node scripts/refresh-defs.js
+npm run refresh-hero-images
 ```
 
 (Requires Node 18+ for global `fetch`. No `npm install` needed — the script uses only Node built-ins.)
@@ -102,16 +117,12 @@ The script:
 
 1. Reads `.credentials.json`.
 2. Discovers the current play server via `getPlayServerForDefinitions`.
-3. Fetches `instance_id` via `getuserdetails`, transparently retrying on `switch_play_server`.
+3. Fetches `instance_id` via `getuserdetails`.
 4. Fetches `getdefinitions?filter=hero_defines,attack_defines,legendary_effect_defines,campaign_defines`.
-5. Trims each entry to the V1-required fields, derives the scope tags, and writes:
-  - `data/definitions.heroes.json`
-  - `data/definitions.legendary-effects.json`
-  - `data/definitions.legendary-effect-scopes.json`
-  - `data/definitions.favors.json`
-  - `data/definitions.checksum.json`
+5. Runs the shared parser (`js/lib/legendaryDefsParser.js`) for sanity-check warnings (informational only — nothing is written from this).
+6. Resolves hero-name → wiki-slug against `https://github.com/Emmotes/ic_wiki/contents/docs/images` and writes `data/definitions.hero-images.json`.
 
-Commit the updated files. A typical refresh cadence is "after any Idle Champions year/season release, or whenever the UI begins rendering `(unknown hero N)` placeholders."
+After committing, bump `__BUILD_ID__` in [`index.html`](./index.html) so customers pick up the new portraits immediately rather than waiting for GitHub Pages's CDN cache to expire.
 
 ## Acknowledgments
 
