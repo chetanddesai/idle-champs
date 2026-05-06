@@ -33,6 +33,7 @@ import { showToast, showError, describeError } from './lib/toast.js';
 import * as settingsView from './views/settings.js';
 import * as homeView from './views/home.js';
 import * as legendaryView from './views/legendary/index.js';
+import * as backToTop from './lib/backToTop.js';
 
 // ---------------------------------------------------------------------------
 // Router — Phase 1 routes. Legendary + Specializations are placeholders
@@ -292,6 +293,7 @@ function wireStateListeners() {
 
 async function bootstrap() {
   state.init(globalThis.localStorage);
+  backToTop.init();
   wireHeader();
   wireStateListeners();
 

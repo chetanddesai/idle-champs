@@ -1437,6 +1437,42 @@
   }
 }
 
+/* ---------- Back-to-top button ---------- */
+
+.back-to-top {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1rem;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--accent-gold-dim);
+  border-radius: 50%;
+  color: var(--accent-gold);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, background 150ms ease, border-color 150ms ease, color 150ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.back-to-top--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.back-to-top:hover,
+.back-to-top:focus-visible {
+  background: var(--accent-gold-dim);
+  border-color: var(--accent-gold);
+  color: var(--bg-dark);
+}
+
 /* ---------- Settings layout tweaks ---------- */
 
 .settings__section {
