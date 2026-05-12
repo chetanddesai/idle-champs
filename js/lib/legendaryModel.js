@@ -197,6 +197,7 @@ export function classifySlots(inputs) {
 
     const heroClassification = {
       heroId,
+      name: hero.name ?? null,
       heroRole,
       heroPool,
       poolAffectingDps,
