@@ -210,6 +210,8 @@ export function classifySlots(inputs) {
     }
   }
 
+  supportingHeroes.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+
   return {
     selectedDpsId: dpsHeroId,
     dpsHero: dpsHeroClassification,
