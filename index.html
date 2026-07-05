@@ -63,11 +63,11 @@
       "adding a new module" checklist.
       ====================================================================
     -->
-    <script>window.__BUILD_ID__ = 20;</script>
+    <script>window.__BUILD_ID__ = 21;</script>
 
-    <link rel="stylesheet" href="css/base.css?v=20" />
-    <link rel="stylesheet" href="css/layout.css?v=20" />
-    <link rel="stylesheet" href="css/components.css?v=20" />
+    <link rel="stylesheet" href="css/base.css?v=21" />
+    <link rel="stylesheet" href="css/layout.css?v=21" />
+    <link rel="stylesheet" href="css/components.css?v=21" />
 
     <!--
       Content Security Policy: fetch() is permitted against the master
@@ -92,10 +92,18 @@
                        https://www.google-analytics.com   (legacy hits)
         - connect-src: https://www.google-analytics.com   (GA4 beacons)
                        https://www.googletagmanager.com   (config fetch)
+
+      upgrade-insecure-requests: defense-in-depth for the Idle Champions
+      load balancer, which intermittently returns play-server URLs with an
+      http:// scheme. serverCalls.toHttps() already coerces those in code
+      (the primary fix); this directive is a browser-level backstop so any
+      stray http subresource is auto-upgraded rather than blocked as mixed
+      content. Note: localhost is treated as potentially-trustworthy and is
+      exempt, so local `http-server` dev is unaffected.
     -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://emmotes.github.io https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://master.idlechampions.com https://*.idlechampions.com https://www.google-analytics.com https://www.googletagmanager.com; manifest-src 'self'; base-uri 'self'; form-action 'self';"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://emmotes.github.io https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://master.idlechampions.com https://*.idlechampions.com https://www.google-analytics.com https://www.googletagmanager.com; manifest-src 'self'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
     />
 
     <!--
@@ -114,27 +122,27 @@
     <script type="importmap">
       {
         "imports": {
-          "./js/main.js":                          "./js/main.js?v=20",
-          "./js/state.js":                         "./js/state.js?v=20",
-          "./js/credentials.js":                   "./js/credentials.js?v=20",
-          "./js/serverCalls.js":                   "./js/serverCalls.js?v=20",
-          "./js/lib/backToTop.js":                 "./js/lib/backToTop.js?v=20",
-          "./js/lib/definitions.js":               "./js/lib/definitions.js?v=20",
-          "./js/lib/dom.js":                       "./js/lib/dom.js?v=20",
-          "./js/lib/effectFormat.js":              "./js/lib/effectFormat.js?v=20",
-          "./js/lib/format.js":                    "./js/lib/format.js?v=20",
-          "./js/lib/heroImage.js":                 "./js/lib/heroImage.js?v=20",
-          "./js/lib/idealAdventures.js":           "./js/lib/idealAdventures.js?v=20",
-          "./js/lib/legendaryDefsParser.js":       "./js/lib/legendaryDefsParser.js?v=20",
-          "./js/lib/legendaryModel.js":            "./js/lib/legendaryModel.js?v=20",
-          "./js/lib/scopeMatcher.js":              "./js/lib/scopeMatcher.js?v=20",
-          "./js/lib/toast.js":                     "./js/lib/toast.js?v=20",
-          "./js/lib/userBalances.js":              "./js/lib/userBalances.js?v=20",
-          "./js/views/home.js":                    "./js/views/home.js?v=20",
-          "./js/views/settings.js":                "./js/views/settings.js?v=20",
-          "./js/views/legendary/index.js":         "./js/views/legendary/index.js?v=20",
-          "./js/views/legendary/header.js":        "./js/views/legendary/header.js?v=20",
-          "./js/views/legendary/forgeRun.js":      "./js/views/legendary/forgeRun.js?v=20"
+          "./js/main.js":                          "./js/main.js?v=21",
+          "./js/state.js":                         "./js/state.js?v=21",
+          "./js/credentials.js":                   "./js/credentials.js?v=21",
+          "./js/serverCalls.js":                   "./js/serverCalls.js?v=21",
+          "./js/lib/backToTop.js":                 "./js/lib/backToTop.js?v=21",
+          "./js/lib/definitions.js":               "./js/lib/definitions.js?v=21",
+          "./js/lib/dom.js":                       "./js/lib/dom.js?v=21",
+          "./js/lib/effectFormat.js":              "./js/lib/effectFormat.js?v=21",
+          "./js/lib/format.js":                    "./js/lib/format.js?v=21",
+          "./js/lib/heroImage.js":                 "./js/lib/heroImage.js?v=21",
+          "./js/lib/idealAdventures.js":           "./js/lib/idealAdventures.js?v=21",
+          "./js/lib/legendaryDefsParser.js":       "./js/lib/legendaryDefsParser.js?v=21",
+          "./js/lib/legendaryModel.js":            "./js/lib/legendaryModel.js?v=21",
+          "./js/lib/scopeMatcher.js":              "./js/lib/scopeMatcher.js?v=21",
+          "./js/lib/toast.js":                     "./js/lib/toast.js?v=21",
+          "./js/lib/userBalances.js":              "./js/lib/userBalances.js?v=21",
+          "./js/views/home.js":                    "./js/views/home.js?v=21",
+          "./js/views/settings.js":                "./js/views/settings.js?v=21",
+          "./js/views/legendary/index.js":         "./js/views/legendary/index.js?v=21",
+          "./js/views/legendary/header.js":        "./js/views/legendary/header.js?v=21",
+          "./js/views/legendary/forgeRun.js":      "./js/views/legendary/forgeRun.js?v=21"
         }
       }
     </script>
@@ -232,6 +240,6 @@
 
     <div id="toast-region" class="toast-region" role="status" aria-live="polite"></div>
 
-    <script type="module" src="js/main.js?v=20"></script>
+    <script type="module" src="js/main.js?v=21"></script>
   </body>
 </html>

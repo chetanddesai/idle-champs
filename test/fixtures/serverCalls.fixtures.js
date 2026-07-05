@@ -71,3 +71,9 @@ export const DETAILS_FIXTURE = Object.freeze({
 });
 
 export const SWITCH_SERVER = 'https://ps28.idlechampions.com/~idledragons/';
+
+// The load balancer sometimes hands back an http:// shard URL — the source
+// of the intermittent CSP / mixed-content refresh failure. Used to assert
+// that serverCalls upgrades the scheme to https before it's ever fetched.
+export const HTTP_SWITCH_SERVER = 'http://ps30.idlechampions.com/~idledragons/';
+export const HTTPS_SWITCH_SERVER = 'https://ps30.idlechampions.com/~idledragons/';

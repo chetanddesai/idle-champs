@@ -13,6 +13,7 @@ import {
   ApiError,
   MASTER_SERVER,
   request,
+  toHttps,
   getPlayServerForDefinitions,
   getUserDetails,
   upgradeLegendaryItem,
@@ -26,7 +27,39 @@ import {
   CTX_MUT,
   DETAILS_FIXTURE,
   SWITCH_SERVER,
+  HTTP_SWITCH_SERVER,
+  HTTPS_SWITCH_SERVER,
 } from './fixtures/serverCalls.fixtures.js';
+
+// ---------------------------------------------------------------------------
+// toHttps() — scheme normalization for load-balancer URLs
+// ---------------------------------------------------------------------------
+
+test('toHttps — upgrades http:// to https://', () => {
+  assert.equal(toHttps(HTTP_SWITCH_SERVER), HTTPS_SWITCH_SERVER);
+});
+
+test('toHttps — leaves https:// untouched (idempotent)', () => {
+  assert.equal(toHttps(HTTPS_SWITCH_SERVER), HTTPS_SWITCH_SERVER);
+  assert.equal(toHttps(toHttps(HTTP_SWITCH_SERVER)), HTTPS_SWITCH_SERVER);
+});
+
+test('toHttps — only rewrites the scheme, not http elsewhere in the URL', () => {
+  assert.equal(
+    toHttps('http://ps30.idlechampions.com/path?ref=http://x'),
+    'https://ps30.idlechampions.com/path?ref=http://x'
+  );
+});
+
+test('toHttps — is case-insensitive on the scheme', () => {
+  assert.equal(toHttps('HTTP://ps30.idlechampions.com/'), 'https://ps30.idlechampions.com/');
+});
+
+test('toHttps — tolerates non-string / empty input', () => {
+  assert.equal(toHttps(''), '');
+  assert.equal(toHttps(null), null);
+  assert.equal(toHttps(undefined), undefined);
+});
 
 // ---------------------------------------------------------------------------
 // request() — the core helper
@@ -97,6 +130,45 @@ test('request — switch_play_server retries EXACTLY once even if the retry also
   // final (non-retried) response.
   assert.equal(serverUrl, SECOND_SHARD);
   assert.ok(body.details);
+});
+
+test('request — upgrades an http:// base URL to https:// before fetching', async () => {
+  const { fetchFn, calls } = makeFetchStub([{ body: { success: true } }]);
+  const { serverUrl } = await request('getuserdetails', HTTP_SWITCH_SERVER, {}, { fetchFn });
+  assert.ok(calls[0].startsWith(HTTPS_SWITCH_SERVER));
+  assert.equal(serverUrl, HTTPS_SWITCH_SERVER);
+});
+
+test('request — upgrades an http:// switch_play_server before retrying', async () => {
+  const { fetchFn, calls } = makeFetchStub([
+    { body: { success: true, switch_play_server: HTTP_SWITCH_SERVER } },
+    { body: { success: true, details: DETAILS_FIXTURE } },
+  ]);
+  const { serverUrl } = await request(
+    'getuserdetails',
+    CTX_BASE.playServer,
+    { user_id: '1', hash: 'h' },
+    { fetchFn }
+  );
+  assert.equal(calls.length, 2);
+  assert.ok(calls[1].startsWith(HTTPS_SWITCH_SERVER));
+  assert.equal(serverUrl, HTTPS_SWITCH_SERVER);
+});
+
+test('request — upgrades http:// switch_play_server on the final (non-retried) body', async () => {
+  // switch arrives on the second response, where we're out of retries: the
+  // returned serverUrl must still be https so state persists a safe URL.
+  const { fetchFn } = makeFetchStub([
+    { body: { success: true, switch_play_server: SWITCH_SERVER } },
+    { body: { success: true, switch_play_server: HTTP_SWITCH_SERVER, details: DETAILS_FIXTURE } },
+  ]);
+  const { serverUrl } = await request(
+    'getuserdetails',
+    CTX_BASE.playServer,
+    { user_id: '1', hash: 'h' },
+    { fetchFn }
+  );
+  assert.equal(serverUrl, HTTPS_SWITCH_SERVER);
 });
 
 test('request — fetch rejection surfaces as ApiError kind:network', async () => {
@@ -189,6 +261,14 @@ test('getPlayServerForDefinitions — hits the master server and returns play_se
   const { playServer } = await getPlayServerForDefinitions({ fetchFn });
   assert.equal(playServer, CTX_BASE.playServer);
   assert.ok(calls[0].startsWith(MASTER_SERVER));
+});
+
+test('getPlayServerForDefinitions — upgrades an http:// play_server to https://', async () => {
+  const { fetchFn } = makeFetchStub([
+    { body: { success: true, play_server: HTTP_SWITCH_SERVER } },
+  ]);
+  const { playServer } = await getPlayServerForDefinitions({ fetchFn });
+  assert.equal(playServer, HTTPS_SWITCH_SERVER);
 });
 
 test('getPlayServerForDefinitions — missing play_server field throws kind:api', async () => {

@@ -58,7 +58,9 @@ Verified end-to-end against live play servers. A fresh client with no cached sta
    Note that the target URL can be **the same host you just called**. The client **must** treat any response containing `switch_play_server` as "update the cached play-server URL (even if unchanged) and replay the same call" — otherwise downstream code will see a missing `details` and assume a logical error. This is true on both successful and failed HTTP responses.
 4. **Make the authenticated call.** With a valid `instance_id`, make the target call (e.g. `getlegendarydetails`) to the (possibly updated) play server.
 
-> In practice the `serverCalls.js` client performs steps 1 + 2 + 3 transparently, retries once on `switch_play_server`, and exposes only step 4 to callers.
+> **Scheme normalization.** The load balancer intermittently returns play-server URLs (in both `play_server` and `switch_play_server`) with an `http://` scheme. On an https-hosted site (GitHub Pages) those are blocked twice over — by a strict `connect-src` CSP and by the browser's mixed-content policy — surfacing as an intermittent, shard-dependent "network error" on refresh. `serverCalls.js` upgrades every server-supplied URL to `https://` via `toHttps()` before it is fetched or persisted; the same host always serves identical content over https.
+
+> In practice the `serverCalls.js` client performs steps 1 + 2 + 3 transparently, retries once on `switch_play_server`, upgrades any `http://` URL to `https://`, and exposes only step 4 to callers.
 
 ### Composing `getdefinitions` with state-returning calls
 

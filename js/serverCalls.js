@@ -84,6 +84,27 @@ function buildUrl(baseUrl, method, params) {
 }
 
 /**
+ * Coerce an http:// URL to https://. The Idle Champions load balancer
+ * intermittently hands back play-server URLs with an http:// scheme (in
+ * both `body.play_server` and `body.switch_play_server`). Left untouched,
+ * those URLs are (a) blocked by our CSP `connect-src` (https-only) and
+ * (b) active mixed content on the https-served GitHub Pages site, so the
+ * browser blocks them regardless of CSP. Upgrading the scheme is always
+ * safe here — every idlechampions shard serves the same content over
+ * https. This surfaced as an intermittent, shard-dependent "network
+ * error" on refresh.
+ *
+ * Idempotent; tolerant of non-string / non-http input (returned as-is).
+ *
+ * @param {string} url
+ * @returns {string}
+ */
+export function toHttps(url) {
+  if (typeof url !== 'string') return url;
+  return url.replace(/^http:\/\//i, 'https://');
+}
+
+/**
  * Issue one HTTP call to the play server (or master). Public for tests; most
  * callers use the named helpers below instead.
  *
@@ -106,7 +127,10 @@ export async function request(method, baseUrl, params = {}, ctx = {}) {
     });
   }
   const allowSwitchRetry = ctx.allowSwitchRetry !== false;
-  const url = buildUrl(baseUrl, method, params);
+  // Coerce the scheme up front so a caller-supplied http:// base (e.g. a
+  // play-server URL persisted from a prior http response) can't slip past.
+  const secureBaseUrl = toHttps(baseUrl);
+  const url = buildUrl(secureBaseUrl, method, params);
 
   let res;
   try {
@@ -142,8 +166,13 @@ export async function request(method, baseUrl, params = {}, ctx = {}) {
   // switch_play_server: retry once against the indicated shard. The server
   // sets success:true alongside switch_play_server, so we explicitly retry
   // even on success — this is the documented behavior (server-calls.md).
-  if (body.switch_play_server && allowSwitchRetry) {
-    return request(method, body.switch_play_server, params, {
+  // The shard URL is scheme-normalized so an http:// shard is upgraded
+  // before we recurse and before we hand it back as serverUrl.
+  const switchServer =
+    typeof body.switch_play_server === 'string' ? toHttps(body.switch_play_server) : null;
+
+  if (switchServer && allowSwitchRetry) {
+    return request(method, switchServer, params, {
       ...ctx,
       allowSwitchRetry: false,
     });
@@ -164,7 +193,7 @@ export async function request(method, baseUrl, params = {}, ctx = {}) {
     });
   }
 
-  return { body, serverUrl: body.switch_play_server || baseUrl };
+  return { body, serverUrl: switchServer || secureBaseUrl };
 }
 
 /**
@@ -188,7 +217,10 @@ export async function getPlayServerForDefinitions(ctx = {}) {
       raw: body,
     });
   }
-  return { playServer, body };
+  // Upgrade http:// → https:// so the URL persisted in state (and reused
+  // for every subsequent call this session) can never trip CSP / mixed
+  // content. See toHttps() for the intermittent-failure background.
+  return { playServer: toHttps(playServer), body };
 }
 
 /**
