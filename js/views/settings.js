@@ -9,7 +9,8 @@
  *      state.ic.credentials.
  *   3. Trigger a refresh (the caller — main.js — subscribes to the
  *      credentials change event and runs refreshAccount in response).
- *   4. Provide a Clear-credentials action that wipes all ic.* keys.
+ *   4. Provide a "Clear all local data" action that wipes all ic.* keys
+ *      (credentials, cached account data, and favorites/preferences).
  *
  * The view does not directly call serverCalls or run refreshAccount —
  * that plumbing lives in main.js. This keeps the view's only concerns
@@ -199,10 +200,14 @@ export function render(host) {
         el('button', {
           class: 'btn btn--danger',
           attrs: { type: 'button' },
-          text: 'Clear credentials',
+          text: 'Clear all local data',
           on: {
             click: () => {
-              if (!confirm('Wipe all saved credentials and cached account data from this browser?')) {
+              if (
+                !confirm(
+                  'Clear all local data from this browser — your saved credentials, cached account data, and favorites? This only clears data stored in this browser and does not affect your Idle Champions game account.'
+                )
+              ) {
                 return;
               }
               state.clearAll();
@@ -212,7 +217,7 @@ export function render(host) {
               hideError();
               showStatus(
                 el('div', { class: 'banner banner--error' }, [
-                  el('strong', { text: 'Credentials cleared.' }),
+                  el('strong', { text: 'Local data cleared.' }),
                   ' The app will route back here on the next action.',
                 ])
               );

@@ -49,7 +49,7 @@ Additional categories (Patrons, Events, Chests, Blacksmith, Potions, etc.) are l
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Credential storage**       | `user_id` and `hash` are stored **only** in the player's browser `localStorage`. They are never transmitted anywhere except directly to the official Idle Champions play servers (same endpoints the game client itself uses). |
 | **No telemetry**             | The site makes **no** network calls to any host other than the Idle Champions master/play servers. No analytics, no error reporting, no third-party CDNs that could see request headers.                                       |
-| **Clear-credentials action** | The settings panel provides an explicit "Clear credentials" button that wipes the stored `user_id` and `hash` (and any cached account data) from `localStorage`.                                                               |
+| **Clear-local-data action** | The settings panel provides an explicit "Clear all local data" button that wipes every `ic.*` key from `localStorage` — the stored `user_id` and `hash`, cached account data, and favorites/preferences. It only clears data stored in this browser and does not affect the user's Idle Champions game account. |
 | **Security warning**         | The settings panel displays a short notice explaining that `hash` grants full account access, and that the player should only paste it into trusted tools running on their own device.                                         |
 
 
@@ -120,7 +120,7 @@ The site header includes a **settings icon** (gear) that opens a settings panel 
 #### Additional controls in the settings panel
 
 - **Validate credentials** button — calls `getuserdetails`; success shows the account name and last-login; failure shows the exact API error (e.g., "Security hash failure" → credentials invalid).
-- **Clear credentials** button — wipes stored credentials and any cached API data.
+- **Clear all local data** button — wipes stored credentials, cached API data, and favorites/preferences from this browser (does not affect the game account).
 - **Play server display** — shows the currently selected play-server URL (obtained from `getPlayServerForDefinitions`) and a "Re-discover" button that forces a fresh discovery call.
 - **Security notice** — one paragraph explaining that the `hash` is a full-account credential and must not be shared.
 
@@ -670,7 +670,7 @@ To add a new category in a future release:
 ├── Settings drawer (overlay, invoked by gear icon from any route)
 │   ├── Credential entry (manual fields)
 │   ├── Support-URL paste field
-│   ├── Validate / Clear credentials buttons
+│   ├── Save credentials / Clear all local data buttons
 │   ├── Play-server status + Re-discover
 │   └── Security notice
 └── Footer (ic-specs pattern — centered, `--text-muted`, 0.85rem, top border)

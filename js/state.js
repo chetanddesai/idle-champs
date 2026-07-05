@@ -170,7 +170,8 @@ function notify(key, val) {
 
 /**
  * Clear every `ic.*` key from storage and notify subscribers with `null`.
- * Used by the Settings "Clear credentials" action.
+ * Used by the Settings "Clear all local data" action — this removes
+ * credentials, cached account data, AND favorites/preferences.
  */
 export function clearAll() {
   ensureInit();
