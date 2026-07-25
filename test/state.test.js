@@ -410,6 +410,94 @@ test('refreshAccount — surface underlying errors from getUserDetails', async (
   assert.equal(state.get(KEYS.LAST_REFRESH_AT), null);
 });
 
+// ---------------------------------------------------------------------------
+// refreshAccount — dead-shard recovery (re-discover from master + retry)
+// ---------------------------------------------------------------------------
+
+test('refreshAccount — network failure on a cached shard re-discovers from master and retries', async () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.CREDENTIALS, CREDS_FIXTURE);
+  const DEAD_SERVER = 'https://ps30.idlechampions.com/~idledragons/';
+  const LIVE_SERVER = 'https://pslt2.idlechampions.com/~idledragons/';
+  state.set(KEYS.PLAY_SERVER, DEAD_SERVER);
+
+  let discoverCalls = 0;
+  const userDetailsServers = [];
+  const deps = {
+    getPlayServerForDefinitions: async () => {
+      discoverCalls += 1;
+      return { playServer: LIVE_SERVER };
+    },
+    getUserDetails: async (ctx) => {
+      userDetailsServers.push(ctx.playServer);
+      if (ctx.playServer === DEAD_SERVER) {
+        throw Object.assign(new Error('ps30: request timed out after 12000ms'), {
+          kind: 'network',
+        });
+      }
+      return { details: DETAILS_FIXTURE, serverUrl: ctx.playServer };
+    },
+    now: () => 7,
+  };
+
+  const details = await state.refreshAccount(deps);
+  assert.equal(discoverCalls, 1, 're-discovery should fire exactly once');
+  assert.deepEqual(userDetailsServers, [DEAD_SERVER, LIVE_SERVER]);
+  // The stale shard is overwritten with the freshly-discovered live one —
+  // no manual cache-clearing required.
+  assert.equal(state.get(KEYS.PLAY_SERVER), LIVE_SERVER);
+  assert.deepEqual(details, DETAILS_FIXTURE);
+  assert.equal(state.get(KEYS.LAST_REFRESH_AT), 7);
+});
+
+test('refreshAccount — non-network error on a cached shard does NOT re-discover', async () => {
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.CREDENTIALS, CREDS_FIXTURE);
+  state.set(KEYS.PLAY_SERVER, PLAY_SERVER);
+
+  let discoverCalls = 0;
+  const deps = {
+    getPlayServerForDefinitions: async () => {
+      discoverCalls += 1;
+      return { playServer: 'https://unexpected.example.com/' };
+    },
+    getUserDetails: async () => {
+      throw Object.assign(new Error('Security hash failure'), { kind: 'api' });
+    },
+  };
+
+  await assert.rejects(() => state.refreshAccount(deps), /Security hash failure/);
+  assert.equal(discoverCalls, 0, 'auth errors must not trigger a master round-trip');
+  assert.equal(state.get(KEYS.PLAY_SERVER), PLAY_SERVER);
+});
+
+test('refreshAccount — network failure on a freshly-discovered shard is not retried', async () => {
+  // No cached play server → we discover once. If that live shard then fails
+  // with a network error, it's a genuine outage, not a stale URL: don't loop.
+  const storage = makeMemoryStorage();
+  state.init(storage);
+  state.set(KEYS.CREDENTIALS, CREDS_FIXTURE);
+
+  let discoverCalls = 0;
+  let userDetailsCalls = 0;
+  const deps = {
+    getPlayServerForDefinitions: async () => {
+      discoverCalls += 1;
+      return { playServer: PLAY_SERVER };
+    },
+    getUserDetails: async () => {
+      userDetailsCalls += 1;
+      throw Object.assign(new Error('connection refused'), { kind: 'network' });
+    },
+  };
+
+  await assert.rejects(() => state.refreshAccount(deps), /connection refused/);
+  assert.equal(discoverCalls, 1, 'discovery happens once (cache was empty)');
+  assert.equal(userDetailsCalls, 1, 'no retry against a freshly-discovered shard');
+});
+
 test('refreshAccount — subscribers fire for each key written', async () => {
   const storage = makeMemoryStorage();
   state.init(storage);

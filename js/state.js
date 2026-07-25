@@ -319,25 +319,55 @@ export async function refreshAccount(deps) {
     throw new Error('refreshAccount: no credentials in state — route to #/settings first');
   }
 
-  // Discover (or reuse) the play server. We always call the master
-  // discovery on first refresh of a session because the shard routing
-  // can change day-to-day; subsequent refreshes reuse the cached URL
-  // but still honor `switch_play_server` when the play server tells us
-  // to move — that retry is handled inside `serverCalls.request()`.
+  // Discover (or reuse) the play server. We reuse the cached URL when we
+  // have one and only hit master discovery when it's missing. Two recovery
+  // mechanisms keep a cached URL from going stale: `switch_play_server`
+  // (handled inside `serverCalls.request()`) when the shard responds and
+  // asks us to move, and the network-error re-discovery below when the
+  // cached shard is dead and can't answer at all.
   let playServer = get(KEYS.PLAY_SERVER);
+  let usedCachedServer = true;
   if (!playServer || typeof playServer !== 'string') {
     const disc = await getPlayServerForDefinitions({});
     playServer = disc.playServer;
     set(KEYS.PLAY_SERVER, playServer);
+    usedCachedServer = false;
   }
 
   const cachedInstanceId = get(KEYS.INSTANCE_ID);
-  const { details, serverUrl } = await getUserDetails({
-    playServer,
-    userId: creds.userId,
-    hash: creds.hash,
-    instanceId: cachedInstanceId ?? null,
-  });
+  let details;
+  let serverUrl;
+  try {
+    ({ details, serverUrl } = await getUserDetails({
+      playServer,
+      userId: creds.userId,
+      hash: creds.hash,
+      instanceId: cachedInstanceId ?? null,
+    }));
+  } catch (err) {
+    // A cached play-server URL can point at a decommissioned shard (the game
+    // periodically renames its fleet, e.g. psN → psltN). Such calls fail with
+    // a network/timeout error and can't self-heal via switch_play_server — a
+    // dead server never answers, so it never tells us where to go. Re-discover
+    // a live shard from master and retry exactly once. Guarded so we only do
+    // this when (a) we reused a CACHED server — a freshly-discovered one is
+    // already live, so a network error there is a genuine outage, not a stale
+    // URL — and (b) the failure was network-level: auth/API errors (e.g. a bad
+    // hash) must not trigger a master round-trip or a pointless retry.
+    if (usedCachedServer && err && err.kind === 'network') {
+      const disc = await getPlayServerForDefinitions({});
+      playServer = disc.playServer;
+      set(KEYS.PLAY_SERVER, playServer);
+      ({ details, serverUrl } = await getUserDetails({
+        playServer,
+        userId: creds.userId,
+        hash: creds.hash,
+        instanceId: cachedInstanceId ?? null,
+      }));
+    } else {
+      throw err;
+    }
+  }
 
   // If the play server rewrote our URL via switch_play_server, persist
   // the new shard so subsequent calls land directly.

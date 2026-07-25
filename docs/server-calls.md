@@ -60,7 +60,9 @@ Verified end-to-end against live play servers. A fresh client with no cached sta
 
 > **Scheme normalization.** The load balancer intermittently returns play-server URLs (in both `play_server` and `switch_play_server`) with an `http://` scheme. On an https-hosted site (GitHub Pages) those are blocked twice over — by a strict `connect-src` CSP and by the browser's mixed-content policy — surfacing as an intermittent, shard-dependent "network error" on refresh. `serverCalls.js` upgrades every server-supplied URL to `https://` via `toHttps()` before it is fetched or persisted; the same host always serves identical content over https.
 
-> In practice the `serverCalls.js` client performs steps 1 + 2 + 3 transparently, retries once on `switch_play_server`, upgrades any `http://` URL to `https://`, and exposes only step 4 to callers.
+> **Dead-shard recovery.** The cached `play_server` URL can outlive the shard it names — the game periodically renames/decommissions its fleet (e.g. `psN` → `psltN`), and a client that cached the old URL keeps hitting a host that no longer answers. `switch_play_server` can't rescue this case (a dead server never responds, so it never tells the client to move). Two mechanisms handle it: (1) every request is bounded by an abort timeout (`serverCalls.DEFAULT_REQUEST_TIMEOUT_MS`, 12s) so a dead shard fails fast as a `kind:'network'` `ApiError` instead of hanging on the browser's multi-minute `ERR_TIMED_OUT`; (2) on such a failure against a *cached* shard, `state.refreshAccount()` re-runs `getPlayServerForDefinitions` against master, overwrites `ic.play_server` with a live shard, and retries once. This self-heals with no user action — no cache-clearing required. Auth/API errors (e.g. `Security hash failure`) do **not** trigger re-discovery.
+
+> In practice the `serverCalls.js` client performs steps 1 + 2 + 3 transparently, retries once on `switch_play_server`, upgrades any `http://` URL to `https://`, bounds each call with an abort timeout, re-discovers a live shard on a dead-shard network failure, and exposes only step 4 to callers.
 
 ### Composing `getdefinitions` with state-returning calls
 

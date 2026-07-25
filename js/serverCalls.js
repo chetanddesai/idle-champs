@@ -50,6 +50,14 @@ const BOILERPLATE = Object.freeze({
   localization_aware: 'true',
 });
 
+// Per-request abort timeout. A play-server URL cached from a decommissioned
+// fleet (the game periodically renames shards, e.g. psN → psltN) otherwise
+// hangs on the browser's multi-minute default before ERR_TIMED_OUT — far too
+// long for the caller to re-discover and recover. Bounding it here lets
+// refreshAccount() fail fast and re-discover a live shard. Pass
+// ctx.timeoutMs to override (0 disables the timeout).
+export const DEFAULT_REQUEST_TIMEOUT_MS = 12000;
+
 /**
  * Typed error thrown by every function in this module on any failure.
  *
@@ -127,20 +135,34 @@ export async function request(method, baseUrl, params = {}, ctx = {}) {
     });
   }
   const allowSwitchRetry = ctx.allowSwitchRetry !== false;
+  const timeoutMs =
+    typeof ctx.timeoutMs === 'number' ? ctx.timeoutMs : DEFAULT_REQUEST_TIMEOUT_MS;
   // Coerce the scheme up front so a caller-supplied http:// base (e.g. a
   // play-server URL persisted from a prior http response) can't slip past.
   const secureBaseUrl = toHttps(baseUrl);
   const url = buildUrl(secureBaseUrl, method, params);
 
+  // Bound the request with an abort timeout so a dead shard fails fast as a
+  // kind:'network' error (which refreshAccount treats as "re-discover and
+  // retry") instead of hanging on the browser's default ERR_TIMED_OUT.
+  const controller =
+    timeoutMs > 0 && typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+
   let res;
   try {
-    res = await fetchFn(url);
+    res = await fetchFn(url, controller ? { signal: controller.signal } : undefined);
   } catch (err) {
+    const timedOut = (controller && controller.signal.aborted) || err?.name === 'AbortError';
     throw new ApiError({
       kind: 'network',
-      message: err?.message || 'Network request failed',
+      message: timedOut
+        ? `${method}: request timed out after ${timeoutMs}ms`
+        : err?.message || 'Network request failed',
       raw: err,
     });
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 
   if (!res.ok) {

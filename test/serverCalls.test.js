@@ -184,6 +184,41 @@ test('request — fetch rejection surfaces as ApiError kind:network', async () =
   );
 });
 
+test('request — passes an AbortSignal to fetch so a hung shard can be aborted', async () => {
+  let received;
+  const fetchFn = async (url, opts) => {
+    received = opts;
+    return { ok: true, status: 200, async json() { return { success: true }; } };
+  };
+  await request('getuserdetails', CTX_BASE.playServer, {}, { fetchFn });
+  assert.ok(received && received.signal, 'expected an AbortSignal in the fetch options');
+});
+
+test('request — an aborted (timed-out) fetch surfaces as ApiError kind:network', async () => {
+  const abortErr = new Error('The operation was aborted');
+  abortErr.name = 'AbortError';
+  const { fetchFn } = makeFetchStub([{ throws: abortErr }]);
+  await assert.rejects(
+    () => request('getuserdetails', CTX_BASE.playServer, {}, { fetchFn, timeoutMs: 5000 }),
+    (err) => {
+      assert.ok(err instanceof ApiError);
+      assert.equal(err.kind, 'network');
+      assert.match(err.message, /timed out/);
+      return true;
+    }
+  );
+});
+
+test('request — timeoutMs:0 disables the abort controller (no signal passed)', async () => {
+  let received = 'unset';
+  const fetchFn = async (url, opts) => {
+    received = opts;
+    return { ok: true, status: 200, async json() { return { success: true }; } };
+  };
+  await request('getuserdetails', CTX_BASE.playServer, {}, { fetchFn, timeoutMs: 0 });
+  assert.equal(received, undefined);
+});
+
 test('request — non-2xx response surfaces as ApiError kind:http with status', async () => {
   const { fetchFn } = makeFetchStub([{ status: 502 }]);
   await assert.rejects(
